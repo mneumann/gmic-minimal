@@ -2534,17 +2534,18 @@ void process_image(const char *const commands_line, const bool is_apply) {
       else gimp_progress_pulse();
       cimg::wait(333);
 
+#if !defined(__MACOSX) && !defined(__APPLE)
       if (!(i%10)) { // Update memory usage.
         used_memory = 0;
 #if cimg_OS==2
         PROCESS_MEMORY_COUNTERS pmc;
         if (GetProcessMemoryInfo(GetCurrentProcess(),&pmc,sizeof(pmc)))
           used_memory = (unsigned long)(pmc.WorkingSetSize/1024/1024);
-#elif cimg_OS==1
+#elif cimg_OS==1 // #if cimg_OS==2
         CImg<char> st; st.load_raw("/proc/self/status",512); st.back() = 0;
         const char *const s = std::strstr(st,"VmRSS:");
         if (s && cimg_sscanf(s + 7,"%u",&used_memory)==1) used_memory/=1024;
-#endif
+#endif // #if cimg_OS==2
       }
 
       if (!(i%3)) {
@@ -2560,6 +2561,7 @@ void process_image(const char *const commands_line, const bool is_apply) {
                                         t,t!=1?"s":"");
       }
       ++i;
+#endif // #if !defined(__MACOSX) && !defined(__APPLE)
     }
 
     gimp_progress_update(1.0);
