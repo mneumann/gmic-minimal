@@ -67,9 +67,11 @@ endif
 ifeq ($(OS),Darwin)
 PLUGINDIR = ~/Library/Application\ Support/Gimp/plug-ins
 USR = /opt/local
+WGET = curl --silent -o
 else
 PLUGINDIR = `gimptool-2.0 --gimpplugindir`/plug-ins
 USR = /usr
+WGET = wget --quiet -O
 endif
 ifeq ($(OSTYPE),msys)
 EXE = .exe
@@ -365,16 +367,12 @@ gmic: gmic.cpp gmic.h gmic_stdlib.h CImg.h
 
 gmic_stdlib.h:
 	@echo "> Retrieve G'MIC Standard Library...\r"
-ifeq ($(OS),Darwin)
-	@curl gmic_stdlib.h http://gmic.eu/gmic_stdlib.h
-else
-	@wget --quiet -O gmic_stdlib.h http://gmic.eu/gmic_stdlib.h
-endif
+	@$(WGET) gmic_stdlib.h http://gmic.eu/gmic_stdlib.h
 	@touch gmic_stdlib.h
 	@echo ">   ...done!"
 CImg.h:
 	@echo "> Retrieve CImg Library..."
-	@if [ -f ../../CImg/CImg.h ]; then if [ ! -f ./CImg.h ]; then ln -s ../../CImg/CImg.h .; fi; else wget --quiet -O CImg.h https://github.com/dtschump/CImg/blob/master/CImg.h?raw=true; touch CImg.h; fi
+	@if [ -f ../../CImg/CImg.h ]; then if [ ! -f ./CImg.h ]; then ln -s ../../CImg/CImg.h .; fi; else $(WGET) CImg.h https://github.com/dtschump/CImg/blob/master/CImg.h?raw=true; touch CImg.h; fi
 	@echo ">   ...done!"
 
 # Generate gmic_stdlib.h file (requires 'gmic' to be installed first).
