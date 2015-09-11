@@ -45,9 +45,7 @@
 #define cimg_display_type 0
 #include "gmic.h"
 #include "gmic_stdlib.h"
-#if !defined(__MACOSX__) && !defined(__APPLE__)
 #include <pthread.h>
-#endif
 #include <locale>
 #include <gtk/gtk.h>
 #include <libgimp/gimp.h>
@@ -1799,24 +1797,20 @@ struct st_process_thread {
   const char *commands_line;
   float progress;
   bool is_abort;
-#if !defined(__MACOSX__) && !defined(__APPLE__)
   pthread_mutex_t is_running, wait_lock;
   pthread_cond_t wait_cond;
   pthread_t thread;
-#endif
 };
 
 // Thread that runs the G'MIC interpreter.
 void *process_thread(void *arg) {
   st_process_thread &spt = *(st_process_thread*)arg;
-#if !defined(__MACOSX__) && !defined(__APPLE__)
   if (spt.is_thread) {
     pthread_mutex_lock(&spt.is_running);
     pthread_mutex_lock(&spt.wait_lock);
     pthread_cond_signal(&spt.wait_cond);
     pthread_mutex_unlock(&spt.wait_lock);
   }
-#endif
   try {
     if (spt.verbosity_mode>1) {
       CImg<char> cl = CImg<char>::string(spt.commands_line);
@@ -1840,12 +1834,10 @@ void *process_thread(void *arg) {
       std::fflush(cimg::output());
     }
   }
-#if !defined(__MACOSX__) && !defined(__APPLE__)
   if (spt.is_thread) {
     pthread_mutex_unlock(&spt.is_running);
     pthread_exit(0);
   }
-#endif
   return 0;
 }
 
@@ -2525,14 +2517,11 @@ void process_image(const char *const commands_line, const bool is_apply) {
 
 #if defined(__MACOSX__) || defined(__APPLE__)
     const unsigned long stacksize = 8*1024*1024;
-#else // #if defined(__MACOSX__) || defined(__APPLE__)
-    const unsigned long stacksize = 4*1024*1024;
-#endif
     pthread_attr_t thread_attr;
     if (!pthread_attr_init(&thread_attr) && !pthread_attr_setstacksize(&thread_attr,stacksize))
-      // Reserve enough stack size for the new thread.
       pthread_create(&spt.thread,&thread_attr,process_thread,(void*)&spt);
     else
+#endif // #if defined(__MACOSX__) || defined(__APPLE__)
       pthread_create(&spt.thread,0,process_thread,(void*)&spt);
 
     pthread_cond_wait(&spt.wait_cond,&spt.wait_lock);  // Wait for the thread to lock the mutex.
@@ -3065,14 +3054,12 @@ void process_preview() {
 
 #if defined(__MACOSX__) || defined(__APPLE__)
     const unsigned long stacksize = 8*1024*1024;
-#else // #if defined(__MACOSX__) || defined(__APPLE__)
-    const unsigned long stacksize = 4*1024*1024;
-#endif
     pthread_attr_t thread_attr;
     if (!pthread_attr_init(&thread_attr) && !pthread_attr_setstacksize(&thread_attr,stacksize))
       // Reserve enough stack size for the new thread.
       pthread_create(&spt.thread,&thread_attr,process_thread,(void*)&spt);
     else
+#endif // #if defined(__MACOSX__) || defined(__APPLE__)
       pthread_create(&spt.thread,0,process_thread,(void*)&spt);
 
     pthread_cond_wait(&spt.wait_cond,&spt.wait_lock); // Wait for the thread to lock the mutex.
