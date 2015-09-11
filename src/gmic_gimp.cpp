@@ -2515,7 +2515,6 @@ void process_image(const char *const commands_line, const bool is_apply) {
   // Create processing thread and wait for its completion.
   bool is_abort = spt.is_abort = false;
   if (run_mode!=GIMP_RUN_NONINTERACTIVE) {
-#if !defined(__MACOSX__) && !defined(__APPLE__)
     const unsigned long time0 = cimg::time();
     cimg::mutex(25); p_spt = (void*)&spt; cimg::mutex(25,0);
     spt.is_thread = true;
@@ -2523,7 +2522,19 @@ void process_image(const char *const commands_line, const bool is_apply) {
     pthread_mutex_init(&spt.wait_lock,0);
     pthread_cond_init(&spt.wait_cond,0);
     pthread_mutex_lock(&spt.wait_lock);
-    pthread_create(&(spt.thread),0,process_thread,(void*)&spt);
+
+#if defined(__MACOSX__) || defined(__APPLE__)
+    const unsigned long stacksize = 8*1024*1024;
+#else // #if defined(__MACOSX__) || defined(__APPLE__)
+    const unsigned long stacksize = 4*1024*1024;
+#endif
+    pthread_attr_t thread_attr;
+    if (!pthread_attr_init(&thread_attr) && !pthread_attr_setstacksize(&thread_attr,stacksize))
+      // Reserve enough stack size for the new thread.
+      pthread_create(&spt.thread,&thread_attr,process_thread,(void*)&spt);
+    else
+      pthread_create(&spt.thread,0,process_thread,(void*)&spt);
+
     pthread_cond_wait(&spt.wait_cond,&spt.wait_lock);  // Wait for the thread to lock the mutex.
     pthread_mutex_unlock(&spt.wait_lock);
     pthread_mutex_destroy(&spt.wait_lock);
@@ -2568,11 +2579,6 @@ void process_image(const char *const commands_line, const bool is_apply) {
     pthread_mutex_destroy(&spt.is_running);
     is_abort = spt.is_abort;
     cimg::mutex(25); p_spt = (void*)0; cimg::mutex(25,0);
-#else
-    gimp_progress_update(0.5);
-    process_thread(&spt);
-    gimp_progress_update(1.0);
-#endif
   } else {
     spt.is_thread = false;
     process_thread(&spt);
@@ -3050,14 +3056,25 @@ void process_preview() {
     else original_preview.assign(wp,hp,1,4,0);
 
     bool is_abort = spt.is_abort = false;
-#if !defined(__MACOSX__) && !defined(__APPLE__)
     cimg::mutex(25); p_spt = (void*)&spt; cimg::mutex(25,0);
     spt.is_thread = true;
     pthread_mutex_init(&spt.is_running,0);
     pthread_mutex_init(&spt.wait_lock,0);
     pthread_cond_init(&spt.wait_cond,0);
     pthread_mutex_lock(&spt.wait_lock);
-    pthread_create(&(spt.thread),0,process_thread,(void*)&spt);
+
+#if defined(__MACOSX__) || defined(__APPLE__)
+    const unsigned long stacksize = 8*1024*1024;
+#else // #if defined(__MACOSX__) || defined(__APPLE__)
+    const unsigned long stacksize = 4*1024*1024;
+#endif
+    pthread_attr_t thread_attr;
+    if (!pthread_attr_init(&thread_attr) && !pthread_attr_setstacksize(&thread_attr,stacksize))
+      // Reserve enough stack size for the new thread.
+      pthread_create(&spt.thread,&thread_attr,process_thread,(void*)&spt);
+    else
+      pthread_create(&spt.thread,0,process_thread,(void*)&spt);
+
     pthread_cond_wait(&spt.wait_cond,&spt.wait_lock); // Wait for the thread to lock the mutex.
     pthread_mutex_unlock(&spt.wait_lock);
     pthread_mutex_destroy(&spt.wait_lock);
@@ -3074,11 +3091,6 @@ void process_preview() {
     pthread_mutex_destroy(&spt.is_running);
     is_abort = spt.is_abort;
     cimg::mutex(25); p_spt = (void*)0; cimg::mutex(25,0);
-#else
-    gimp_progress_update(0.5);
-    process_thread(&spt);
-    gimp_progress_update(1.0);
-#endif
     if (is_abort) return;
 
     // Manage possible errors.
