@@ -4129,7 +4129,7 @@ CImg<char> gmic::substitute_item(const char *const source,
               bool _is_debug = is_debug;
               verbosity = -1; is_debug = false;
               CImg<char> _status;
-              status.move_to(_status); // Save status because 'selection2cimg' can change it.
+              status.move_to(_status); // Save status because 'selection2cimg' may change it.
               try {
                 const CImg<unsigned int>
                   inds = selection2cimg(subset,img.size(),
