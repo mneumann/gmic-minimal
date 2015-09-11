@@ -9320,7 +9320,6 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
 #endif // #if cimg_OS!=2
 #else // #ifdef gmic_is_parallel
               gmic_parallel<T>((void*)&_threads_data[l]);
-
 #endif // #ifdef gmic_is_parallel
             }
 
