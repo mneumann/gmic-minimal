@@ -8114,12 +8114,12 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
           // Set 3d rendering modes.
           if (!std::strcmp("-mode3d",item)) {
             gmic_substitute_args();
-            int mode = 4;
-            if (cimg_sscanf(argument,"%d%c",
+            float mode = 4;
+            if (cimg_sscanf(argument,"%f%c",
                             &mode,&end)==1 &&
-                mode>=-1 && mode<=5) ++position;
+                (mode=cimg::round(mode))>=-1 && mode<=5) ++position;
             else mode = 4;
-            render3d = mode;
+            render3d = (int)mode;
             print(images,0,"Set static 3d rendering mode to %s.",
                   render3d==-1?"bounding-box":
                   render3d==0?"pointwise":render3d==1?"linear":render3d==2?"flat":
@@ -8130,12 +8130,12 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
 
           if (!std::strcmp("-moded3d",item)) {
             gmic_substitute_args();
-            int mode = -1;
-            if (cimg_sscanf(argument,"%d%c",
+            float mode = -1;
+            if (cimg_sscanf(argument,"%f%c",
                             &mode,&end)==1 &&
-                mode>=-1 && mode<=5) ++position;
+                (mode=cimg::round(mode))>=-1 && mode<=5) ++position;
             else mode = -1;
-            renderd3d = mode;
+            renderd3d = (int)mode;
             print(images,0,"Set dynamic 3d rendering mode to %s.",
                   renderd3d==-1?"bounding-box":
                   renderd3d==0?"pointwise":renderd3d==1?"linear":renderd3d==2?"flat":
