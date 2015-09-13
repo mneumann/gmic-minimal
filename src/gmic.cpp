@@ -2592,7 +2592,7 @@ CImg<char> gmic::callstack2string(const CImg<unsigned int> *const callstack_sele
   else cimg_forY(*callstack_selection,l) input_callstack.insert(callstack[(*callstack_selection)[l]],~0U,true);
   CImgList<char> res;
   const unsigned int siz = (unsigned int)input_callstack.size();
-  if (siz<=9) res.assign(input_callstack,false);
+  if (siz<=9 || is_debug) res.assign(input_callstack,false);
   else {
     res.assign(9);
     res[0].assign(input_callstack[0],false);
