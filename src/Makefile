@@ -59,11 +59,6 @@ endif
 ifeq ($(OS),GNU)
 OS = Unix
 endif
-ifndef NO_STRIP
-STRIP=strip
-else
-STRIP=echo Skip strip
-endif
 ifeq ($(OS),Darwin)
 PLUGINDIR = ~/Library/Application\ Support/Gimp/plug-ins
 USR = /opt/local
@@ -79,6 +74,7 @@ endif
 LIB=lib
 BIN=bin
 INCLUDE=include
+STRIP=strip
 
 #----------------------------------
 # Define flags to customize builds.
