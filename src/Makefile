@@ -74,7 +74,11 @@ endif
 LIB=lib
 BIN=bin
 INCLUDE=include
+ifdef NOSTRIP
+STRIP=echo skip strip
+else
 STRIP=strip
+endif
 
 #----------------------------------
 # Define flags to customize builds.
