@@ -83,6 +83,9 @@ FilterThread::FilterThread(ImageSource & imageSource,
 {
   setCommand(command);
   setFPS(fps);
+#ifdef _IS_MACOS_
+  setStackSize(8*1024*1024);
+#endif
 }
 
 FilterThread::~FilterThread()

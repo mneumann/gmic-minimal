@@ -102,7 +102,11 @@ RCC_DIR = .qrc
 OBJECTS_DIR = .obj
 
 unix:!macx {
-	DEFINES += _IS_UNIX_
+    DEFINES += _IS_UNIX_
+}
+
+macx {
+    DEFINES += _IS_MACOS_
 }
 
 DEFINES += cimg_display=0
