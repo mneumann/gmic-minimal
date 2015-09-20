@@ -2947,7 +2947,7 @@ gmic& gmic::add_commands(const char *const data_commands,
                   "Distribution of command hashes: [ %s ], min = %u, max = %u, mean = %g, std = %g.",
                   hdist.value_string().data(),(unsigned int)st[0],(unsigned int)st[1],st[2],
                   std::sqrt(st[3]));
-    gmic::ellipsize(com,512,false);
+    ellipsize(com,512,false);
     debug("%s",com.data());
   }
   return *this;
@@ -3980,7 +3980,7 @@ CImg<char> gmic::substitute_item(const char *const source,
               const char *const e_ptr = std::strstr(e.what(),": ");
               error(images,0,0,
                     "Item substitution '{`%s`}': %s",
-                    inbraces.data() + 1,e_ptr?e_ptr + 2:e.what());
+                    ellipsize(inbraces.data() + 1,64,false),e_ptr?e_ptr + 2:e.what());
             }
           }
           *substr = 0; is_substituted = true;
@@ -4017,11 +4017,11 @@ CImg<char> gmic::substitute_item(const char *const source,
               if (images.width())
                 error(images,0,0,
                       "Item substitution '{%s}': Invalid selection [%d] (not in range -%u...%u).",
-                      inbraces.data(),ind,images.size(),images.size() - 1);
+                      ellipsize(inbraces,64,false),ind,images.size(),images.size() - 1);
               else
                 error(images,0,0,
                       "Item substitution '{%s}': Invalid selection [%d] (no image data available).",
-                      inbraces.data(),ind);
+                      ellipsize(inbraces,64,false),ind);
             }
             while (*feature!=',') ++feature; ++feature;
           } else if (cimg_sscanf(inbraces,"%255[a-zA-Z0-9_]%c",substr.assign(256).data(),&(sep=0))==2 && sep==',') {
@@ -4031,7 +4031,7 @@ CImg<char> gmic::substitute_item(const char *const source,
             if (_ind.height()!=1)
               error(images,0,0,
                     "Item substitution '{%s}': Invalid selection [%s], specifies multiple images.",
-                    inbraces.data(),substr.data());
+                    ellipsize(inbraces,64,false),substr.data());
             ind = (int)*_ind;
             while (*feature!=',') ++feature; ++feature;
           } else ind = images.width() - 1;
@@ -4041,7 +4041,7 @@ CImg<char> gmic::substitute_item(const char *const source,
           if (!*feature)
             error(images,0,0,
                   "Item substitution '{%s}': Request for empty feature.",
-                  inbraces.data());
+                  ellipsize(inbraces,64,false));
 
           if (!feature[1]) switch (*feature) { // Single-char feature.
             case 'b' : { // Image basename.
@@ -4153,7 +4153,7 @@ CImg<char> gmic::substitute_item(const char *const source,
                 const char *const e_ptr = std::strstr(e.what(),": ");
                 error(images,0,0,
                       "Item substitution '{%s}': %s",
-                      inbraces.data(),e_ptr?e_ptr + 2:e.what());
+                      ellipsize(inbraces,64,false),e_ptr?e_ptr + 2:e.what());
               }
               _status.move_to(status);
               verbosity = _verbosity; is_debug = _is_debug;
@@ -4178,7 +4178,7 @@ CImg<char> gmic::substitute_item(const char *const source,
               const char *const e_ptr = std::strstr(e.what(),": ");
               error(images,0,0,
                     "Item substitution '{%s}': %s",
-                    inbraces.data(),e_ptr?e_ptr + 2:e.what());
+                    ellipsize(inbraces,64,false),e_ptr?e_ptr + 2:e.what());
             }
           }
         }
