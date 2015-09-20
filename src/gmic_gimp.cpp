@@ -2516,6 +2516,7 @@ void process_image(const char *const commands_line, const bool is_apply) {
     pthread_mutex_lock(&spt.wait_lock);
 
 #if defined(__MACOSX__) || defined(__APPLE__)
+    cimg::unused(time0);
     const unsigned long stacksize = 8*1024*1024;
     pthread_attr_t thread_attr;
     if (!pthread_attr_init(&thread_attr) && !pthread_attr_setstacksize(&thread_attr,stacksize))
@@ -2529,6 +2530,7 @@ void process_image(const char *const commands_line, const bool is_apply) {
     pthread_mutex_destroy(&spt.wait_lock);
 
     unsigned int i = 0, used_memory = 0;
+    cimg::unused(i,used_memory);
     while (pthread_mutex_trylock(&spt.is_running)) {
       if (spt.progress>=0) gimp_progress_update(cimg::min(1.0,spt.progress/100.0));
       else gimp_progress_pulse();
