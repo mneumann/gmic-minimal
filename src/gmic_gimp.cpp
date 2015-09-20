@@ -2534,7 +2534,7 @@ void process_image(const char *const commands_line, const bool is_apply) {
       else gimp_progress_pulse();
       cimg::wait(333);
 
-#if !defined(__MACOSX) && !defined(__APPLE)
+#if !defined(__MACOSX__) && !defined(__APPLE__)
       if (!(i%10)) { // Update memory usage.
         used_memory = 0;
 #if cimg_OS==2
