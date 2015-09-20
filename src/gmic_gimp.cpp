@@ -2561,7 +2561,7 @@ void process_image(const char *const commands_line, const bool is_apply) {
                                         t,t!=1?"s":"");
       }
       ++i;
-#endif // #if !defined(__MACOSX) && !defined(__APPLE)
+#endif // #if !defined(__MACOSX__) && !defined(__APPLE__)
     }
 
     gimp_progress_update(1.0);
