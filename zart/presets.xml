@@ -4542,7 +4542,7 @@ these layers are passed to the filter.&lt;br/&gt;
   <command>
 -gimp_equation_plot $"*"
   </command>
-  <text name="F(x)" default="X*c+10*cos(X+c+?)" />
+  <text name="F(x)" default="X*c+10*cos(X+c+u)" />
   <float name="X-min" default="-10" min="-100" max="100" />
   <float name="X-max" default="10" min="-100" max="100" />
   <int name="Resolution" default="100" min="2" max="1024" />
