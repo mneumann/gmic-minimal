@@ -4031,7 +4031,12 @@ void gmic_run(const gchar *name, gint nparams, const GimpParam *param,
   if (ps) resize_preview(get_preview_size(true));
   else { // Try to guess best preview size.
     unsigned int h = 0;
-    try { h = CImgDisplay::screen_height(); } catch (...) {}
+    try {
+      const unsigned int cimg_exception_mode = cimg::exception_mode();
+      cimg::exception_mode(0);
+      h = CImgDisplay::screen_height();
+      cimg::exception_mode(cimg_exception_mode);
+    } catch (...) { h = 800; }
     const unsigned int bps = h>=1024?4:h>=800?3:0;
     if (bps) { set_preview_size(bps); resize_preview(get_preview_size(true)); }
   }

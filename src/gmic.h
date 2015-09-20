@@ -163,6 +163,9 @@ static struct cimg_is_abort {
 #define cimg_test_abort() if (*_cimg_is_abort.ptr) throw CImgAbortException("")
 #endif // #ifdef cimg_use_openmp
 #endif // #ifdef cimg_use_abort
+#ifndef cimg_display
+#define cimg_display 0
+#endif // #ifndef cimg_display
 #include "./CImg.h"
 
 #if cimg_OS==2

@@ -2440,11 +2440,19 @@ char *gmic::ellipsize(const char *const s, char *const res, const unsigned int l
 
 // Constructors / destructors.
 //----------------------------
+#if cimg_display!=0
 #define gmic_new_attr commands(new CImgList<char>[512]), commands_names(new CImgList<char>[512]), \
     commands_has_arguments(new CImgList<char>[512]), \
     _variables(new CImgList<char>[512]), _variables_names(new CImgList<char>[512]), \
     variables(new CImgList<char>*[512]), variables_names(new CImgList<char>*[512]), \
     display_window(new CImgDisplay[10]), is_running(false)
+#else
+#define gmic_new_attr commands(new CImgList<char>[512]), commands_names(new CImgList<char>[512]), \
+    commands_has_arguments(new CImgList<char>[512]), \
+    _variables(new CImgList<char>[512]), _variables_names(new CImgList<char>[512]), \
+    variables(new CImgList<char>*[512]), variables_names(new CImgList<char>*[512]), \
+    display_window(0), is_running(false)
+#endif // #if cimg_display!=0
 
 CImg<char> gmic::stdlib = CImg<char>::empty();
 
@@ -2467,8 +2475,11 @@ gmic::gmic(const char *const commands_line, const char *const custom_commands,
 }
 
 gmic::~gmic() {
-  CImgDisplay *const _display_window = (CImgDisplay*)display_window;
   cimg::exception_mode(cimg_exception_mode);
+#if cimg_display!=0
+  CImgDisplay *const _display_window = (CImgDisplay*)display_window;
+  delete[] _display_window;
+#endif
   delete[] commands;
   delete[] commands_names;
   delete[] commands_has_arguments;
@@ -2476,7 +2487,6 @@ gmic::~gmic() {
   delete[] _variables_names;
   delete[] variables;
   delete[] variables_names;
-  delete[] _display_window;
 }
 
 // Uncompress G'MIC standard library commands.
