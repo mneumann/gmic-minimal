@@ -5113,7 +5113,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
                     is_filename?(is_cond?"found":"not found"):(is_cond?"true":"false"));
             if (!is_cond) {
               if (is_first_item && callstack.size()>1 && callstack.back()[0]!='*')
-                gmic::error(images,0,callstack.back(),"Command '-%s': Invalid arguments '%s'.",
+                gmic::error(images,0,callstack.back(),"Command '-%s': Invalid argument '%s'.",
                             callstack.back().data(),_gmic_argument_text(parent_arguments,argument_text,true));
               else error(images,0,0,
                          "Command '-check': Expression '%s' is false (and no file with this name exists).",
