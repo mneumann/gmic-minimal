@@ -2113,7 +2113,7 @@ void gmic::_gmic_substitute_args(const char *const argument, const char *const a
 
 // Macro for computing a readable version of a command argument.
 inline char *_gmic_argument_text(const char *const argument, CImg<char>& argument_text, const bool is_verbose) {
-  if (is_verbose) return gmic::ellipsize(argument,argument_text,80,false);
+  if (is_verbose) return cimg::strellipsize(argument,argument_text,80,false);
   else return &(*argument_text=0);
 }
 
@@ -2405,39 +2405,6 @@ char *gmic::strreplace_bw(char *const str) {
   return str;
 }
 
-// Ellipsize a string.
-char *gmic::ellipsize(char *const s, const unsigned int l,
-                      const bool is_ending) { // Work in-place.
-  if (!s) return s;
-  const unsigned int nl = l<5?5:l, ls = (unsigned int)std::strlen(s);
-  if (ls<=nl) return s;
-  if (is_ending) std::strcpy(s + nl - 5,"(...)");
-  else {
-    const unsigned int ll = (nl - 5)/2 + 1 - (nl%2), lr = nl - ll - 5;
-    std::strcpy(s + ll,"(...)");
-    std::memmove(s + ll + 5,s + ls - lr,lr);
-  }
-  s[nl] = 0;
-  return s;
-}
-
-char *gmic::ellipsize(const char *const s, char *const res, const unsigned int l,
-                      const bool is_ending) { // Return a new string.
-  const unsigned int nl = l<5?5:l, ls = (unsigned int)std::strlen(s);
-  if (ls<=nl) { std::strcpy(res,s); return res; }
-  if (is_ending) {
-    std::strncpy(res,s,nl - 5);
-    std::strcpy(res + nl -5,"(...)");
-  } else {
-    const unsigned int ll = (nl - 5)/2 + 1 - (nl%2), lr = nl - ll - 5;
-    std::strncpy(res,s,ll);
-    std::strcpy(res + ll,"(...)");
-    std::strncpy(res + ll + 5,s + ls - lr,lr);
-  }
-  res[nl] = 0;
-  return res;
-}
-
 // Constructors / destructors.
 //----------------------------
 #if cimg_display!=0
@@ -2716,7 +2683,7 @@ gmic& gmic::print(const char *format, ...) {
   message[message.width() - 2] = 0;
   cimg_vsnprintf(message,message.width(),format,ap);
   strreplace_fw(message);
-  if (message[message.width() - 2]) ellipsize(message,message.width() - 2);
+  if (message[message.width() - 2]) cimg::strellipsize(message,message.width() - 2);
   va_end(ap);
 
   // Display message.
@@ -2741,7 +2708,7 @@ gmic& gmic::error(const char *const format, ...) {
   message[message.width() - 2] = 0;
   cimg_vsnprintf(message,message.width(),format,ap);
   strreplace_fw(message);
-  if (message[message.width() - 2]) ellipsize(message,message.width() - 2);
+  if (message[message.width() - 2]) cimg::strellipsize(message,message.width() - 2);
   va_end(ap);
 
   // Display message.
@@ -2790,7 +2757,7 @@ gmic& gmic::debug(const char *format, ...) {
   CImg<char> message(1024);
   message[message.width() - 2] = 0;
   cimg_vsnprintf(message,message.width(),format,ap);
-  if (message[message.width() - 2]) ellipsize(message,message.width() - 2);
+  if (message[message.width() - 2]) cimg::strellipsize(message,message.width() - 2);
   va_end(ap);
 
   // Display message.
@@ -2947,7 +2914,7 @@ gmic& gmic::add_commands(const char *const data_commands,
                   "Distribution of command hashes: [ %s ], min = %u, max = %u, mean = %g, std = %g.",
                   hdist.value_string().data(),(unsigned int)st[0],(unsigned int)st[1],st[2],
                   std::sqrt(st[3]));
-    ellipsize(com,512,false);
+    cimg::strellipsize(com,512,false);
     debug("%s",com.data());
   }
   return *this;
@@ -3178,7 +3145,7 @@ gmic& gmic::print(const CImgList<T>& list, const CImg<unsigned int> *const calls
   message[message.width() - 2] = 0;
   cimg_vsnprintf(message,message.width(),format,ap);
   strreplace_fw(message);
-  if (message[message.width() - 2]) ellipsize(message,message.width() - 2);
+  if (message[message.width() - 2]) cimg::strellipsize(message,message.width() - 2);
   va_end(ap);
 
   // Display message.
@@ -3208,7 +3175,7 @@ gmic& gmic::warn(const CImgList<T>& list, const CImg<unsigned int> *const callst
   message[message.width() - 2] = 0;
   cimg_vsnprintf(message,message.width(),format,ap);
   strreplace_fw(message);
-  if (message[message.width() - 2]) ellipsize(message,message.width() - 2);
+  if (message[message.width() - 2]) cimg::strellipsize(message,message.width() - 2);
   va_end(ap);
 
   // Display message.
@@ -3249,7 +3216,7 @@ gmic& gmic::error(const CImgList<T>& list, const CImg<unsigned int> *const calls
   cimg_vsnprintf(message,message.width(),format,ap);
 
   strreplace_fw(message);
-  if (message[message.width() - 2]) ellipsize(message,message.width() - 2);
+  if (message[message.width() - 2]) cimg::strellipsize(message,message.width() - 2);
   va_end(ap);
 
   // Display message.
@@ -3306,7 +3273,7 @@ gmic& gmic::debug(const CImgList<T>& list, const char *format, ...) {
   CImg<char> message(1024);
   message[message.width() - 2] = 0;
   cimg_vsnprintf(message,message.width(),format,ap);
-  if (message[message.width() - 2]) ellipsize(message,message.width() - 2);
+  if (message[message.width() - 2]) cimg::strellipsize(message,message.width() - 2);
   va_end(ap);
 
   // Display message.
@@ -3501,7 +3468,7 @@ gmic& gmic::print_images(const CImgList<T>& images, const CImgList<char>& images
     CImg<char> gmic_selection, gmic_names;
     selection2string(selection,images_names,1,is_verbose,gmic_selection);
     selection2string(selection,images_names,2,is_verbose,gmic_names);
-    ellipsize(gmic_names,80,false);
+    cimg::strellipsize(gmic_names,80,false);
     print(images,0,"Print image%s = '%s'.\n",
           gmic_selection.data(),gmic_names.data());
   }
@@ -3516,7 +3483,7 @@ gmic& gmic::print_images(const CImgList<T>& images, const CImgList<char>& images
       verbosity = _verbosity; is_debug = _is_debug;
       cimg_snprintf(title,title.width(),"[%u] = '%s'",
                     uind,images_names[uind].data());
-      ellipsize(title,80,false);
+      cimg::strellipsize(title,80,false);
       img.gmic_print(title,is_debug,is_valid);
     }
   nb_carriages = 0;
@@ -3584,7 +3551,7 @@ gmic& gmic::display_images(const CImgList<T>& images, const CImgList<char>& imag
 
   CImg<char> gmic_names;
   selection2string(selection,images_names,2,(bool)visu,gmic_names);
-  ellipsize(gmic_names,80,false);
+  cimg::strellipsize(gmic_names,80,false);
 
   print(images,0,"Display image%s = '%s'",gmic_selection.data(),gmic_names.data());
   if (is_verbose) {
@@ -3604,7 +3571,7 @@ gmic& gmic::display_images(const CImgList<T>& images, const CImgList<char>& imag
     else
       cimg_snprintf(title,title.width(),"%s (%u)",
                     gmic_names.data(),visu.size());
-    ellipsize(title,80,false);
+    cimg::strellipsize(title,80,false);
     CImg<bool> is_shared(visu.size());
     cimglist_for(visu,l) {
       is_shared[l] = visu[l].is_shared();
@@ -3980,7 +3947,7 @@ CImg<char> gmic::substitute_item(const char *const source,
               const char *const e_ptr = std::strstr(e.what(),": ");
               error(images,0,0,
                     "Item substitution '{`%s`}': %s",
-                    ellipsize(inbraces.data() + 1,64,false),e_ptr?e_ptr + 2:e.what());
+                    cimg::strellipsize(inbraces.data() + 1,64,false),e_ptr?e_ptr + 2:e.what());
             }
           }
           *substr = 0; is_substituted = true;
@@ -4017,11 +3984,11 @@ CImg<char> gmic::substitute_item(const char *const source,
               if (images.width())
                 error(images,0,0,
                       "Item substitution '{%s}': Invalid selection [%d] (not in range -%u...%u).",
-                      ellipsize(inbraces,64,false),ind,images.size(),images.size() - 1);
+                      cimg::strellipsize(inbraces,64,false),ind,images.size(),images.size() - 1);
               else
                 error(images,0,0,
                       "Item substitution '{%s}': Invalid selection [%d] (no image data available).",
-                      ellipsize(inbraces,64,false),ind);
+                      cimg::strellipsize(inbraces,64,false),ind);
             }
             while (*feature!=',') ++feature; ++feature;
           } else if (cimg_sscanf(inbraces,"%255[a-zA-Z0-9_]%c",substr.assign(256).data(),&(sep=0))==2 && sep==',') {
@@ -4031,7 +3998,7 @@ CImg<char> gmic::substitute_item(const char *const source,
             if (_ind.height()!=1)
               error(images,0,0,
                     "Item substitution '{%s}': Invalid selection [%s], specifies multiple images.",
-                    ellipsize(inbraces,64,false),substr.data());
+                    cimg::strellipsize(inbraces,64,false),substr.data());
             ind = (int)*_ind;
             while (*feature!=',') ++feature; ++feature;
           } else ind = images.width() - 1;
@@ -4041,7 +4008,7 @@ CImg<char> gmic::substitute_item(const char *const source,
           if (!*feature)
             error(images,0,0,
                   "Item substitution '{%s}': Request for empty feature.",
-                  ellipsize(inbraces,64,false));
+                  cimg::strellipsize(inbraces,64,false));
 
           if (!feature[1]) switch (*feature) { // Single-char feature.
             case 'b' : { // Image basename.
@@ -4153,7 +4120,7 @@ CImg<char> gmic::substitute_item(const char *const source,
                 const char *const e_ptr = std::strstr(e.what(),": ");
                 error(images,0,0,
                       "Item substitution '{%s}': %s",
-                      ellipsize(inbraces,64,false),e_ptr?e_ptr + 2:e.what());
+                      cimg::strellipsize(inbraces,64,false),e_ptr?e_ptr + 2:e.what());
               }
               _status.move_to(status);
               verbosity = _verbosity; is_debug = _is_debug;
@@ -4178,7 +4145,7 @@ CImg<char> gmic::substitute_item(const char *const source,
               const char *const e_ptr = std::strstr(e.what(),": ");
               error(images,0,0,
                     "Item substitution '{%s}': %s",
-                    ellipsize(inbraces,64,false),e_ptr?e_ptr + 2:e.what());
+                    cimg::strellipsize(inbraces,64,false),e_ptr?e_ptr + 2:e.what());
             }
           }
         }

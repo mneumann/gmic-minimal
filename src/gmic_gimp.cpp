@@ -2448,14 +2448,14 @@ void process_image(const char *const commands_line, const bool is_apply) {
        !std::strncmp(_commands_line,"-v 0 ",5)?5:
        !std::strncmp(_commands_line,"-debug ",7)?7:0);
     cimg_snprintf(new_label,new_label.width(),"[G'MIC] %s: %s",gtk_label_get_text(GTK_LABEL(markup2ascii)),cl);
-    gmic::ellipsize(new_label,240,false);
+    cimg::strellipsize(new_label,240,false);
     gtk_widget_destroy(markup2ascii);
   } else {
     cimg_snprintf(new_label,new_label.width(),"G'MIC: %s...",_commands_line);
-    gmic::ellipsize(new_label,240,false);
+    cimg::strellipsize(new_label,240,false);
     gimp_progress_init_printf("%s",new_label.data());
     cimg_snprintf(new_label,new_label.width(),"[G'MIC]: %s",_commands_line);
-    gmic::ellipsize(new_label,240,false);
+    cimg::strellipsize(new_label,240,false);
   }
 
   // Get input layers for the chosen filter.
