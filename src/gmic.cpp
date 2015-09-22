@@ -10483,13 +10483,13 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
                     gmic_selection.data());
               cimg_forY(selection,l) {
                 CImg<T>& img = images[selection[l]];
+                nvalue0 = cimg::round(sep0=='%'?a0*(img.width() - 1)/100:a0);
+                nvalue1 = cimg::round(sep1=='%'?a1*(img.width() - 1)/100:a1);
                 const unsigned int
-                  s0 = (unsigned int)cimg::round(sep0=='%'?a0*(img.width() - 1)/100:a0),
-                  s1 = (unsigned int)cimg::round(sep1=='%'?a1*(img.width() - 1)/100:a1),
                   y =  (unsigned int)cimg::round(sep2=='%'?a2*(img.height() - 1)/100:a2),
                   z =  (unsigned int)cimg::round(sep3=='%'?a3*(img.depth() - 1)/100:a3),
                   c =  (unsigned int)cimg::round(sep4=='%'?a4*(img.spectrum() - 1)/100:a4);
-                images.insert(img.get_shared_points(s0,s1,y,z,c),~0U,true);
+                images.insert(img.get_shared_points((unsigned int)nvalue0,(unsigned int)nvalue1,y,z,c),~0U,true);
                 images_names.insert(images_names[selection[l]].get_copymark());
               }
               ++position;
@@ -10514,12 +10514,12 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
                     gmic_selection.data());
               cimg_forY(selection,l) {
                 CImg<T>& img = images[selection[l]];
+                nvalue0 = cimg::round(sep0=='%'?a0*(img.height() - 1)/100:a0);
+                nvalue1 = cimg::round(sep1=='%'?a1*(img.height() - 1)/100:a1);
                 const unsigned int
-                  s0 = (unsigned int)cimg::round(sep0=='%'?a0*(img.height() - 1)/100:a0),
-                  s1 = (unsigned int)cimg::round(sep1=='%'?a1*(img.height() - 1)/100:a1),
                   z =  (unsigned int)cimg::round(sep2=='%'?a2*(img.depth() - 1)/100:a2),
                   c =  (unsigned int)cimg::round(sep3=='%'?a3*(img.spectrum() - 1)/100:a3);
-                images.insert(img.get_shared_rows(s0,s1,z,c),~0U,true);
+                images.insert(img.get_shared_rows((unsigned int)nvalue0,(unsigned int)nvalue1,z,c),~0U,true);
                 images_names.insert(images_names[selection[l]].get_copymark());
               }
               ++position;
@@ -10539,11 +10539,11 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
                     gmic_selection.data());
               cimg_forY(selection,l) {
                 CImg<T>& img = images[selection[l]];
+                nvalue0 = cimg::round(sep0=='%'?a0*(img.depth() - 1)/100:a0);
+                nvalue1 = cimg::round(sep1=='%'?a1*(img.depth() - 1)/100:a1);
                 const unsigned int
-                  s0 = (unsigned int)cimg::round(sep0=='%'?a0*(img.depth() - 1)/100:a0),
-                  s1 = (unsigned int)cimg::round(sep1=='%'?a1*(img.depth() - 1)/100:a1),
                   c =  (unsigned int)cimg::round(sep2=='%'?a2*(img.spectrum() - 1)/100:a2);
-                images.insert(img.get_shared_slices(s0,s1,c),~0U,true);
+                images.insert(img.get_shared_slices((unsigned int)nvalue0,(unsigned int)nvalue1,c),~0U,true);
                 images_names.insert(images_names[selection[l]].get_copymark());
               }
               ++position;
@@ -10560,10 +10560,24 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
                     gmic_selection.data());
               cimg_forY(selection,l) {
                 CImg<T>& img = images[selection[l]];
-                const unsigned int
-                  s0 = (unsigned int)cimg::round(sep0=='%'?a0*(img.spectrum() - 1)/100:a0),
-                  s1 = (unsigned int)cimg::round(sep1=='%'?a1*(img.spectrum() - 1)/100:a1);
-                images.insert(img.get_shared_channels(s0,s1),~0U,true);
+                nvalue0 = cimg::round(sep0=='%'?a0*(img.spectrum() - 1)/100:a0);
+                nvalue1 = cimg::round(sep1=='%'?a1*(img.spectrum() - 1)/100:a1);
+                images.insert(img.get_shared_channels((unsigned int)nvalue0,(unsigned int)nvalue1),~0U,true);
+                images_names.insert(images_names[selection[l]].get_copymark());
+              }
+              ++position;
+            } else if (cimg_sscanf(argument,"%255[0-9.eE%+]%c",
+                                   st0.data(),&end)==1 &&
+                       (cimg_sscanf(st0,"%f%c",&a0,&end)==1 ||
+                        (cimg_sscanf(st0,"%f%c%c",&a0,&sep0,&end)==2 && sep0=='%'))) {
+              print(images,0,"Insert shared buffer%s from channel %g%s of image%s.",
+                    selection.height()>1?"s":"",
+                    a0,sep0=='%'?"%":"",
+                    gmic_selection.data());
+              cimg_forY(selection,l) {
+                CImg<T>& img = images[selection[l]];
+                nvalue0 = cimg::round(sep0=='%'?a0*(img.spectrum() - 1)/100:a0);
+                images.insert(img.get_shared_channel((unsigned int)nvalue0),~0U,true);
                 images_names.insert(images_names[selection[l]].get_copymark());
               }
               ++position;
