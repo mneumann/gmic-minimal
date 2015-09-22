@@ -4751,7 +4751,6 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
           // Autocrop.
           if (!std::strcmp("-autocrop",command)) {
             gmic_substitute_args();
-            g_img.assign();
             if (*argument && cimg_sscanf(argument,"%4095[0-9.,eEinfa+-]%c",formula,&end)==1)
               try { CImg<T>(1).fill(argument,true,false).move_to(g_img); }
               catch (CImgException&) { g_img.assign(); }
@@ -4769,6 +4768,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
                 gmic_apply(gmic_autocrop(g_img));
               } else gmic_apply(gmic_autocrop());
             }
+            g_img.assign();
             is_released = false; continue;
           }
 
@@ -5462,6 +5462,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
               }
 #endif // #if cimg_display==0
             }
+            g_img_uc.assign();
             is_released = false; continue;
           }
 
@@ -6551,6 +6552,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
                 }
               }
             } else arg_error("ellipse");
+            g_img.assign();
             is_released = false; ++position; continue;
           }
 
@@ -6840,6 +6842,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
                 gmic_apply(draw_fill(nx,ny,nz,g_img.data(),opacity,tolerance,(bool)is_high_connectivity));
               }
             } else arg_error("flood");
+            g_img.assign();
             is_released = false; ++position; continue;
           }
 
@@ -7107,6 +7110,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
                 gmic_apply(draw_graph(values,g_img.data(),opacity,plot_type,vertex_type,ymin,ymax,pattern));
               }
             } else arg_error("graph");
+            g_img.assign();
             is_released = false; ++position; continue;
           }
 
@@ -7378,7 +7382,6 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
                   vertices.assign();
                   primitives.assign();
                   g_list_uc.assign();
-                  g_img_uc.assign();
                   g_img_uc.assign(3,img.spectrum(),1,1,220).noise(35,1);
                   if (img.spectrum()==1) g_img_uc(0) = g_img_uc(1) = g_img_uc(2) = 200;
                   else {
@@ -7397,8 +7400,8 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
                     const CImg<float> pts = img.get_shared_channel(k).get_isoline3d(prims,(float)nvalue);
                     vertices.append_object3d(primitives,pts,prims);
                     g_list_uc.insert(prims.size(),CImg<unsigned char>::vector(g_img_uc(0,k),
-                                                                            g_img_uc(1,k),
-                                                                            g_img_uc(2,k)));
+                                                                              g_img_uc(1,k),
+                                                                              g_img_uc(2,k)));
                   }
                   if (!vertices)
                     warn(images,0,false,
@@ -7471,7 +7474,6 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
                   vertices.assign();
                   primitives.assign();
                   g_list_uc.assign();
-                  g_img_uc.assign();
                   g_img_uc.assign(3,img.spectrum(),1,1,220).noise(35,1);
                   if (img.spectrum()==1) g_img_uc(0) = g_img_uc(1) = g_img_uc(2) = 200;
                   else {
@@ -7490,8 +7492,8 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
                     const CImg<float> pts = channel.get_isosurface3d(prims,(float)nvalue);
                     vertices.append_object3d(primitives,pts,prims);
                     g_list_uc.insert(prims.size(),CImg<unsigned char>::vector(g_img_uc(0,k),
-                                                                            g_img_uc(1,k),
-                                                                            g_img_uc(2,k)));
+                                                                              g_img_uc(1,k),
+                                                                              g_img_uc(2,k)));
                   }
                   if (!vertices) {
                     if (img.depth()>1)
@@ -7506,9 +7508,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
                   }
                   vertices.object3dtoCImg3d(primitives,g_list_uc,false);
                   gmic_apply(replace(vertices));
-                  primitives.assign();
-                  g_list_uc.assign();
-                  g_img_uc.assign();
+                  primitives.assign(); g_list_uc.assign(); g_img_uc.assign();
                 } else gmic_apply(replace(img));
               }
             } else if ((cimg_sscanf(argument,"'%4095[^']',%lf%c",
@@ -7891,6 +7891,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
                 gmic_apply(draw_line(nx0,ny0,nx1,ny1,g_img.data(),opacity,pattern));
               }
             } else arg_error("line");
+            g_img.assign();
             is_released = false; ++position; continue;
           }
 
@@ -9430,6 +9431,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
                 gmic_apply(draw_point(nx,ny,nz,g_img.data(),opacity));
               }
             } else arg_error("point");
+            g_img.assign();
             is_released = false; ++position; continue;
           }
 
@@ -9505,7 +9507,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
                 else gmic_apply(draw_polygon(coords,g_img.data(),opacity));
               }
             } else arg_error("polygon");
-            vertices.assign();
+            vertices.assign(); g_img.assign();
             is_released = false; ++position; continue;
           }
 
@@ -9672,6 +9674,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
                                        factor,(bool)is_arrows,pattern));
               }
             } else arg_error("quiver");
+            g_img.assign();
             is_released = false; ++position; continue;
           }
 
@@ -11526,6 +11529,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
                 gmic_apply(gmic_draw_text(nx,ny,name,g_img,0,opacity,font_height,nb_cols));
               }
             } else arg_error("text");
+            g_img.assign();
             is_released = false; ++position; continue;
           }
 

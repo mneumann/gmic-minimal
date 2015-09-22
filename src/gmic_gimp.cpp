@@ -1868,11 +1868,11 @@ void _gimp_preview_invalidate() {
     gimp_layer_set_edit_mask(active_layer_id,(gboolean)0);
 
   computed_preview.assign();
-  if (GIMP_IS_PREVIEW(gui_preview) &&
+  if (gui_preview && GIMP_IS_PREVIEW(gui_preview) &&
       _gimp_item_is_valid(gimp_zoom_preview_get_drawable(GIMP_ZOOM_PREVIEW(gui_preview))->drawable_id))
     gimp_preview_invalidate(GIMP_PREVIEW(gui_preview));
   else {
-    if (GTK_IS_WIDGET(gui_preview)) gtk_widget_destroy(gui_preview);
+    if (gui_preview && GTK_IS_WIDGET(gui_preview)) gtk_widget_destroy(gui_preview);
     const int w = gimp_image_width(image_id), h = gimp_image_height(image_id);
     if (preview_image_id) gimp_image_delete(preview_image_id);
     preview_image_id = 0; preview_image_factor = 1;
@@ -2732,10 +2732,10 @@ void process_image(const char *const commands_line, const bool is_apply) {
       gimp_image_undo_group_end(image_id);
     } break;
 
-    case 1 : case 2 : { // Output in 'New layer(s)' mode.
+    case 1 : case 2 : { // Output in 'New [active] layer(s)' mode.
       gimp_image_undo_group_start(image_id);
       const gint active_layer_id = gimp_image_get_active_layer(image_id);
-      gint layer_id = 0;
+      gint top_layer_id = 0, layer_id = 0;
       max_width = max_height = 0;
       cimglist_for(spt.images,p) {
         layer_blendmode = GIMP_NORMAL_MODE;
@@ -2759,6 +2759,7 @@ void process_image(const char *const commands_line, const bool is_apply) {
                                   img.spectrum()==2?GIMP_GRAYA_IMAGE:
                                   img.spectrum()==3?GIMP_RGB_IMAGE:GIMP_RGBA_IMAGE,
                                   layer_opacity,layer_blendmode);
+        if (!p) top_layer_id = layer_id;
         gimp_layer_set_offsets(layer_id,layer_posx,layer_posy);
         if (verbosity_mode==1) gimp_item_set_name(layer_id,new_label);
         else if (layer_name) gimp_item_set_name(layer_id,layer_name);
@@ -2792,7 +2793,11 @@ void process_image(const char *const commands_line, const bool is_apply) {
       }
       gimp_image_resize(image_id,cimg::max(image_width,max_width),cimg::max(image_height,max_height),0,0);
       if (output_mode==1) gimp_image_set_active_layer(image_id,active_layer_id);
-      else gtk_widget_destroy(gui_preview);  // Will force the preview to refresh on the new active layer.
+      else {
+        gimp_image_set_active_layer(image_id,top_layer_id);
+        gtk_widget_destroy(gui_preview);  // Will force the preview to refresh on the new active layer.
+        gui_preview = 0;
+      }
       gimp_image_undo_group_end(image_id);
     } break;
 
