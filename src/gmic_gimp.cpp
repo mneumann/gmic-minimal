@@ -1927,7 +1927,7 @@ void resize_preview(const unsigned int size=2) {
                "class \"GimpPreview\" style \"gimp-large-preview\"",
                200 + size*120);
   gtk_rc_parse_string(tmp);
-  if (GIMP_IS_PREVIEW(gui_preview)) {
+  if (gui_preview && GIMP_IS_PREVIEW(gui_preview)) {
     gtk_widget_destroy(gui_preview);
     gui_preview=0;
     _gimp_preview_invalidate();
@@ -2793,9 +2793,9 @@ void process_image(const char *const commands_line, const bool is_apply) {
       }
       gimp_image_resize(image_id,cimg::max(image_width,max_width),cimg::max(image_height,max_height),0,0);
       if (output_mode==1) gimp_image_set_active_layer(image_id,active_layer_id);
-      else {
+      else { // Destroy preview widget will force the preview to get the new active layer as base image.
         gimp_image_set_active_layer(image_id,top_layer_id);
-        gtk_widget_destroy(gui_preview);  // Will force the preview to refresh on the new active layer.
+        if (gui_preview) gtk_widget_destroy(gui_preview);
         gui_preview = 0;
       }
       gimp_image_undo_group_end(image_id);
