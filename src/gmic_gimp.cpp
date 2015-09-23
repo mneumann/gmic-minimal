@@ -1868,11 +1868,11 @@ void _gimp_preview_invalidate() {
     gimp_layer_set_edit_mask(active_layer_id,(gboolean)0);
 
   computed_preview.assign();
-  if (gui_preview && GIMP_IS_PREVIEW(gui_preview) &&
+  if (GIMP_IS_PREVIEW(gui_preview) &&
       _gimp_item_is_valid(gimp_zoom_preview_get_drawable(GIMP_ZOOM_PREVIEW(gui_preview))->drawable_id))
     gimp_preview_invalidate(GIMP_PREVIEW(gui_preview));
   else {
-    if (gui_preview && GTK_IS_WIDGET(gui_preview)) gtk_widget_destroy(gui_preview);
+    if (GTK_IS_WIDGET(gui_preview)) gtk_widget_destroy(gui_preview);
     const int w = gimp_image_width(image_id), h = gimp_image_height(image_id);
     if (preview_image_id) gimp_image_delete(preview_image_id);
     preview_image_id = 0; preview_image_factor = 1;
@@ -1927,7 +1927,7 @@ void resize_preview(const unsigned int size=2) {
                "class \"GimpPreview\" style \"gimp-large-preview\"",
                200 + size*120);
   gtk_rc_parse_string(tmp);
-  if (gui_preview && GIMP_IS_PREVIEW(gui_preview)) {
+  if (GIMP_IS_PREVIEW(gui_preview)) {
     gtk_widget_destroy(gui_preview);
     gui_preview=0;
     _gimp_preview_invalidate();
