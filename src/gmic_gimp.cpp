@@ -3505,8 +3505,10 @@ void create_parameters_gui(const bool reset_params) {
               else if (!is_fave) cimg::strunescape(value);
               cimg::strpare(value,' ',false,true);
               cimg::strpare(value,'\"',true);
-              for (char *p = value; *p; ++p) if (*p==_dquote) *p='\"';
-              gtk_text_buffer_set_text(buffer,value,-1);
+              gtk_label_set_markup(GTK_LABEL(markup2ascii),value);
+              cimg_snprintf(argument_arg,argument_arg.width(),"%s",gtk_label_get_text(GTK_LABEL(markup2ascii)));
+              for (char *p = argument_arg; *p; ++p) if (*p==_dquote) *p='\"';
+              gtk_text_buffer_set_text(buffer,argument_arg,-1);
 
               gtk_table_attach(GTK_TABLE(table),frame,0,3,(int)current_table_line,(int)current_table_line + 1,
                                (GtkAttachOptions)(GTK_EXPAND | GTK_FILL),(GtkAttachOptions)0,0,0);
@@ -3529,13 +3531,18 @@ void create_parameters_gui(const bool reset_params) {
               gtk_misc_set_alignment(GTK_MISC(label),0,0.5);
               GtkWidget *const entry = gtk_entry_new_with_max_length(1023);
               gtk_widget_show(entry);
+
               char *value = (line_number!=0 || sep!=',')?argument_arg:(std::strchr(argument_arg,',') + 1);
               if (is_fave) value = argument_fave;
               if (!reset_params && *argument_value) value = argument_value;
+              else if (!is_fave) cimg::strunescape(value);
               cimg::strpare(value,' ',false,true);
               cimg::strpare(value,'\"',true);
+              gtk_label_set_markup(GTK_LABEL(markup2ascii),value);
+              cimg_snprintf(argument_arg,argument_arg.width(),"%s",gtk_label_get_text(GTK_LABEL(markup2ascii)));
+
               for (char *p = value; *p; ++p) if (*p==_dquote) *p='\"';
-              gtk_entry_set_text(GTK_ENTRY(entry),value);
+              gtk_entry_set_text(GTK_ENTRY(entry),argument_arg);
               gtk_table_attach(GTK_TABLE(table),entry,1,2,(int)current_table_line,(int)current_table_line + 1,
                                (GtkAttachOptions)(GTK_EXPAND | GTK_FILL),(GtkAttachOptions)0,0,0);
               GtkWidget *const button = gtk_button_new_with_label(t("Update"));
@@ -3576,7 +3583,10 @@ void create_parameters_gui(const bool reset_params) {
             char *value = argument_arg;
             if (is_fave) value = argument_fave;
             if (!reset_params && *argument_value) value = argument_value;
-            cimg::strpare(value,' ',false,true); cimg::strpare(value,'\"',true);
+            cimg::strpare(value,' ',false,true);
+            cimg::strpare(value,'\"',true);
+            gtk_label_set_markup(GTK_LABEL(markup2ascii),value);
+            cimg_snprintf(argument_arg,argument_arg.width(),"%s",gtk_label_get_text(GTK_LABEL(markup2ascii)));
             gtk_file_chooser_set_filename(GTK_FILE_CHOOSER(file_chooser),value);
             gtk_table_attach(GTK_TABLE(table),file_chooser,1,3,(int)current_table_line,(int)current_table_line + 1,
                              (GtkAttachOptions)(GTK_EXPAND | GTK_FILL),(GtkAttachOptions)0,0,0);
@@ -3670,8 +3680,12 @@ void create_parameters_gui(const bool reset_params) {
             }
             cimg::strpare(label,' ',false,true); cimg::strpare(label,'\"',true);
             cimg::strunescape(label);
+            gtk_label_set_markup(GTK_LABEL(markup2ascii),label);
+            cimg_snprintf(label,label.width(),"%s",gtk_label_get_text(GTK_LABEL(markup2ascii)));
             cimg::strpare(url,' ',false,true); cimg::strpare(url,'\"',true);
             cimg::strunescape(url);
+            gtk_label_set_markup(GTK_LABEL(markup2ascii),url);
+            cimg_snprintf(url,url.width(),"%s",gtk_label_get_text(GTK_LABEL(markup2ascii)));
             GtkWidget *const link = gtk_link_button_new_with_label(url,label);
             gtk_widget_show(link);
             gtk_button_set_alignment(GTK_BUTTON(link),alignment,0.5);
