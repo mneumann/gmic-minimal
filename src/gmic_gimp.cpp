@@ -3443,6 +3443,7 @@ void create_parameters_gui(const bool reset_params) {
               if ((err = cimg_sscanf(entries,"%1023[^,]%c",s_entry.data(),&end))>0) {
                 entries += std::strlen(s_entry) + (err==2?1:0);
                 cimg::strpare(s_entry,' ',false,true); cimg::strpare(s_entry,'\"',true);
+                cimg::strunescape(s_entry);
                 gtk_combo_box_append_text(GTK_COMBO_BOX(combobox),s_entry);
               } else break;
             }
@@ -3670,11 +3671,10 @@ void create_parameters_gui(const bool reset_params) {
             case 0 : if (cimg_sscanf(argument_arg,"%1023[^,],%1023s",label.data(),url.data())==1)
                 std::strcpy(url,label); break;
             }
-            cimg::strpare(label,' ',false,true);
-            cimg::strpare(label,'\"',true);
+            cimg::strpare(label,' ',false,true); cimg::strpare(label,'\"',true);
             cimg::strunescape(label);
-            cimg::strpare(url,' ',false,true);
-            cimg::strpare(url,'\"',true);
+            cimg::strpare(url,' ',false,true); cimg::strpare(url,'\"',true);
+            cimg::strunescape(url);
             GtkWidget *const link = gtk_link_button_new_with_label(url,label);
             gtk_widget_show(link);
             gtk_button_set_alignment(GTK_BUTTON(link),alignment,0.5);
