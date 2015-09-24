@@ -119,6 +119,7 @@ GtkWidget *fave_add_button = 0;                // Fave button.
 GtkWidget *fave_delete_button = 0;             // Fave delete button.
 GtkWidget *right_frame = 0;                    // The right frame containing the filter parameters.
 GtkWidget *right_pane = 0;                     // The right scrolled window, containing the right frame.
+GtkWidget *markup2ascii = 0;                   // Used to convert markup to ascii strings.
 GimpPDBStatusType status = GIMP_PDB_SUCCESS;   // The plug-in return status.
 const char *s_blendmode[] = { "alpha","dissolve","behind","multiply","screen","overlay","difference",
                               "add","subtract","darken","lighten","hue","saturation","color","value",
@@ -1256,7 +1257,6 @@ CImgList<char> update_filters(const bool try_net_update, const bool is_silent=fa
               }
 
             // Detect if filter is in 'Testing/' (won't be counted in number of filters).
-            GtkWidget *const markup2ascii = gtk_label_new(0);
             gtk_label_set_markup(GTK_LABEL(markup2ascii),nentry);
             const char *_nentry = gtk_label_get_text(GTK_LABEL(markup2ascii));
             is_testing = !std::strcmp(_nentry,"Testing");
@@ -1275,7 +1275,6 @@ CImgList<char> update_filters(const bool try_net_update, const bool is_silent=fa
                 if (*_nentry) order|=(unsigned char)cimg::uncase(*(_nentry++));
               }
             }
-            gtk_widget_destroy(markup2ascii);
           }
           ++level;
         }
@@ -1313,12 +1312,10 @@ CImgList<char> update_filters(const bool try_net_update, const bool is_silent=fa
           gtk_tree_store_set(tree_view_store,&iter,0,gmic_entries.size() - 1,1,nentry,
                              2,tree_view_sort_str(nentry),-1);
           if (!level) {
-            GtkWidget *const markup2ascii = gtk_label_new(0);
             gtk_label_set_markup(GTK_LABEL(markup2ascii),nentry);
             const char *_nentry = gtk_label_get_text(GTK_LABEL(markup2ascii));
             unsigned int order = 0;
             for (unsigned int i = 0; i<3; ++i) { order<<=8; if (*_nentry) order|=cimg::uncase(*(_nentry++)); }
-            gtk_widget_destroy(markup2ascii);
           }
           if (!is_testing) ++nb_available_filters;  // Count only non-testing filters.
         }
@@ -2412,10 +2409,8 @@ void on_filter_doubleclicked(GtkWidget *const tree_view) {
     }
   } else if (filter>=indice_faves) { // Rename fave filter.
     is_block_preview = true;
-    GtkWidget *const markup2ascii = gtk_label_new(0);
     gtk_label_set_markup(GTK_LABEL(markup2ascii),gmic_entries[filter].data());
     gtk_entry_set_text(GTK_ENTRY(relabel_entry),gtk_label_get_text(GTK_LABEL(markup2ascii)));
-    gtk_widget_destroy(markup2ascii);
     gtk_widget_show(relabel_hbox);
     gtk_widget_grab_focus(relabel_entry);
   }
@@ -2439,7 +2434,6 @@ void process_image(const char *const commands_line, const bool is_apply) {
   CImg<char> new_label(256), progress_label;
   *new_label = 0;
   if (run_mode!=GIMP_RUN_NONINTERACTIVE) {
-    GtkWidget *const markup2ascii = gtk_label_new(0);
     gtk_label_set_markup(GTK_LABEL(markup2ascii),gmic_entries[filter].data());
     CImg<char>::string(gtk_label_get_text(GTK_LABEL(markup2ascii))).move_to(progress_label);
     gimp_progress_init_printf(" G'MIC: %s...",progress_label.data());
@@ -2449,7 +2443,6 @@ void process_image(const char *const commands_line, const bool is_apply) {
        !std::strncmp(_commands_line,"-debug ",7)?7:0);
     cimg_snprintf(new_label,new_label.width(),"[G'MIC] %s: %s",gtk_label_get_text(GTK_LABEL(markup2ascii)),cl);
     cimg::strellipsize(new_label,240,false);
-    gtk_widget_destroy(markup2ascii);
   } else {
     cimg_snprintf(new_label,new_label.width(),"G'MIC: %s...",_commands_line);
     cimg::strellipsize(new_label,240,false);
@@ -3309,6 +3302,8 @@ void create_parameters_gui(const bool reset_params) {
           cimg::strpare(argument_name,' ',false,true);
           cimg::strpare(argument_name,'\"',true);
           cimg::strunescape(argument_name);
+          gtk_label_set_markup(GTK_LABEL(markup2ascii),argument_name);
+          cimg_snprintf(argument_name,argument_name.width(),"%s",gtk_label_get_text(GTK_LABEL(markup2ascii)));
           cimg::strpare(_argument_type,' ',false,true);
           cimg::strpare(argument_arg,' ',false,true);
 
@@ -3444,6 +3439,8 @@ void create_parameters_gui(const bool reset_params) {
                 entries += std::strlen(s_entry) + (err==2?1:0);
                 cimg::strpare(s_entry,' ',false,true); cimg::strpare(s_entry,'\"',true);
                 cimg::strunescape(s_entry);
+                gtk_label_set_markup(GTK_LABEL(markup2ascii),s_entry);
+                cimg_snprintf(s_entry,s_entry.width(),"%s",gtk_label_get_text(GTK_LABEL(markup2ascii)));
                 gtk_combo_box_append_text(GTK_COMBO_BOX(combobox),s_entry);
               } else break;
             }
@@ -4021,6 +4018,7 @@ void gmic_run(const gchar *name, gint nparams, const GimpParam *param,
   gegl_init(NULL,NULL);
   gimp_plugin_enable_precision();
 #endif
+  markup2ascii = gtk_label_new(0);
 
   static GimpParam return_values[1];
   *return_vals  = return_values;
@@ -4156,6 +4154,7 @@ void gmic_run(const gchar *name, gint nparams, const GimpParam *param,
     status = GIMP_PDB_CALLING_ERROR;
   }
 
+  gtk_widget_destroy(markup2ascii);
   if (preview_image_id) gimp_image_delete(preview_image_id);
   if (logfile) std::fclose(logfile);
   return_values[0].data.d_status = status;
