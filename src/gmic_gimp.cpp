@@ -3819,9 +3819,6 @@ void create_parameters_gui(const bool reset_params) {
             gtk_label_set_markup(GTK_LABEL(markup2ascii),label);
             cimg_snprintf(label,label.width(),"%s",gtk_label_get_text(GTK_LABEL(markup2ascii)));
             cimg::strpare(url,' ',false,true); cimg::strpare(url,'\"',true);
-            cimg::strunescape(url);
-            gtk_label_set_markup(GTK_LABEL(markup2ascii),url);
-            cimg_snprintf(url,url.width(),"%s",gtk_label_get_text(GTK_LABEL(markup2ascii)));
             GtkWidget *const link = gtk_link_button_new_with_label(url,label);
             gtk_widget_show(link);
             gtk_button_set_alignment(GTK_BUTTON(link),alignment,0.5);
