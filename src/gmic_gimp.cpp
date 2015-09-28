@@ -2924,8 +2924,10 @@ void process_image(const char *const commands_line, const bool is_apply) {
       if (output_mode==1) gimp_image_set_active_layer(image_id,active_layer_id);
       else { // Destroy preview widget will force the preview to get the new active layer as base image.
         gimp_image_set_active_layer(image_id,top_layer_id);
-        if (GTK_IS_WIDGET(gui_preview)) gtk_widget_destroy(gui_preview);
-        gui_preview = 0;
+        if (is_apply) {
+          if (GTK_IS_WIDGET(gui_preview)) gtk_widget_destroy(gui_preview);
+          gui_preview = 0;
+        }
       }
       gimp_image_undo_group_end(image_id);
     } break;

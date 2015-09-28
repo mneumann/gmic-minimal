@@ -3430,7 +3430,7 @@ void gmic::_gmic(const char *const commands_line,
 
 #ifdef gmic_prerelease
   set_variable("_prerelease",gmic_prerelease,true);
-#endif // #if gmic_prerelease==1
+#endif // #ifdef gmic_prerelease
 
   cimg_snprintf(str,str.width(),"%u",gmic_version);
   set_variable("_version",str,true);

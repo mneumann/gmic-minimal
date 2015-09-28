@@ -43,7 +43,7 @@
  #
 */
 #ifndef gmic_version
-#define gmic_version 1661
+#define gmic_version 1662
 
 #include <cstdio>
 #include <cstring>
@@ -149,6 +149,9 @@ namespace cimg_library {
 #endif // #ifdef _MSC_VER
 
 #include <locale>
+#ifdef cimg_version
+#error "[gmic] *** Error *** File 'CImg.h' has been already included (should have been done first in file 'gmic.h')."
+#endif
 #define cimg_plugin "gmic.cpp"
 
 #ifdef cimg_use_abort

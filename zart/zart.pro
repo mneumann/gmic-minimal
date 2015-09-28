@@ -2,16 +2,43 @@ TEMPLATE = app
 QT += xml network widgets
 CONFIG	+= qt
 CONFIG	+= warn_on
+QT_CONFIG -= no-pkg-config
+CONFIG += link_pkgconfig
+PKGCONFIG += opencv fftw3 zlib
+LIBS += -lfftw3_threads
+DEFINES += cimg_use_fftw3 cimg_use_zlib
 
-!macx {
-	INCLUDEPATH	+= .. ./include /usr/include/opencv ../src/
-} else {
-	INCLUDEPATH	+= .. ./include /opt/local/include /opt/local/include/opencv ../src/
+# enable OpenMP by default on with g++, except on OS X
+!macx:*g++* {
+    CONFIG += openmp
 }
 
-DEPENDPATH += ./include
+# use qmake CONFIG+=openmp ... to force using openmp
+# For example, on OS X with GCC 4.8 installed:
+# qmake -spec unsupported/macx-clang QMAKE_CXX=g++-4.8 QMAKE_LINK=g++-4.8 CONFIG+=openmp
+# Notes:
+#  - the compiler name is g++-4.8 on Homebrew and g++-mp-4.8 on MacPorts
+#  - we use the unsupported/macx-clang config because macx-g++ uses arch flags that are not recognized by GNU GCC
+openmp {
+    DEFINES += cimg_use_openmp
+    QMAKE_CXXFLAGS += -fopenmp
+    QMAKE_LFLAGS += -fopenmp
+}
 
-HEADERS	+= include/ImageView.h \
+# compile our own version of gmic, with the same cimg_* flags as zart
+#LIBS += ../src/libgmic.a
+SOURCES += ../src/gmic.cpp
+DEFINES += gmic_build gmic_is_parallel cimg_use_abort
+
+
+INCLUDEPATH	+= $$PWD $$PWD/include $$PWD/../src/
+
+DEPENDPATH += $$PWD/include
+
+HEADERS	+= ../src/gmic.h \
+           ../src/gmic_stdlib.h \
+           ../src/CImg.h \
+           include/ImageView.h \
            include/MainWindow.h \
            include/FilterThread.h \
            include/CommandEditor.h \
@@ -72,30 +99,19 @@ SOURCES	+= \
     src/ConstParameter.cpp
 
 RESOURCES = zart.qrc
+DEPENDPATH += $$PWD/images
+
 FORMS = ui/MainWindow.ui ui/DialogAbout.ui ui/DialogLicense.ui \
     ui/FullScreenWidget.ui
 
-exists( /usr/include/opencv2 ) {
- DEFINES += OPENCV2_HEADERS
-}
-
-system(pkg-config opencv --libs > /dev/null 2>&1) {
-# LIBS += -lX11 ../src/libgmic.a `pkg-config opencv --libs` -lfftw3 -lfftw3_threads
- OPENCVLIBS = $$system(pkg-config opencv --libs)
- OPENCVLIBS = $$replace( OPENCVLIBS, -lcvaux, )
-# LIBS += -lX11 ../src/libgmic.a $$OPENCVLIBS -lfftw3 -lfftw3_threads -lz -Dcimg_use_openmp -fopenmp
-LIBS += -lX11 ../src/libgmic.a $$OPENCVLIBS -lfftw3 -lfftw3_threads -lz -ljpeg -lpng -ltiff -lX11 -lcurl
-!macx {
-LIBS += -Dcimg_use_openmp -fopenmp
-}
-} else {
-  LIBS += -lX11 ../src/libgmic.a -lopencv_core -lopencv_highgui -lfftw3 -lfftw3_threads -lz -ljpeg -lpng -ltiff -lX11 -lcurl -lopencv_imgproc -lopencv_objdetect -Dcimg_use_openmp -fopenmp
-# LIBS += -lX11 ../src/libgmic.a -lcxcore -lcv -lml -lhighgui -lfftw3 -lfftw3_threads
-}
-
 PRE_TARGETDEPS +=
-QMAKE_CXXFLAGS_DEBUG += -Dcimg_use_fftw3 -Dcimg_use_zlib -D_ZART_DEBUG_
-QMAKE_CXXFLAGS_RELEASE += -ffast-math -Dcimg_use_fftw3 -Dcimg_use_zlib
+
+debug {
+    DEFINES += _ZART_DEBUG_
+}
+release {    
+    QMAKE_CXXFLAGS += -ffast-math
+}
 UI_DIR = .ui
 MOC_DIR = .moc
 RCC_DIR = .qrc
