@@ -61,8 +61,12 @@ OS = Unix
 endif
 ifeq ($(OS),Darwin)
 PLUGINDIR = ~/Library/Application\ Support/Gimp/plug-ins
+ifeq (,$(wildcard /opt/local))
+USR = /usr/local
+else
 USR = /opt/local
-WGET = curl --silent -o
+endif
+WGET = curl -L --silent -o
 else
 PLUGINDIR = `gimptool-2.0 --gimpplugindir`/plug-ins
 USR = /usr
@@ -305,7 +309,7 @@ ifeq ($(OS),Darwin)
 	@echo "**"
 	@echo "** Start building G'MIC with default MacOSX configuration."
 	@echo "**"
-	$(MAKE) cli gimp
+	$(MAKE) cli gimp lib zart
 else
 	@echo "**"
 	@echo "** Start building G'MIC with default Windows configuration."
@@ -337,7 +341,7 @@ debug:
 
 zart: lib
 ifeq ($(OS),Darwin)
-	cd ../zart && qmake zart.pro && $(MAKE) "CFLAGS=$(OPT_CFLAGS)" "SUBLIBS=$(OPT_LIBS)" && $(STRIP) zart.app/Contents/MacOS/zart
+	cd ../zart && qmake zart.pro && $(MAKE) && $(STRIP) zart.app/Contents/MacOS/zart
 else
 	cd ../zart && qmake zart.pro && $(MAKE) && $(STRIP) zart
 endif

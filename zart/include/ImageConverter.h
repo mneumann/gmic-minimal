@@ -53,6 +53,7 @@
 #include <cv.h>
 #endif
 
+#include "gmic.h"
 #include "CImg.h"
 #include <QMutex>
 

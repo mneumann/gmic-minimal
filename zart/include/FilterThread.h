@@ -49,9 +49,9 @@
 
 #include <QThread>
 #include "Common.h"
+#include "gmic.h"
 #include "CImg.h"
 #include "CriticalRef.h"
-#include "gmic.h"
 class ImageSource;
 class QMutex;
 class QImage;
