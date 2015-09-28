@@ -1,0 +1,14 @@
+*.a
+*.o
+*.so
+src/CImg.h
+src/gmic_stdlib.h
+zart/zart.xcodeproj
+zart/Info.plist
+zart/zart.app
+zart/zart.exe
+zart/zart
+zart/build
+zart/DerivedData
+
+src/gmic
