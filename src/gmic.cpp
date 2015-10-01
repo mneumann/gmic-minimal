@@ -1984,6 +1984,22 @@ CImg<T> get_inpaint_patch(const CImg<t>& mask, const unsigned int patch_size=11,
                                 blend_size,blend_threshold,blend_decay,blend_scales,is_blend_outer);
 }
 
+CImg<T>& gmic_patchmatch(const CImg<T>& target, const unsigned int patch_size,
+                         const unsigned int nb_iterations=4, const unsigned int nb_randoms=4,
+                         const bool is_score=false) {
+  return get_gmic_patchmatch(target,patch_size,nb_iterations,nb_randoms,is_score).move_to(*this);
+}
+
+CImg<T> get_gmic_patchmatch(const CImg<T>& target, const unsigned int patch_size,
+                            const unsigned int nb_iterations=4, const unsigned int nb_randoms=4,
+                            const bool is_score=false) const {
+  if (!is_score) return get_patchmatch(target,patch_size,nb_iterations,nb_randoms);
+  CImg<floatT> score,
+    res = get_patchmatch(target,patch_size,nb_iterations,nb_randoms,&score);
+  res.resize(-100,-100,-100,3,0).draw_image(0,0,0,2,score);
+  return res;
+}
+
 // Additional convenience plug-in functions.
 CImg<T>& copymark() {
   return get_copymark().move_to(*this);
@@ -6306,13 +6322,13 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
               if (ind0) cimg_snprintf(argy,_argy.width()," with constraints [%u]",*ind0); else *_argy = 0;
 
               print(images,0,"Estimate displacement field from source [%u] to image%s, with "
-                    "%s smoothness %g, precision %g, %sscales, %g iterations, in %s direction%s.",
+                    "%s smoothness %g, precision %g, %sscales, %g iteration%s, in %s direction%s.",
                     *ind,
                     gmic_selection.data(),
                     smoothness>=0?"isotropic":"anisotropic",cimg::abs(smoothness),
                     precision,
                     argx,
-                    nb_iterations,
+                    nb_iterations,nb_iterations!=1?"s":"",
                     is_backward?"backward":"forward",
                     argy);
               const CImg<T> source = gmic_image_arg(*ind);
@@ -9557,6 +9573,41 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
                 }
               }
             } else arg_error("primitives3d");
+            is_released = false; ++position; continue;
+          }
+
+          // Get patch-match correspondence map.
+          if (!std::strcmp("-patchmatch",command)) {
+            gmic_substitute_args();
+            float patch_size, nb_iterations = 4, nb_randoms = 4;
+            unsigned int is_score = 0;
+            ind0.assign();
+            if ((cimg_sscanf(argument,"[%255[a-zA-Z0-9_.%+-]],%f%c",
+                             indices,&patch_size,&end)==2 ||
+                 cimg_sscanf(argument,"[%255[a-zA-Z0-9_.%+-]],%f,%f%c",
+                             indices,&patch_size,&nb_iterations,&end)==3 ||
+                 cimg_sscanf(argument,"[%255[a-zA-Z0-9_.%+-]],%f,%f,%f%c",
+                             indices,&patch_size,&nb_iterations,&nb_randoms,&end)==4 ||
+                 cimg_sscanf(argument,"[%255[a-zA-Z0-9_.%+-]],%f,%f,%f,%u%c",
+                             indices,&patch_size,&nb_iterations,&nb_randoms,&is_score,&end)==5) &&
+                (ind=selection2cimg(indices,images.size(),images_names,"-patchmatch",true,
+                                    false,CImg<char>::empty())).height()==1 &&
+                patch_size>=1 && nb_iterations>=0 && nb_randoms>=0 && is_score<=1) {
+              patch_size = cimg::round(patch_size);
+              nb_iterations = cimg::round(nb_iterations);
+              nb_randoms = cimg::round(nb_randoms);
+              print(images,0,"Estimate correspondence map between image%s and target [%u], with "
+                    "patch size %g, %g iteration%s, and %g randomization%s.",
+                    gmic_selection.data(),
+                    *ind,
+                    patch_size,
+                    nb_iterations,nb_iterations!=1?"s":"",
+                    nb_randoms,nb_randoms!=1?"s":"");
+              const CImg<T> target = gmic_image_arg(*ind);
+              cimg_forY(selection,l) gmic_apply(gmic_patchmatch(target,(unsigned int)patch_size,
+                                                                (unsigned int)nb_iterations,(unsigned int)nb_randoms,
+                                                                (bool)is_score));
+            } else arg_error("patchmatch");
             is_released = false; ++position; continue;
           }
 
@@ -13595,8 +13646,8 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
                     "map","median","mdiv","mse","mandelbrot","mul3d",
                     "name","normalize","neq","noarg","noise",
                     "output","onfail","object3d","or","opacity3d",
-                    "parallel","pass","permute","progress","print","pow","point","polygon","plasma",
-                    "primitives3d","plot",
+                    "parallel","pass","patchmatch","permute","progress","print","pow","point","polygon",
+                    "plasma","primitives3d","plot",
                     "quiver","quit",
                     "remove","repeat","resize","reverse","return","rows","rotate",
                     "round","rand","rotate3d","rgb2hsi","rgb2hsl","rgb2hsv","rgb2lab",
