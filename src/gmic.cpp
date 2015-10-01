@@ -9608,8 +9608,8 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
               patch_depth = cimg::round(patch_depth);
               nb_iterations = cimg::round(nb_iterations);
               nb_randoms = cimg::round(nb_randoms);
-              print(images,0,"Estimate correspondence map between image%s and target [%u], with "
-                    "patch size (%g,%g,%g) , %g iteration%s, and %g randomization%s.",
+              print(images,0,"Estimate correspondence map between image%s and target [%u], "
+                    "using %gx%gx%g patches, %g iteration%s, and %g randomization%s.",
                     gmic_selection.data(),
                     *ind,
                     patch_width,patch_height,patch_depth,
