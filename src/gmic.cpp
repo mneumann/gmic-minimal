@@ -9588,7 +9588,9 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
             float patch_width, patch_height, patch_depth = 1, nb_iterations = 4, nb_randoms = 4;
             unsigned int is_score = 0;
             ind0.assign();
-            if ((cimg_sscanf(argument,"[%255[a-zA-Z0-9_.%+-]],%f,%f,%c",
+            if (((cimg_sscanf(argument,"[%255[a-zA-Z0-9_.%+-]],%f,%c",
+                              indices,&patch_width,&end)==2 && (patch_height=patch_width)) ||
+                 cimg_sscanf(argument,"[%255[a-zA-Z0-9_.%+-]],%f,%f,%c",
                              indices,&patch_width,&patch_height,&end)==3 ||
                  cimg_sscanf(argument,"[%255[a-zA-Z0-9_.%+-]],%f,%f,%f%c",
                              indices,&patch_width,&patch_height,&patch_depth,&end)==4 ||
