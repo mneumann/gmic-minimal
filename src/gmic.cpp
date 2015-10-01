@@ -1984,18 +1984,24 @@ CImg<T> get_inpaint_patch(const CImg<t>& mask, const unsigned int patch_size=11,
                                 blend_size,blend_threshold,blend_decay,blend_scales,is_blend_outer);
 }
 
-CImg<T>& gmic_patchmatch(const CImg<T>& target, const unsigned int patch_size,
+CImg<T>& gmic_patchmatch(const CImg<T>& target,
+                         const unsigned int patch_width,
+                         const unsigned int patch_height,
+                         const unsigned int patch_depth=1,
                          const unsigned int nb_iterations=4, const unsigned int nb_randoms=4,
                          const bool is_score=false) {
-  return get_gmic_patchmatch(target,patch_size,nb_iterations,nb_randoms,is_score).move_to(*this);
+  return get_gmic_patchmatch(target,patch_width,patch_height,patch_depth,nb_iterations,nb_randoms,is_score).move_to(*this);
 }
 
-CImg<T> get_gmic_patchmatch(const CImg<T>& target, const unsigned int patch_size,
+CImg<T> get_gmic_patchmatch(const CImg<T>& target,
+                            const unsigned int patch_width,
+                            const unsigned int patch_height,
+                            const unsigned int patch_depth=1,
                             const unsigned int nb_iterations=4, const unsigned int nb_randoms=4,
                             const bool is_score=false) const {
-  if (!is_score) return get_patchmatch(target,patch_size,nb_iterations,nb_randoms);
+  if (!is_score) return get_patchmatch(target,patch_width,patch_height,patch_depth,nb_iterations,nb_randoms);
   CImg<floatT> score,
-    res = get_patchmatch(target,patch_size,nb_iterations,nb_randoms,&score);
+    res = get_patchmatch(target,patch_width,patch_height,patch_depth,nb_iterations,nb_randoms,&score);
   res.resize(-100,-100,-100,3,0).draw_image(0,0,0,2,score);
   return res;
 }
@@ -9579,32 +9585,41 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
           // Get patch-match correspondence map.
           if (!std::strcmp("-patchmatch",command)) {
             gmic_substitute_args();
-            float patch_size, nb_iterations = 4, nb_randoms = 4;
+            float patch_width, patch_height, patch_depth = 1, nb_iterations = 4, nb_randoms = 4;
             unsigned int is_score = 0;
             ind0.assign();
-            if ((cimg_sscanf(argument,"[%255[a-zA-Z0-9_.%+-]],%f%c",
-                             indices,&patch_size,&end)==2 ||
-                 cimg_sscanf(argument,"[%255[a-zA-Z0-9_.%+-]],%f,%f%c",
-                             indices,&patch_size,&nb_iterations,&end)==3 ||
+            if ((cimg_sscanf(argument,"[%255[a-zA-Z0-9_.%+-]],%f,%f,%c",
+                             indices,&patch_width,&patch_height,&end)==3 ||
                  cimg_sscanf(argument,"[%255[a-zA-Z0-9_.%+-]],%f,%f,%f%c",
-                             indices,&patch_size,&nb_iterations,&nb_randoms,&end)==4 ||
-                 cimg_sscanf(argument,"[%255[a-zA-Z0-9_.%+-]],%f,%f,%f,%u%c",
-                             indices,&patch_size,&nb_iterations,&nb_randoms,&is_score,&end)==5) &&
+                             indices,&patch_width,&patch_height,&patch_depth,&end)==4 ||
+                 cimg_sscanf(argument,"[%255[a-zA-Z0-9_.%+-]],%f,%f,%f,%f%c",
+                             indices,&patch_width,&patch_height,&patch_depth,&nb_iterations,&end)==5 ||
+                 cimg_sscanf(argument,"[%255[a-zA-Z0-9_.%+-]],%f,%f,%f,%f,%f%c",
+                             indices,&patch_width,&patch_height,&patch_depth,&nb_iterations,&nb_randoms,&end)==6 ||
+                 cimg_sscanf(argument,"[%255[a-zA-Z0-9_.%+-]],%f,%f,%f,%f,%f,%u%c",
+                             indices,&patch_width,&patch_height,&patch_depth,&nb_iterations,&nb_randoms,
+                             &is_score,&end)==7) &&
                 (ind=selection2cimg(indices,images.size(),images_names,"-patchmatch",true,
                                     false,CImg<char>::empty())).height()==1 &&
-                patch_size>=1 && nb_iterations>=0 && nb_randoms>=0 && is_score<=1) {
-              patch_size = cimg::round(patch_size);
+                patch_width>=1 && patch_height>=1 && patch_depth>=1 &&
+                nb_iterations>=0 && nb_randoms>=0 && is_score<=1) {
+              patch_width = cimg::round(patch_width);
+              patch_height = cimg::round(patch_height);
+              patch_depth = cimg::round(patch_depth);
               nb_iterations = cimg::round(nb_iterations);
               nb_randoms = cimg::round(nb_randoms);
               print(images,0,"Estimate correspondence map between image%s and target [%u], with "
-                    "patch size %g, %g iteration%s, and %g randomization%s.",
+                    "patch size (%g,%g,%g) , %g iteration%s, and %g randomization%s.",
                     gmic_selection.data(),
                     *ind,
-                    patch_size,
+                    patch_width,patch_height,patch_depth,
                     nb_iterations,nb_iterations!=1?"s":"",
                     nb_randoms,nb_randoms!=1?"s":"");
               const CImg<T> target = gmic_image_arg(*ind);
-              cimg_forY(selection,l) gmic_apply(gmic_patchmatch(target,(unsigned int)patch_size,
+              cimg_forY(selection,l) gmic_apply(gmic_patchmatch(target,
+                                                                (unsigned int)patch_width,
+                                                                (unsigned int)patch_height,
+                                                                (unsigned int)patch_depth,
                                                                 (unsigned int)nb_iterations,(unsigned int)nb_randoms,
                                                                 (bool)is_score));
             } else arg_error("patchmatch");
