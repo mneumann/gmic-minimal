@@ -1988,8 +1988,8 @@ CImg<T>& gmic_patchmatch(const CImg<T>& target,
                          const unsigned int patch_width,
                          const unsigned int patch_height,
                          const unsigned int patch_depth=1,
-                         const unsigned int nb_iterations=4,
-                         const unsigned int nb_randoms=4,
+                         const unsigned int nb_iterations=5,
+                         const unsigned int nb_randoms=5,
                          const bool allow_identity=true,
                          const bool is_score=false) {
   return get_gmic_patchmatch(target,patch_width,patch_height,patch_depth,
@@ -2000,8 +2000,8 @@ CImg<T> get_gmic_patchmatch(const CImg<T>& target,
                             const unsigned int patch_width,
                             const unsigned int patch_height,
                             const unsigned int patch_depth=1,
-                            const unsigned int nb_iterations=4,
-                            const unsigned int nb_randoms=4,
+                            const unsigned int nb_iterations=5,
+                            const unsigned int nb_randoms=5,
                             const bool allow_identity=true,
                             const bool is_score=false) const {
   CImg<floatT> score,
@@ -9594,7 +9594,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
           // Get patch-match correspondence map.
           if (!std::strcmp("-patchmatch",command)) {
             gmic_substitute_args();
-            float patch_width, patch_height, patch_depth = 1, nb_iterations = 4, nb_randoms = 4;
+            float patch_width, patch_height, patch_depth = 1, nb_iterations = 5, nb_randoms = 5;
             unsigned int is_score = 0, allow_identity = 1;
             ind0.assign();
             if (((cimg_sscanf(argument,"[%255[a-zA-Z0-9_.%+-]],%f,%c",
