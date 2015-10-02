@@ -4356,6 +4356,10 @@ gmic& gmic::_run(const gmic_list<char>& commands_line,
   return _run(commands_line,position,images,images_names,images,images_names,variables_sizes,0,0);
 }
 
+#ifdef _MSC_VER
+#pragma optimize("y", off)
+#endif // #ifdef _MSC_VER
+
 template<typename T>
 gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
                  CImgList<T>& images, CImgList<char>& images_names,

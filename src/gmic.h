@@ -146,7 +146,6 @@ namespace cimg_library {
 #ifdef _MSC_VER
 #pragma comment(linker,"/STACK:6291456")
 #pragma inline_depth(2)
-#pragma optimize("y", off)
 #endif // #ifdef _MSC_VER
 
 #include <locale>
