@@ -1877,7 +1877,7 @@ const char* get_commands_line(const bool is_preview) {
       lres[1].back() = ' ';
       for (unsigned int p = 0; p<nbparams; ++p) {
         const char *ss = get_filter_parameter(filter,p);
-        const unsigned int l = std::strlen(ss);
+        const unsigned int l = (unsigned int)std::strlen(ss);
         CImg<char> nparam(l + 1);
         *nparam = 0;
         char *sd = nparam.data();

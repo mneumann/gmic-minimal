@@ -4120,7 +4120,7 @@ CImg<char> gmic::substitute_item(const char *const source,
             } break;
             }
 
-          const unsigned int l_feature = std::strlen(feature);
+          const unsigned int l_feature = (unsigned int)std::strlen(feature);
           if (!is_substituted && *feature=='[' && feature[l_feature - 1]==']') { // Subset of values.
             if (l_feature>=2) {
               CImg<char> subset(feature + 1,l_feature - 1);
@@ -4508,7 +4508,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
         int err = cimg_sscanf(item,"%255[^[]%c%255[a-zA-Z_0-9.eE%^,:+-]%c%c",
                                     command,&sep0,restriction,&sep1,&end);
 
-        const unsigned int l_command = err==1?std::strlen(command):0;
+        const unsigned int l_command = err==1?(unsigned int)std::strlen(command):0;
         if (err==1 && l_command>=2 && command[l_command - 1]=='.') { // Selection shortcut.
           err = 4; sep0 = '['; sep1 = ']'; *restriction = '-';
           if (command[l_command - 2]!='.') { restriction[1] = '1'; command[l_command - 1] = 0; }
@@ -9799,7 +9799,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
                   else print(images,0,"Start '-repeat..-done' block (%u iteration%s).",
                              nb,nb>1?"s":"");
                 }
-                const unsigned int l = std::strlen(title);
+                const unsigned int l = (unsigned int)std::strlen(title);
                 CImg<unsigned int> rd(1,3 + (l?2:0));
                 rd[0] = position + 1; rd[1] = nb; rd[2] = 0;
                 if (l) {
