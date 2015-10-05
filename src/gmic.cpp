@@ -2824,7 +2824,7 @@ gmic& gmic::debug(const char *format, ...) {
 
 // Set variable in the interpreter environment.
 //---------------------------------------------
-// 'operation' can be { 0 (add new variable), =,+,-,*,/,%,&,|,^,<,> }
+// 'operation' can be { 0 (add new variable), = (replace or add),+,-,*,/,%,&,|,^,<,> }
 inline gmic& gmic::set_variable(const char *const name, const char *const value,
                                 const char operation,
                                 const unsigned int *const variables_sizes) {
@@ -2849,7 +2849,7 @@ inline gmic& gmic::set_variable(const char *const name, const char *const value,
         is_name_found = true; ind = l; break;
       }
     if (!is_name_found && operation=='=') _operation = 0;
-    else {
+    else if (operation!='=') {
       const char *const s_operation = operation=='+'?"+":operation=='-'?"-":operation=='*'?"*":operation=='/'?"/":
         operation=='%'?"%":operation=='&'?"&":operation=='|'?"|":operation=='^'?"^":
         operation=='<'?"<<":">>";
@@ -2860,7 +2860,7 @@ inline gmic& gmic::set_variable(const char *const name, const char *const value,
         error("Operation '%s=' requested on non-numerical variable '%s=%s'.",
               s_operation,name,__variables[ind].data());
       if (std::sscanf(value,"%lf%c",&rvalue,&end)!=1)
-        error("Operation '%s=' requested with non-numerical argument '%s'.",
+        error("Operation '%s=' requested on variable '%s', with non-numerical argument '%s'.",
               s_operation,name,value);
       s_value.assign(24); *s_value = 0;
       cimg_snprintf(s_value,s_value.width(),"%.16g",
@@ -12943,13 +12943,13 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
         sep1 = s_eq>item + 1?*(s_eq - 2):0;
         if (cimg_sscanf(item,"%255[a-zA-Z0-9_]",title)==1 && (*title<'0' || *title>'9')) {
           pattern = (unsigned int)std::strlen(title);
-          if (sep0=='<' && sep1==sep0 && s_eq==item + pattern + 2)
-            print(images,0,"Update %s variable %s%c%c=%s.",
+          if ((sep0=='<' || sep0=='>') && sep1==sep0 && s_eq==item + pattern + 2)
+            print(images,0,"Update %s variable %s%c%c='%s'.",
                   *title=='_'?"global":"local",
                   title,sep0,sep0,s_eq + 1);
           else if ((sep0=='+' || sep0=='-' || sep0=='*' || sep0=='/' ||
                     sep0=='%' || sep0=='&' || sep0=='|' || sep0=='^') && s_eq==item + pattern + 1)
-            print(images,0,"Update %s variable %s%c=%s.",
+            print(images,0,"Update %s variable %s%c='%s'.",
                   *title=='_'?"global":"local",
                   title,sep0,s_eq + 1);
           else if (s_eq==item + pattern) {
@@ -12959,10 +12959,10 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
             sep0 = '=';
           }
           else is_valid = false;
-        }
-        if (is_valid) {
-          set_variable(title,s_eq + 1,sep0,variables_sizes);
-          continue;
+          if (is_valid) {
+            set_variable(title,s_eq + 1,sep0,variables_sizes);
+            continue;
+          }
         }
       }
 
