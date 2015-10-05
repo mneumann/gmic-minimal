@@ -2825,10 +2825,11 @@ gmic& gmic::debug(const char *format, ...) {
 // Set variable in the interpreter environment.
 //---------------------------------------------
 // 'operation' can be { 0 (add new variable), = (replace or add),+,-,*,/,%,&,|,^,<,> }
-inline gmic& gmic::set_variable(const char *const name, const char *const value,
-                                const char operation,
-                                const unsigned int *const variables_sizes) {
-  if (!name || !value) return *this;
+// Return the variable value.
+inline const char * gmic::set_variable(const char *const name, const char *const value,
+                                       const char operation,
+                                       const unsigned int *const variables_sizes) {
+  if (!name || !value) return "";
   char _operation = operation, end;
   bool is_name_found = false;
   double lvalue, rvalue;
@@ -2877,6 +2878,7 @@ inline gmic& gmic::set_variable(const char *const name, const char *const value,
     }
   }
   if (!_operation) { // New variable.
+    ind = __variables.width();
     CImg<char>::string(name).move_to(__variables_names);
     CImg<char>::string(value).move_to(__variables);
   } else if (_operation=='=') // Replace variable.
@@ -2884,7 +2886,7 @@ inline gmic& gmic::set_variable(const char *const name, const char *const value,
   else // Arithmetic operation.
     CImg<char>::string(s_value).move_to(__variables[ind]);
   if (is_thread_global) cimg::mutex(30,0);
-  return *this;
+  return __variables[ind].data();
 }
 
 // Add custom commands from a char* buffer.
@@ -12936,31 +12938,30 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
       }  // if (*item=='-') {
 
       // Variable assignment.
-      const char *const s_eq = std::strchr(item,'=');
+      const char *const s_eq = std::strchr(item,'='), *new_value = 0;
       if (s_eq) {
-        bool is_valid = true;
         sep0 = s_eq>item?*(s_eq - 1):0;
         sep1 = s_eq>item + 1?*(s_eq - 2):0;
         if (cimg_sscanf(item,"%255[a-zA-Z0-9_]",title)==1 && (*title<'0' || *title>'9')) {
           pattern = (unsigned int)std::strlen(title);
-          if ((sep0=='<' || sep0=='>') && sep1==sep0 && s_eq==item + pattern + 2)
-            print(images,0,"Update %s variable %s%c%c='%s'.",
+          if ((sep0=='<' || sep0=='>') && sep1==sep0 && s_eq==item + pattern + 2) {
+            new_value = set_variable(title,s_eq + 1,sep0,variables_sizes);
+            print(images,0,"Update %s variable %s%c%c='%s' -> %s='%s'.",
                   *title=='_'?"global":"local",
-                  title,sep0,sep0,s_eq + 1);
-          else if ((sep0=='+' || sep0=='-' || sep0=='*' || sep0=='/' ||
-                    sep0=='%' || sep0=='&' || sep0=='|' || sep0=='^') && s_eq==item + pattern + 1)
-            print(images,0,"Update %s variable %s%c='%s'.",
+                  title,sep0,sep0,s_eq + 1,title,new_value);
+            continue;
+          } else if ((sep0=='+' || sep0=='-' || sep0=='*' || sep0=='/' ||
+                      sep0=='%' || sep0=='&' || sep0=='|' || sep0=='^') && s_eq==item + pattern + 1) {
+            new_value = set_variable(title,s_eq + 1,sep0,variables_sizes);
+            print(images,0,"Update %s variable %s%c='%s' -> %s='%s'.",
                   *title=='_'?"global":"local",
-                  title,sep0,s_eq + 1);
-          else if (s_eq==item + pattern) {
+                  title,sep0,s_eq + 1,title,new_value);
+            continue;
+          } else if (s_eq==item + pattern) {
+            set_variable(title,s_eq + 1,'=',variables_sizes);
             print(images,0,"Set %s variable %s='%s'.",
                   *title=='_'?"global":"local",
                   title,s_eq + 1);
-            sep0 = '=';
-          }
-          else is_valid = false;
-          if (is_valid) {
-            set_variable(title,s_eq + 1,sep0,variables_sizes);
             continue;
           }
         }

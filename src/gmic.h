@@ -241,9 +241,9 @@ struct gmic {
              const char *const custom_commands, const bool include_stdlib,
              float *const p_progress, bool *const p_is_abort);
 
-  inline gmic& set_variable(const char *const name, const char *const value,
-                            const char operation='=',
-                            const unsigned int *const variables_sizes=0);
+  inline const char * set_variable(const char *const name, const char *const value,
+                                   const char operation='=',
+                                   const unsigned int *const variables_sizes=0);
 
   gmic& add_commands(const char *const data_commands, const char *const commands_file=0);
   gmic& add_commands(std::FILE *const file, const char *const filename=0);
