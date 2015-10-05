@@ -2824,11 +2824,16 @@ gmic& gmic::debug(const char *format, ...) {
 
 // Set variable in the interpreter environment.
 //---------------------------------------------
+// 'operation' can be { 0 (add new variable), =,+,-,*,/,%,&,|,^,<,> }
 inline gmic& gmic::set_variable(const char *const name, const char *const value,
-                                const bool add_new_variable,
+                                const char operation,
                                 const unsigned int *const variables_sizes) {
   if (!name || !value) return *this;
-  int ind = 0; bool is_name_found = false;
+  char _operation = operation, end;
+  bool is_name_found = false;
+  double lvalue, rvalue;
+  CImg<char> s_value;
+  int ind;
   const bool
     is_global = *name=='_',
     is_thread_global = is_global && name[1]=='_';
@@ -2838,15 +2843,46 @@ inline gmic& gmic::set_variable(const char *const name, const char *const value,
   CImgList<char>
     &__variables = *variables[hashcode],
     &__variables_names = *variables_names[hashcode];
-  if (!add_new_variable)
+  if (operation) {
+    // Retrieve index of current definition.
     for (int l = __variables.width() - 1; l>=lind; --l) if (!std::strcmp(__variables_names[l],name)) {
         is_name_found = true; ind = l; break;
       }
-  if (is_name_found) CImg<char>::string(value).move_to(__variables[ind]);
-  else {
+    if (!is_name_found && operation=='=') _operation = 0;
+    else {
+      const char *const s_operation = operation=='+'?"+":operation=='-'?"-":operation=='*'?"*":operation=='/'?"/":
+        operation=='%'?"%":operation=='&'?"&":operation=='|'?"|":operation=='^'?"^":
+        operation=='<'?"<<":">>";
+      if (!is_name_found)
+        error("Operation '%s=' requested on undefined variable '%s'.",
+              s_operation,name);
+      if (std::sscanf(__variables[ind],"%lf%c",&lvalue,&end)!=1)
+        error("Operation '%s=' requested on non-numerical variable '%s=%s'.",
+              s_operation,name,__variables[ind].data());
+      if (std::sscanf(value,"%lf%c",&rvalue,&end)!=1)
+        error("Operation '%s=' requested with non-numerical argument '%s'.",
+              s_operation,name,value);
+      s_value.assign(24); *s_value = 0;
+      cimg_snprintf(s_value,s_value.width(),"%.16g",
+                    operation=='+'?lvalue + rvalue:
+                    operation=='-'?lvalue - rvalue:
+                    operation=='*'?lvalue*rvalue:
+                    operation=='/'?lvalue/rvalue:
+                    operation=='%'?cimg::mod(lvalue,rvalue):
+                    operation=='&'?(double)((unsigned long)lvalue & (unsigned long)rvalue):
+                    operation=='|'?(double)((unsigned long)lvalue | (unsigned long)rvalue):
+                    operation=='^'?std::pow(lvalue,rvalue):
+                    operation=='<'?(double)((long)lvalue << (unsigned int)rvalue):
+                    (double)((long)lvalue >> (unsigned int)rvalue));
+    }
+  }
+  if (!_operation) { // New variable.
     CImg<char>::string(name).move_to(__variables_names);
     CImg<char>::string(value).move_to(__variables);
-  }
+  } else if (_operation=='=') // Replace variable.
+    CImg<char>::string(value).move_to(__variables[ind]);
+  else // Arithmetic operation.
+    CImg<char>::string(s_value).move_to(__variables[ind]);
   if (is_thread_global) cimg::mutex(30,0);
   return *this;
 }
@@ -3444,7 +3480,7 @@ void gmic::_gmic(const char *const commands_line,
   // Set pre-defined global variables.
   CImg<char> str(8);
   cimg_snprintf(str,str.width(),"%u",cimg::nb_cpus());
-  set_variable("_cpus",str,true);
+  set_variable("_cpus",str,0);
 
 #if cimg_OS==1
   cimg_snprintf(str,str.width(),"%u",(unsigned int)getpid());
@@ -3453,20 +3489,20 @@ void gmic::_gmic(const char *const commands_line,
 #else // #if cimg_OS==1
   cimg_snprintf(str,str.width(),"0");
 #endif // #if cimg_OS==1
-  set_variable("_pid",str,true);
+  set_variable("_pid",str,0);
 
 #ifdef gmic_prerelease
-  set_variable("_prerelease",gmic_prerelease,true);
+  set_variable("_prerelease",gmic_prerelease,0);
 #endif // #ifdef gmic_prerelease
 
   cimg_snprintf(str,str.width(),"%u",gmic_version);
-  set_variable("_version",str,true);
+  set_variable("_version",str,0);
 
-  set_variable("_path_rc",gmic::path_rc(),true);
-  set_variable("_path_user",gmic::path_user(),true);
+  set_variable("_path_rc",gmic::path_rc(),0);
+  set_variable("_path_user",gmic::path_user(),0);
 
 #ifdef cimg_use_vt100
-  set_variable("_vt100","1",true);
+  set_variable("_vt100","1",0);
 #endif // # if cimg_use_vt100
 
   // Launch the G'MIC interpreter.
@@ -12900,15 +12936,34 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
       }  // if (*item=='-') {
 
       // Variable assignment.
-      sep = 0;
-      if (std::strchr(item,'=') && cimg_sscanf(item,"%255[a-zA-Z0-9_]%c",title,&sep)==2 &&
-          sep=='=' && (*title<'0' || *title>'9')) {
-        const char *const value = item + std::strlen(title) + 1;
-        print(images,0,"Set %s variable %s='%s'.",
-              *title=='_'?"global":"local",
-              title,value);
-        set_variable(title,value,false,variables_sizes);
-        continue;
+      const char *const s_eq = std::strchr(item,'=');
+      if (s_eq) {
+        bool is_valid = true;
+        sep0 = s_eq>item?*(s_eq - 1):0;
+        sep1 = s_eq>item + 1?*(s_eq - 2):0;
+        if (cimg_sscanf(item,"%255[a-zA-Z0-9_]",title)==1 && (*title<'0' || *title>'9')) {
+          pattern = (unsigned int)std::strlen(title);
+          if (sep0=='<' && sep1==sep0 && s_eq==item + pattern + 2)
+            print(images,0,"Update %s variable %s%c%c=%s.",
+                  *title=='_'?"global":"local",
+                  title,sep0,sep0,s_eq + 1);
+          else if ((sep0=='+' || sep0=='-' || sep0=='*' || sep0=='/' ||
+                    sep0=='%' || sep0=='&' || sep0=='|' || sep0=='^') && s_eq==item + pattern + 1)
+            print(images,0,"Update %s variable %s%c=%s.",
+                  *title=='_'?"global":"local",
+                  title,sep0,s_eq + 1);
+          else if (s_eq==item + pattern) {
+            print(images,0,"Set %s variable %s='%s'.",
+                  *title=='_'?"global":"local",
+                  title,s_eq + 1);
+            sep0 = '=';
+          }
+          else is_valid = false;
+        }
+        if (is_valid) {
+          set_variable(title,s_eq + 1,sep0,variables_sizes);
+          continue;
+        }
       }
 
       // Input.
