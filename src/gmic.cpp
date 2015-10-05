@@ -4208,7 +4208,7 @@ CImg<char> gmic::substitute_item(const char *const source,
             const bool is_rounded = *feature=='_';
             if (is_rounded) ++feature;
             try {
-              const double res = img.eval(feature);
+              const double res = img.eval(feature,0,0,0,0,&images,&images);
               if (is_rounded) cimg_snprintf(substr,substr.width(),"%g",res);
               else cimg_snprintf(substr,substr.width(),"%.16g",res);
               is_substituted = true;
@@ -5180,7 +5180,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
             strreplace_fw(name);
             bool is_cond = false, is_filename = false;
             const CImg<T> &img = images.size()?images.back():CImg<T>::empty();
-            try { if (img.eval(name)) is_cond = true; }
+            try { if (img.eval(name,0,0,0,0,&images,&images)) is_cond = true; }
             catch (CImgException&) {
               is_filename = true;
               is_cond = check_filename(name);
@@ -6859,7 +6859,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
               name.assign(argument,(unsigned int)std::strlen(argument) + 1);
               cimg::strpare(name,'\'',true,false);
               strreplace_fw(name);
-              cimg_forY(selection,l) gmic_apply(fill(name.data(),true));
+              cimg_forY(selection,l) gmic_apply(fill(name.data(),true,true,&images,&images));
             }
             is_released = false; ++position; continue;
           }
