@@ -89,7 +89,7 @@ CImg<T>& operator_eq(const char *const expression) {
     const CImg<T> _base = cimg::_is_self_expr(expression)?+*this:CImg<T>(),
       &base = _base?_base:*this;
     _cimg_math_parser mp(expression + (*expression=='>' || *expression=='<'?1:0),
-                         base,this,"operator_eq");
+                         "operator_eq",base,this);
     T *ptrd = *expression=='<'?end() - 1:_data;
     if (*expression=='<') cimg_rofXYZC(*this,x,y,z,c) { *ptrd = (T)(*ptrd == (T)mp(x,y,z,c)); --ptrd; }
     else if (*expression=='>') cimg_forXYZC(*this,x,y,z,c) { *ptrd = (T)(*ptrd == (T)mp(x,y,z,c)); ++ptrd; }
@@ -150,7 +150,7 @@ CImg<T>& operator_neq(const char *const expression) {
     const CImg<T> _base = cimg::_is_self_expr(expression)?+*this:CImg<T>(),
       &base = _base?_base:*this;
     _cimg_math_parser mp(expression + (*expression=='>' || *expression=='<'?1:0),
-                         base,this,"operator_neq");
+                         "operator_neq",base,this);
     T *ptrd = *expression=='<'?end() - 1:_data;
     if (*expression=='<') cimg_rofXYZC(*this,x,y,z,c) { *ptrd = (T)(*ptrd != (T)mp(x,y,z,c)); --ptrd; }
     else if (*expression=='>') cimg_forXYZC(*this,x,y,z,c) { *ptrd = (T)(*ptrd != (T)mp(x,y,z,c)); ++ptrd; }
@@ -211,7 +211,7 @@ CImg<T>& operator_gt(const char *const expression) {
     const CImg<T> _base = cimg::_is_self_expr(expression)?+*this:CImg<T>(),
       &base = _base?_base:*this;
     _cimg_math_parser mp(expression + (*expression=='>' || *expression=='<'?1:0),
-                         base,this,"operator_gt");
+                         "operator_gt",base,this);
     T *ptrd = *expression=='<'?end() - 1:_data;
     if (*expression=='<') cimg_rofXYZC(*this,x,y,z,c) { *ptrd = (T)(*ptrd > (T)mp(x,y,z,c)); --ptrd; }
     else if (*expression=='>') cimg_forXYZC(*this,x,y,z,c) { *ptrd = (T)(*ptrd > (T)mp(x,y,z,c)); ++ptrd; }
@@ -272,7 +272,7 @@ CImg<T>& operator_ge(const char *const expression) {
     const CImg<T> _base = cimg::_is_self_expr(expression)?+*this:CImg<T>(),
       &base = _base?_base:*this;
     _cimg_math_parser mp(expression + (*expression=='>' || *expression=='<'?1:0),
-                         base,this,"operator_ge");
+                         "operator_ge",base,this);
     T *ptrd = *expression=='<'?end() - 1:_data;
     if (*expression=='<') cimg_rofXYZC(*this,x,y,z,c) { *ptrd = (T)(*ptrd >= (T)mp(x,y,z,c)); --ptrd; }
     else if (*expression=='>') cimg_forXYZC(*this,x,y,z,c) { *ptrd = (T)(*ptrd >= (T)mp(x,y,z,c)); ++ptrd; }
@@ -333,7 +333,7 @@ CImg<T>& operator_lt(const char *const expression) {
     const CImg<T> _base = cimg::_is_self_expr(expression)?+*this:CImg<T>(),
       &base = _base?_base:*this;
     _cimg_math_parser mp(expression + (*expression=='>' || *expression=='<'?1:0),
-                         base,this,"operator_lt");
+                         "operator_lt",base,this);
     T *ptrd = *expression=='<'?end() - 1:_data;
     if (*expression=='<') cimg_rofXYZC(*this,x,y,z,c) { *ptrd = (T)(*ptrd < (T)mp(x,y,z,c)); --ptrd; }
     else if (*expression=='>') cimg_forXYZC(*this,x,y,z,c) { *ptrd = (T)(*ptrd < (T)mp(x,y,z,c)); ++ptrd; }
@@ -394,7 +394,7 @@ CImg<T>& operator_le(const char *const expression) {
     const CImg<T> _base = cimg::_is_self_expr(expression)?+*this:CImg<T>(),
       &base = _base?_base:*this;
     _cimg_math_parser mp(expression + (*expression=='>' || *expression=='<'?1:0),
-                         base,this,"operator_le");
+                         "operator_le",base,this);
     T *ptrd = *expression=='<'?end() - 1:_data;
     if (*expression=='<') cimg_rofXYZC(*this,x,y,z,c) { *ptrd = (T)(*ptrd <= (T)mp(x,y,z,c)); --ptrd; }
     else if (*expression=='>') cimg_forXYZC(*this,x,y,z,c) { *ptrd = (T)(*ptrd <= (T)mp(x,y,z,c)); ++ptrd; }
