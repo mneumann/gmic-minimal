@@ -2840,7 +2840,7 @@ inline const char * gmic::set_variable(const char *const name, const char *const
   bool is_name_found = false;
   double lvalue, rvalue;
   CImg<char> s_value;
-  int ind;
+  int ind = 0;
   const bool
     is_global = *name=='_',
     is_thread_global = is_global && name[1]=='_';
@@ -2855,8 +2855,10 @@ inline const char * gmic::set_variable(const char *const name, const char *const
     for (int l = __variables.width() - 1; l>=lind; --l) if (!std::strcmp(__variables_names[l],name)) {
         is_name_found = true; ind = l; break;
       }
-    if (!is_name_found && operation=='=') _operation = 0;
-    else if (operation!='=') {
+    if (operation=='=') {
+      if (!is_name_found) _operation = 0; // New variable.
+      else CImg<char>::string(value).move_to(__variables[ind]);
+    } else {
       const char *const s_operation = operation=='+'?"+":operation=='-'?"-":operation=='*'?"*":operation=='/'?"/":
         operation=='%'?"%":operation=='&'?"&":operation=='|'?"|":operation=='^'?"^":
         operation=='<'?"<<":">>";
@@ -2881,16 +2883,14 @@ inline const char * gmic::set_variable(const char *const name, const char *const
                     operation=='^'?std::pow(lvalue,rvalue):
                     operation=='<'?(double)((long)lvalue << (unsigned int)rvalue):
                     (double)((long)lvalue >> (unsigned int)rvalue));
+      CImg<char>::string(s_value).move_to(__variables[ind]);
     }
   }
   if (!_operation) { // New variable.
     ind = __variables.width();
     CImg<char>::string(name).move_to(__variables_names);
     CImg<char>::string(value).move_to(__variables);
-  } else if (_operation=='=') // Replace variable.
-    CImg<char>::string(value).move_to(__variables[ind]);
-  else // Arithmetic operation.
-    CImg<char>::string(s_value).move_to(__variables[ind]);
+  }
   if (is_thread_global) cimg::mutex(30,0);
   return __variables[ind].data();
 }
