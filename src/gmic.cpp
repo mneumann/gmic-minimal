@@ -13201,7 +13201,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
           *filename_tmp = 0;
         }
 
-        if (*cext) { // Force output to be read as a '.ext' file : generate random filename.
+        if (*cext) { // Force input to be read as a '.ext' file : generate random filename.
           if (*_filename=='-' && (!_filename[1] || _filename[1]=='.')) {
             // Simplify filename 'ext:-.foo' as '-.ext'.
             cimg_snprintf(_filename,_filename.width(),"-.%s",cext);
