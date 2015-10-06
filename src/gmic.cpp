@@ -13949,13 +13949,11 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
     is_released = is_quit = true;
   } catch (CImgException &e) {
     CImg<char> error_message(e.what(),(unsigned int)std::strlen(e.what()) + 1);
-    for (char *str = std::strstr(error_message,"CImg"); str; str = std::strstr(str,"CImg")) {
+    for (char *str = std::strstr(error_message,"CImg<"); str; str = std::strstr(str,"CImg<")) {
       str[0] = 'g'; str[1] = 'm'; str[2] = 'i'; str[3] = 'c';
     }
-    for (char *str = std::strstr(error_message,"cimg"); str; str = std::strstr(str,"cimg")) {
-      if (str>error_message && *(str - 1)!='.') {
-        str[0] = 'g'; str[1] = 'm'; str[2] = 'i'; str[3] = 'c';
-      } else str+=4;
+    for (char *str = std::strstr(error_message,"cimg:"); str; str = std::strstr(str,"cimg:")) {
+      str[0] = 'g'; str[1] = 'm'; str[2] = 'i'; str[3] = 'c';
     }
     if (*current_command && current_command[1])
       error(images,0,current_command + 1,"Command '%s': %s",current_command,error_message.data());
