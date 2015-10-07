@@ -1722,21 +1722,26 @@ CImg<T>& inpaint_patch(const CImg<t>& mask, const unsigned int patch_size=11,
         const int off_x = target_x - (int)dest_x, off_y = target_y - (int)dest_y;
         *(ptr_lookup_candidates++) = src_x + off_x;
         *(ptr_lookup_candidates++) = src_y + off_y;
-        if (++nb_lookup_candidates>=lookup_candidates._height)
+        if (++nb_lookup_candidates>=lookup_candidates._height) {
           lookup_candidates.resize(2,-200,1,1,0);
+          ptr_lookup_candidates = lookup_candidates.data(0,nb_lookup_candidates);
+        }
       }
     }
     // Add also target point as a center for the patch lookup.
+    if (++nb_lookup_candidates>=lookup_candidates._height) {
+      lookup_candidates.resize(2,-200,1,1,0);
+      ptr_lookup_candidates = lookup_candidates.data(0,nb_lookup_candidates);
+    }
     *(ptr_lookup_candidates++) = (unsigned int)target_x;
     *(ptr_lookup_candidates++) = (unsigned int)target_y;
-    ++nb_lookup_candidates;
 
     // Divide size of lookup regions if several lookup sources have been detected.
     unsigned int final_lookup_size = _lookup_size;
     if (nb_lookup_candidates>1) {
       const unsigned int
-        _final_lookup_size = (unsigned int)cimg::round(_lookup_size*lookup_factor/
-                                                       std::sqrt((float)nb_lookup_candidates),1,1);
+        _final_lookup_size = (unsigned int)cimg::max(5,cimg::round(_lookup_size*lookup_factor/
+                                                                   std::sqrt((float)nb_lookup_candidates),1,1));
       final_lookup_size = _final_lookup_size + 1 - (_final_lookup_size%2);
     }
     const int l2 = (int)final_lookup_size/2, l1 = (int)final_lookup_size - l2 - 1;
