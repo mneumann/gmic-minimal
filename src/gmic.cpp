@@ -1740,8 +1740,8 @@ CImg<T>& inpaint_patch(const CImg<t>& mask, const unsigned int patch_size=11,
     unsigned int final_lookup_size = _lookup_size;
     if (nb_lookup_candidates>1) {
       const unsigned int
-        _final_lookup_size = (unsigned int)cimg::max(5,cimg::round(_lookup_size*lookup_factor/
-                                                                   std::sqrt((float)nb_lookup_candidates),1,1));
+        _final_lookup_size = cimg::max(5U,(unsigned int)cimg::round(_lookup_size*lookup_factor/
+                                                                    std::sqrt((float)nb_lookup_candidates),1,1));
       final_lookup_size = _final_lookup_size + 1 - (_final_lookup_size%2);
     }
     const int l2 = (int)final_lookup_size/2, l1 = (int)final_lookup_size - l2 - 1;
