@@ -11363,6 +11363,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
                 std::fflush(cimg::output());
                 cimg::mutex(29,0);
               }
+              CImg<char>::string("-1").move_to(status);
 #else // #if cimg_display==0
               bool is_available_display = false;
               try {
@@ -11399,6 +11400,8 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
                   cimg_forY(selection,l) gmic_apply(select(images_names[selection[l]].data(),
                                                            feature_type,is_xyz?XYZ:0));
               }
+              if (is_get_version) images.back().value_string().move_to(status);
+              else images[selection.back()].value_string().move_to(status);
 #endif // #if cimg_display==0
             } else arg_error("select");
             is_released = false; ++position; continue;
