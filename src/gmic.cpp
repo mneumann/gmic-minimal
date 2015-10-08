@@ -1995,7 +1995,7 @@ CImg<T> get_inpaint_patch(const CImg<t>& mask, const unsigned int patch_size=11,
                                 blend_size,blend_threshold,blend_decay,blend_scales,is_blend_outer);
 }
 
-CImg<T>& gmic_patchmatch(const CImg<T>& target,
+CImg<T>& gmic_patchmatch(const CImg<T>& patch_image,
                          const unsigned int patch_width,
                          const unsigned int patch_height,
                          const unsigned int patch_depth=1,
@@ -2003,11 +2003,11 @@ CImg<T>& gmic_patchmatch(const CImg<T>& target,
                          const unsigned int nb_randoms=5,
                          const bool is_score=false,
                          const CImg<T> *const initialization=0) {
-  return get_gmic_patchmatch(target,patch_width,patch_height,patch_depth,
+  return get_gmic_patchmatch(patch_image,patch_width,patch_height,patch_depth,
                              nb_iterations,nb_randoms,is_score,initialization).move_to(*this);
 }
 
-CImg<T> get_gmic_patchmatch(const CImg<T>& target,
+CImg<T> get_gmic_patchmatch(const CImg<T>& patch_image,
                             const unsigned int patch_width,
                             const unsigned int patch_height,
                             const unsigned int patch_depth=1,
@@ -2016,7 +2016,7 @@ CImg<T> get_gmic_patchmatch(const CImg<T>& target,
                             const bool is_score=false,
                             const CImg<T> *const initialization=0) const {
   CImg<floatT> score, res;
-  res = _get_patchmatch(target,patch_width,patch_height,patch_depth,
+  res = _get_patchmatch(patch_image,patch_width,patch_height,patch_depth,
                         nb_iterations,nb_randoms,
                         initialization?*initialization:CImg<T>::const_empty(),
                         is_score,is_score?score:CImg<T>::empty());
@@ -9678,7 +9678,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
               nb_iterations = cimg::round(nb_iterations);
               nb_randoms = cimg::round(nb_randoms);
               if (ind0) initialization = &images[*ind0];
-              print(images,0,"Estimate correspondence map between image%s and target [%u], "
+              print(images,0,"Estimate correspondence map between image%s and patch image [%u], "
                     "using %gx%gx%g patches, %g iteration%s, and %g randomization%s "
                     "(%sscore returned).",
                     gmic_selection.data(),
@@ -9687,8 +9687,8 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
                     nb_iterations,nb_iterations!=1?"s":"",
                     nb_randoms,nb_randoms!=1?"s":"",
                     is_score?"":"no ");
-              const CImg<T> target = gmic_image_arg(*ind);
-              cimg_forY(selection,l) gmic_apply(gmic_patchmatch(target,
+              const CImg<T> patch_image = gmic_image_arg(*ind);
+              cimg_forY(selection,l) gmic_apply(gmic_patchmatch(patch_image,
                                                                 (unsigned int)patch_width,
                                                                 (unsigned int)patch_height,
                                                                 (unsigned int)patch_depth,
