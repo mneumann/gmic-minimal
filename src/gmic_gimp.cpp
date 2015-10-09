@@ -1905,11 +1905,20 @@ void set_preview_factor() {
       if (!factor) { // Compute factor so that 1:1 preview of the image is displayed.
         int _pw = 0, _ph = 0;
         gimp_preview_get_size(GIMP_PREVIEW(gui_preview),&_pw,&_ph);
+#if GIMP_MINOR_VERSION<=8
         const float
           pw = (float)_pw,
           ph = (float)_ph,
           dw = (float)gimp_zoom_preview_get_drawable(GIMP_ZOOM_PREVIEW(gui_preview))->width,
           dh = (float)gimp_zoom_preview_get_drawable(GIMP_ZOOM_PREVIEW(gui_preview))->height;
+#else
+        const int preview_drawable_id = gimp_zoom_preview_get_drawable_id(GIMP_ZOOM_PREVIEW(gui_preview));
+        const float
+          pw = (float)_pw,
+          ph = (float)_ph,
+          dw = (float)gimp_drawable_width(preview_drawable_id),
+          dh = (float)gimp_drawable_height(preview_drawable_id);
+#endif
         factor = std::sqrt((dw*dw + dh*dh)/(pw*pw + ph*ph));
       }
       gimp_zoom_model_zoom(gimp_zoom_preview_get_model(GIMP_ZOOM_PREVIEW(gui_preview)),GIMP_ZOOM_TO,factor);
@@ -2001,8 +2010,16 @@ void _gimp_preview_invalidate() {
     gimp_layer_set_edit_mask(active_layer_id,(gboolean)0);
 
   computed_preview.assign();
-  if (GIMP_IS_PREVIEW(gui_preview) &&
-      _gimp_item_is_valid(gimp_zoom_preview_get_drawable(GIMP_ZOOM_PREVIEW(gui_preview))->drawable_id))
+
+#if GIMP_MINOR_VERSION<=8
+  const bool is_valid_preview_drawable =
+    _gimp_item_is_valid(gimp_zoom_preview_get_drawable(GIMP_ZOOM_PREVIEW(gui_preview))->drawable_id);
+#else
+  const bool is_valid_preview_drawable =
+    gimp_item_is_valid(gimp_zoom_preview_get_drawable_id(GIMP_ZOOM_PREVIEW(gui_preview)));
+#endif
+
+  if (GIMP_IS_PREVIEW(gui_preview) && is_valid_preview_drawable)
     gimp_preview_invalidate(GIMP_PREVIEW(gui_preview));
   else {
     if (GTK_IS_WIDGET(gui_preview)) gtk_widget_destroy(gui_preview);
@@ -2020,9 +2037,16 @@ void _gimp_preview_invalidate() {
       gimp_image_scale(preview_image_id,pw,ph);
       gimp_context_set_interpolation(mode);
     }
-    GimpDrawable *const drawable_preview =
+
+#if GIMP_MINOR_VERSION<=8
+    GimpDrawable *const preview_drawable =
       gimp_drawable_get(gimp_image_get_active_drawable(preview_image_id?preview_image_id:image_id));
-    gui_preview = gimp_zoom_preview_new(drawable_preview);
+    gui_preview = gimp_zoom_preview_new(preview_drawable);
+#else
+    const int preview_drawable_id = gimp_image_get_active_drawable(preview_image_id?preview_image_id:image_id);
+    gui_preview = gimp_zoom_preview_new_from_drawable_id(preview_drawable_id);
+#endif
+
     GtkWidget *controls = gimp_preview_get_controls(GIMP_PREVIEW(gui_preview));
     GList *const children1 = ((GtkBox*)controls)->children;
     GtkBoxChild *const child1 = (GtkBoxChild*)children1->data;
@@ -3328,11 +3352,21 @@ void process_preview() {
   if (!default_factor) {
     int _pw = 0, _ph = 0;
     gimp_preview_get_size(GIMP_PREVIEW(gui_preview),&_pw,&_ph);
+
+#if GIMP_MINOR_VERSION<=8
     const float
       pw = (float)_pw,
       ph = (float)_ph,
       dw = (float)gimp_zoom_preview_get_drawable(GIMP_ZOOM_PREVIEW(gui_preview))->width,
       dh = (float)gimp_zoom_preview_get_drawable(GIMP_ZOOM_PREVIEW(gui_preview))->height;
+#else
+    const int preview_drawable_id = gimp_zoom_preview_get_drawable_id(GIMP_ZOOM_PREVIEW(gui_preview));
+    const float
+      pw = (float)_pw,
+      ph = (float)_ph,
+      dw = (float)gimp_drawable_width(preview_drawable_id),
+      dh = (float)gimp_drawable_height(preview_drawable_id);
+#endif
     default_factor = std::sqrt((dw*dw + dh*dh)/(pw*pw + ph*ph));
   }
   const bool is_accurate_when_zoomed = gmic_preview_factors(filter,1);
