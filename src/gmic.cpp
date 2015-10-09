@@ -6357,7 +6357,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
           // Estimate displacement field.
           if (!std::strcmp("-displacement",command)) {
             gmic_substitute_args();
-            float nb_scales = 0, nb_iterations = 10000, smoothness = 0.1f, precision = 7.0f;
+            float nb_scales = 0, nb_iterations = 10000, smoothness = 0.1f, precision = 5.0f;
             unsigned int is_backward = 1;
             sep = *argx = 0;
             ind0.assign();
@@ -6385,7 +6385,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
               nb_scales = cimg::round(nb_scales);
               nb_iterations = cimg::round(nb_iterations);
               if (nb_scales) cimg_snprintf(argx,_argx.width(),"%g ",nb_scales); else std::strcpy(argx,"auto-");
-              if (ind0) cimg_snprintf(argy,_argy.width()," with constraints [%u]",*ind0); else *_argy = 0;
+              if (ind0) cimg_snprintf(argy,_argy.width()," with guide [%u]",*ind0); else *_argy = 0;
 
               print(images,0,"Estimate displacement field from source [%u] to image%s, with "
                     "%s smoothness %g, precision %g, %sscales, %g iteration%s, in %s direction%s.",
