@@ -2012,15 +2012,14 @@ void _gimp_preview_invalidate() {
   computed_preview.assign();
 
 #if GIMP_MINOR_VERSION<=8
-  const bool is_valid_preview_drawable =
+  const bool is_valid_preview_drawable = gui_preview && GIMP_IS_PREVIEW(gui_preview) &&
     _gimp_item_is_valid(gimp_zoom_preview_get_drawable(GIMP_ZOOM_PREVIEW(gui_preview))->drawable_id);
 #else
-  const bool is_valid_preview_drawable =
+  const bool is_valid_preview_drawable = gui_preview && GIMP_IS_PREVIEW(gui_preview) &&
     gimp_item_is_valid(gimp_zoom_preview_get_drawable_id(GIMP_ZOOM_PREVIEW(gui_preview)));
 #endif
 
-  if (GIMP_IS_PREVIEW(gui_preview) && is_valid_preview_drawable)
-    gimp_preview_invalidate(GIMP_PREVIEW(gui_preview));
+  if (is_valid_preview_drawable) gimp_preview_invalidate(GIMP_PREVIEW(gui_preview));
   else {
     if (GTK_IS_WIDGET(gui_preview)) gtk_widget_destroy(gui_preview);
     const int w = gimp_image_width(image_id), h = gimp_image_height(image_id);
