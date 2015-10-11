@@ -1962,8 +1962,13 @@ void *process_thread(void *arg) {
                    cl.data());
       std::fflush(cimg::output());
     }
-    gmic gmic_instance(spt.commands_line,spt.images,spt.images_names,gmic_additional_commands,true,
-                       &spt.progress,&spt.is_abort);
+    CImg<char> def_var(256);
+    cimg_snprintf(def_var,def_var.width(),
+                  "-v - _input_layers=%u _output_mode=%u _output_messages=%u _preview_mode=%u _preview_size=%u",
+                  get_input_mode(),get_output_mode(),get_verbosity_mode(),get_preview_mode(),get_preview_size());
+    gmic gmic_instance(def_var,gmic_additional_commands,true);
+    def_var.assign();
+    gmic_instance.run(spt.commands_line,spt.images,spt.images_names,&spt.progress,&spt.is_abort);
     gmic_instance.status.move_to(spt.status);
   } catch (gmic_exception &e) {
     spt.images.assign();
