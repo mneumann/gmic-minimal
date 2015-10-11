@@ -1933,7 +1933,7 @@ void set_preview_factor() {
 struct st_process_thread {
   CImgList<gmic_pixel_type> images;
   CImgList<char> images_names;
-  CImg<char> error_message, status;
+  CImg<char> env, error_message, status;
   bool is_thread, is_preview;
   unsigned int verbosity_mode;
   const char *commands_line;
@@ -1942,6 +1942,12 @@ struct st_process_thread {
   pthread_mutex_t is_running, wait_lock;
   pthread_cond_t wait_cond;
   pthread_t thread;
+  void set_env() { // Must be called from main thread to avoid crash when doing 'gimp_get_data()'.
+    env.assign(256);
+    cimg_snprintf(env,env.width(),
+                  "-v - _input_layers=%u _output_mode=%u _output_messages=%u _preview_mode=%u _preview_size=%u",
+                  get_input_mode(),get_output_mode(),get_verbosity_mode(),get_preview_mode(),get_preview_size());
+  }
 };
 
 // Thread that runs the G'MIC interpreter.
@@ -1962,12 +1968,7 @@ void *process_thread(void *arg) {
                    cl.data());
       std::fflush(cimg::output());
     }
-    CImg<char> def_var(256);
-    cimg_snprintf(def_var,def_var.width(),
-                  "-v - _input_layers=%u _output_mode=%u _output_messages=%u _preview_mode=%u _preview_size=%u",
-                  get_input_mode(),get_output_mode(),get_verbosity_mode(),get_preview_mode(),get_preview_size());
-    gmic gmic_instance(def_var,gmic_additional_commands,true);
-    def_var.assign();
+    gmic gmic_instance(spt.env,gmic_additional_commands,true);
     gmic_instance.run(spt.commands_line,spt.images,spt.images_names,&spt.progress,&spt.is_abort);
     gmic_instance.status.move_to(spt.status);
   } catch (gmic_exception &e) {
@@ -2622,6 +2623,7 @@ void process_image(const char *const commands_line, const bool is_apply) {
   spt.verbosity_mode = get_verbosity_mode();
   spt.images_names.assign();
   spt.progress = -1;
+  spt.set_env();
 
   const CImg<int> layers = get_input_layers(spt.images);
   CImg<int> layer_dimensions(spt.images.size(),4);
@@ -3085,6 +3087,7 @@ void process_preview() {
     spt.commands_line = commands_line;
     spt.verbosity_mode = get_verbosity_mode();
     spt.progress = -1;
+    spt.set_env();
 
     CImg<char> layer_name(256);
     const unsigned int input_mode = get_input_mode();
