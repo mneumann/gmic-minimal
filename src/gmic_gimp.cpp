@@ -4268,13 +4268,16 @@ void gmic_run(const gchar *name, gint nparams, const GimpParam *param,
       if (try_network_update) {
         HANDLE lockfile = CreateFileA(str,GENERIC_READ,0,0,OPEN_EXISTING,FILE_ATTRIBUTE_NORMAL,0);
         if (lockfile!=INVALID_HANDLE_VALUE) {
-          SYSTEMTIME file_time, current_time;
-          FILETIME ft;
-          if (GetFileTime(lockfile,0,0,&ft) && FileTimeToSystemTime(&ft,&file_time)) {
-            GetSystemTime(&current_time);
-            if (file_time.wDay>=current_time.wDay &&
-                file_time.wMonth>=current_time.wMonth &&
-                file_time.wYear>=current_time.wYear) try_network_update = false;
+          FILETIME file_time, current_time;
+          SYSTEMTIME st;
+          GetSystemTime(&st);
+          if (GetFileTime(lockfile,0,0,&file_time) && SystemTimeToFileTime(&st,&current_time)) {
+            ULARGE_INTEGER _if, _is;
+            _if.LowPart = file_time.dwLowDateTime;
+            _if.HighPart = file_time.dwHighDateTime;
+            _is.LowPart = current_time.dwLowDateTime;
+            _is.HighPart = current_time.dwHighDateTime;
+            if ((_is.QuadPart - _if.QuadPart)/10000000<7*24*60*60) try_network_update = false;
             CloseHandle(lockfile);
           }
         }
@@ -4285,7 +4288,7 @@ void gmic_run(const gchar *name, gint nparams, const GimpParam *param,
         const unsigned long
           file_time = (unsigned long)st_buf.st_mtime,
           current_time = (unsigned long)std::time(0);
-        if (current_time - file_time<=24*60*60) try_network_update = false;
+        if (current_time - file_time<7*24*60*60) try_network_update = false;
       }
 #endif
       if (try_network_update) {
