@@ -2758,7 +2758,7 @@ gmic& gmic::error(const char *const format, ...) {
     if (*message!='\r')
       for (unsigned int i = 0; i<nb_carriages; ++i) std::fputc('\n',cimg::output());
     nb_carriages = 1;
-    if (debug_filename<commands_files.size() && debug_line!=~0U)
+    if (is_debug_info && debug_filename<commands_files.size() && debug_line!=~0U)
       std::fprintf(cimg::output(),"[gmic]%s %s%s*** Error (file '%s', %sline #%u) *** %s%s",
                    s_callstack.data(),cimg::t_red,cimg::t_bold,
                    commands_files[debug_filename].data(),
@@ -2806,7 +2806,7 @@ gmic& gmic::debug(const char *format, ...) {
     for (unsigned int i = 0; i<nb_carriages; ++i) std::fputc('\n',cimg::output());
   nb_carriages = 1;
 
-  if (debug_filename<commands_files.size() && debug_line!=~0U)
+  if (is_debug_info && debug_filename<commands_files.size() && debug_line!=~0U)
     std::fprintf(cimg::output(),
                  "%s<gmic>%s#%u ",
                  cimg::t_green,callstack2string(true).data(),debug_line);
@@ -4519,11 +4519,11 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
       // Check consistency of the interpreter environment.
       if (images_names.size()!=images.size())
         error("G'MIC encountered a fatal error (images (%u) and images names (%u) have different size). "
-               "Please submit a bug report, at: http://sourceforge.net/p/gmic/bugs/.",
+               "Please submit a bug report, at: https://github.com/dtschump/gmic/issues",
               images_names.size(),images.size());
       if (!callstack)
         error("G'MIC encountered a fatal error (empty call stack). "
-              "Please submit a bug report, at: http://sourceforge.net/p/gmic/bugs/.");
+              "Please submit a bug report, at: https://github.com/dtschump/gmic/issues");
       if (callstack.size()>=64)
         error("Call stack overflow (infinite recursion ?).");
 
@@ -6023,7 +6023,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
 
           // Do..while.
           if (!std::strcmp("-do",item)) {
-            if (debug_line!=~0U) {
+            if (is_debug_info && debug_line!=~0U) {
               cimg_snprintf(argx,_argx.width(),"*do#%u",debug_line);
               CImg<char>::string(argx).move_to(callstack);
             } else CImg<char>::string("*do").move_to(callstack);
@@ -7784,7 +7784,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
 
           // Start local environnement.
           if (!std::strcmp("-local",command)) {
-            if (debug_line!=~0U) {
+            if (is_debug_info && debug_line!=~0U) {
               cimg_snprintf(argx,_argx.width(),"*local#%u",debug_line);
               CImg<char>::string(argx).move_to(callstack);
             } else CImg<char>::string("*local").move_to(callstack);
@@ -9857,7 +9857,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
               const unsigned int nb = number<=0?0U:
                 cimg::type<float>::is_inf(number)?~0U:(unsigned int)cimg::round(number);
               if (nb) {
-                if (debug_line!=~0U) {
+                if (is_debug_info && debug_line!=~0U) {
                   cimg_snprintf(argx,_argx.width(),"*repeat#%u",debug_line);
                   CImg<char>::string(argx).move_to(callstack);
                 } else CImg<char>::string("*repeat").move_to(callstack);
@@ -12316,7 +12316,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
           }
           const bool is_cond = (bool)_is_cond;
           if (item[1]=='i') {
-            if (debug_line!=~0U) {
+            if (is_debug_info && debug_line!=~0U) {
               cimg_snprintf(argx,_argx.width(),"*if#%u",debug_line);
               CImg<char>::string(argx).move_to(callstack);
             } else CImg<char>::string("*if").move_to(callstack);
@@ -13991,7 +13991,7 @@ void gmic_segfault_sigaction(int signal, siginfo_t *si, void *arg) {
   cimg::mutex(29);
   std::fprintf(cimg::output(),
                "\n\n%s[gmic] G'MIC encountered a %sfatal error%s%s (Segmentation fault). "
-               "Please submit a bug report, at: %shttp://sourceforge.net/p/gmic/bugs/.%s\n\n",
+               "Please submit a bug report, at: %shttps://github.com/dtschump/gmic/issues%s\n\n",
                cimg::t_red,cimg::t_bold,cimg::t_normal,cimg::t_red,
                cimg::t_bold,cimg::t_normal);
   std::fflush(cimg::output());
