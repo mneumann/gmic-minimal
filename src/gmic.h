@@ -304,19 +304,22 @@ struct gmic {
   gmic& display_images(const gmic_list<T>& images,
                        const gmic_list<char>& images_names,
                        const gmic_image<unsigned int>& selection,
-                       unsigned int *const XYZ);
+                       unsigned int *const XYZ,
+                       const bool exit_on_anykey);
   template<typename T>
   gmic& display_plots(const gmic_list<T>& images,
                       const gmic_list<char>& images_names,
                       const gmic_image<unsigned int>& selection,
                       const unsigned int plot_type, const unsigned int vertex_type,
                       const double xmin, const double xmax,
-                      const double ymin, const double ymax);
+                      const double ymin, const double ymax,
+                      const bool exit_on_anykey);
   template<typename T>
   gmic& display_objects3d(const gmic_list<T>& images,
                           const gmic_list<char>& images_names,
                           const gmic_image<unsigned int>& selection,
-                          const gmic_image<unsigned char>& background3d);
+                          const gmic_image<unsigned char>& background3d,
+                          const bool exit_on_anykey);
   template<typename T>
   gmic_image<T>& check_image(const gmic_list<T>& list, gmic_image<T>& img);
   template<typename T>

@@ -3572,7 +3572,8 @@ gmic& gmic::print_images(const CImgList<T>& images, const CImgList<char>& images
 //-------------------------
 template<typename T>
 gmic& gmic::display_images(const CImgList<T>& images, const CImgList<char>& images_names,
-                           const CImg<unsigned int>& selection, unsigned int *const XYZ) {
+                           const CImg<unsigned int>& selection, unsigned int *const XYZ,
+                           const bool exit_on_anykey) {
 #if cimg_display!=0
   CImgDisplay *const _display_window = (CImgDisplay*)display_window;
 #endif
@@ -3656,8 +3657,8 @@ gmic& gmic::display_images(const CImgList<T>& images, const CImgList<char>& imag
       visu[l]._is_shared = images[selection[l]].is_shared();
     }
     print_images(images,images_names,selection,false);
-    if (disp) visu.display(disp.set_title("%s",title.data()),false,'x',0.5f,XYZ);
-    else visu.display(title.data(),false,'x',0.5f,XYZ);
+    if (disp) visu.display(disp.set_title("%s",title.data()),false,'x',0.5f,XYZ,exit_on_anykey);
+    else visu.display(title.data(),false,'x',0.5f,XYZ,exit_on_anykey);
     nb_carriages = 0;
     cimglist_for(visu,l) visu[l]._is_shared = is_shared(l);
   }
@@ -3672,7 +3673,8 @@ gmic& gmic::display_plots(const CImgList<T>& images, const CImgList<char>& image
                           const CImg<unsigned int>& selection,
                           const unsigned int plot_type, const unsigned int vertex_type,
                           const double xmin, const double xmax,
-                          const double ymin, const double ymax) {
+                          const double ymin, const double ymax,
+                          const bool exit_on_anykey) {
 #if cimg_display!=0
   CImgDisplay *const _display_window = (CImgDisplay*)display_window;
 #endif
@@ -3729,7 +3731,7 @@ gmic& gmic::display_plots(const CImgList<T>& images, const CImgList<char>& image
       img.display_graph(disp.set_title("%s (%dx%dx%dx%d)",
                                        basename(images_names[uind].data()),
                                        img.width(),img.height(),img.depth(),img.spectrum()),
-                        plot_type,vertex_type,0,xmin,xmax,0,ymin,ymax);
+                        plot_type,vertex_type,0,xmin,xmax,0,ymin,ymax,exit_on_anykey);
       nb_carriages = 0;
     }
   }
@@ -3742,7 +3744,8 @@ gmic& gmic::display_plots(const CImgList<T>& images, const CImgList<char>& image
 template<typename T>
 gmic& gmic::display_objects3d(const CImgList<T>& images, const CImgList<char>& images_names,
                               const CImg<unsigned int>& selection,
-                              const CImg<unsigned char>& background3d) {
+                              const CImg<unsigned char>& background3d,
+                              const bool exit_on_anykey) {
 #if cimg_display!=0
   CImgDisplay *const _display_window = (CImgDisplay*)display_window;
 #endif
@@ -3804,7 +3807,7 @@ gmic& gmic::display_objects3d(const CImgList<T>& images, const CImgList<char>& i
                                 true,render3d,renderd3d,is_double3d,focale3d,
                                 light3d_x,light3d_y,light3d_z,
                                 specular_lightness3d,specular_shininess3d,
-                                true,pose3d);
+                                true,pose3d,exit_on_anykey);
     print(images,0,"Selected 3d pose = [ %g,%g,%g,%g,%g,%g,%g,%g,%g,%g,%g,%g,%g,%g,%g,%g ].",
           pose3d[0],pose3d[1],pose3d[2],pose3d[3],
           pose3d[4],pose3d[5],pose3d[6],pose3d[7],
@@ -4449,7 +4452,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
   CImg<T> g_img;
 
   unsigned int next_debug_line = ~0U, next_debug_filename = ~0U, _debug_line, _debug_filename,
-    __ind = 0, boundary = 0, pattern = 0;
+    __ind = 0, boundary = 0, pattern = 0, exit_on_anykey = 0;
   char end, sep = 0, sep0 = 0, sep1 = 0, sepx = 0, sepy = 0, sepz = 0, sepc = 0, axis = 0;
   double vmin = 0, vmax = 0, value, value0, value1, nvalue, nvalue0, nvalue1;
   bool is_endlocal = false;
@@ -6411,23 +6414,31 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
             gmic_substitute_args();
             unsigned int X,Y,Z, XYZ[3];
             bool is_xyz = false;
-            if (cimg_sscanf(argument,"%u,%u,%u%c",
-                            &X,&Y,&Z,&end)==3) { is_xyz = true; ++position; }
+            exit_on_anykey = 0;
+            if ((cimg_sscanf(argument,"%u,%u,%u%c",&X,&Y,&Z,&end)==3 ||
+                 cimg_sscanf(argument,"%u,%u,%u,%u%c",&X,&Y,&Z,&exit_on_anykey,&end)==4) &&
+                exit_on_anykey<=1) { is_xyz = true; ++position; }
             XYZ[0] = X; XYZ[1] = Y; XYZ[2] = Z;
-            display_images(images,images_names,selection,is_xyz?XYZ:0);
+            display_images(images,images_names,selection,is_xyz?XYZ:0,exit_on_anykey);
             is_released = true; continue;
           }
 
           // Display 3d object.
           if (!std::strcmp("-display3d",command) && !is_double_hyphen) {
             gmic_substitute_args();
+            exit_on_anykey = 0;
             sep = 0;
-            if ((cimg_sscanf(argument,"[%255[a-zA-Z0-9_.%+-]%c%c",
-                             indices,&sep,&end)==2 && sep==']') &&
-                (ind=selection2cimg(indices,images.size(),images_names,"-display3d",true,
-                                    false,CImg<char>::empty())).height()==1) ++position;
+            if ((cimg_sscanf(argument,"%u%c",
+                             &exit_on_anykey,&end)==1 ||
+                 (cimg_sscanf(argument,"[%255[a-zA-Z0-9_.%+-]%c%c",
+                              indices,&sep,&end)==2 && sep==']') ||
+                 cimg_sscanf(argument,"[%255[a-zA-Z0-9_.%+-]],%u%c",
+                             indices,&exit_on_anykey,&end)==2) &&
+                exit_on_anykey<=1 &&
+                (*argument!='[' || (ind=selection2cimg(indices,images.size(),images_names,"-display3d",true,
+                                                       false,CImg<char>::empty())).height()==1)) ++position;
             if (ind.height()==1) g_img_uc = gmic_image_arg(*ind);
-            display_objects3d(images,images_names,selection,g_img_uc);
+            display_objects3d(images,images_names,selection,g_img_uc,exit_on_anykey);
             g_img_uc.assign();
             is_released = true; continue;
           }
@@ -9707,6 +9718,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
             unsigned int plot_type = 1, vertex_type = 1;
             float resolution = 65536;
             *formula = sep = 0;
+            exit_on_anykey = 0;
             if (((cimg_sscanf(argument,"'%1023[^']%c%c",
                               formula,&sep,&end)==2 && sep=='\'') ||
                  cimg_sscanf(argument,"'%1023[^']',%f%c",
@@ -9719,8 +9731,11 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
                              formula,&resolution,&plot_type,&vertex_type,&xmin,&xmax,&end)==6 ||
                  cimg_sscanf(argument,"'%1023[^']',%f,%u,%u,%lf,%lf,%lf,%lf%c",
                              formula,&resolution,&plot_type,&vertex_type,
-                             &xmin,&xmax,&ymin,&ymax,&end)==8) &&
-                resolution>0 && plot_type<=3 && vertex_type<=7) {
+                             &xmin,&xmax,&ymin,&ymax,&end)==8 ||
+                 cimg_sscanf(argument,"'%1023[^']',%f,%u,%u,%lf,%lf,%lf,%lf,%u%c",
+                             formula,&resolution,&plot_type,&vertex_type,
+                             &xmin,&xmax,&ymin,&ymax,&exit_on_anykey,&end)==9) &&
+                resolution>0 && plot_type<=3 && vertex_type<=7 && exit_on_anykey<=1) {
               resolution = cimg::round(resolution);
               strreplace_fw(formula);
               if (xmin==0 && xmax==0) { xmin = -4; xmax = 4; }
@@ -9737,7 +9752,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
               cimg_snprintf(title,_title.width(),"[Plot of '%s']",formula);
               CImg<char>::string(title).move_to(g_list_c);
               display_plots(tmp_img,g_list_c,CImg<unsigned int>::vector(0),
-                            plot_type,vertex_type,xmin,xmax,ymin,ymax);
+                            plot_type,vertex_type,xmin,xmax,ymin,ymax,exit_on_anykey);
               g_list_c.assign();
               ++position;
             } else {
@@ -9749,11 +9764,13 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
                    cimg_sscanf(argument,"%u,%u,%lf,%lf%c",
                                &plot_type,&vertex_type,&xmin,&xmax,&end)==4 ||
                    cimg_sscanf(argument,"%u,%u,%lf,%lf,%lf,%lf%c",
-                               &plot_type,&vertex_type,&xmin,&xmax,&ymin,&ymax,&end)==6) &&
-                  plot_type<=3 && vertex_type<=7) ++position;
+                               &plot_type,&vertex_type,&xmin,&xmax,&ymin,&ymax,&end)==6 ||
+                   cimg_sscanf(argument,"%u,%u,%lf,%lf,%lf,%lf,%u%c",
+                               &plot_type,&vertex_type,&xmin,&xmax,&ymin,&ymax,&exit_on_anykey,&end)==7) &&
+                  plot_type<=3 && vertex_type<=7 && exit_on_anykey<=1) ++position;
               if (!plot_type && !vertex_type) plot_type = 1;
               display_plots(images,images_names,selection,plot_type,vertex_type,
-                            xmin,xmax,ymin,ymax);
+                            xmin,xmax,ymin,ymax,exit_on_anykey);
             }
             is_released = true; continue;
           }
@@ -11353,17 +11370,17 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
           // Select image feature.
           if (!std::strcmp("-select",command)) {
             gmic_substitute_args();
-            unsigned int feature_type = 0, X = ~0U, Y = ~0U, Z = ~0U, exit_on_anykey = 0;
+            unsigned int feature_type = 0, X = ~0U, Y = ~0U, Z = ~0U;
             bool is_xyz = false;
+            exit_on_anykey = 0;
             if ((cimg_sscanf(argument,"%u%c",&feature_type,&end)==1 ||
                  (is_xyz=(cimg_sscanf(argument,"%u,%u,%u,%u%c",&feature_type,&X,&Y,&Z,&end)==4)) ||
                  (is_xyz=(cimg_sscanf(argument,"%u,%u,%u,%u,%u%c",&feature_type,&X,&Y,&Z,&exit_on_anykey,&end)==5))) &&
                 feature_type<=3 && exit_on_anykey<=1) {
 #if cimg_display==0
-              print(images,0,"Select %s in image%s in interactive mode%s",
+              print(images,0,"Select %s in image%s in interactive mode",
                     feature_type==0?"point":feature_type==1?"segment":feature_type==2?"rectangle":
-                    "ellipse",gmic_selection.data(),
-                    exit_on_anykey?" (exit on any key)":"");
+                    "ellipse",gmic_selection.data());
               if (is_verbose) {
                 cimg::mutex(29);
                 if (is_xyz) std::fprintf(cimg::output(),", from point (%u,%u,%u)",X,Y,Z);
@@ -11378,10 +11395,9 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
                 is_available_display = (bool)CImgDisplay::screen_width();
               } catch (CImgDisplayException&) {
                 print(images,0,
-                      "Select %s in image%s in interactive mode%s",
+                      "Select %s in image%s in interactive mode",
                       feature_type==0?"point":feature_type==1?"segment":
-                      feature_type==2?"rectangle":"ellipse",gmic_selection.data(),
-                      exit_on_anykey?" (exit on any key)":"");
+                      feature_type==2?"rectangle":"ellipse",gmic_selection.data());
                 if (is_verbose) {
                   cimg::mutex(29);
                   if (is_xyz) std::fprintf(cimg::output(),", from point (%u,%u,%u)",X,Y,Z);
@@ -11391,10 +11407,9 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
                 }
               }
               if (is_available_display) {
-                print(images,0,"Select %s in image%s in interactive mode%s",
+                print(images,0,"Select %s in image%s in interactive mode",
                       feature_type==0?"point":feature_type==1?"segment":
-                      feature_type==2?"rectangle":"ellipse",gmic_selection.data(),
-                      exit_on_anykey?" (exit on any key)":"");
+                      feature_type==2?"rectangle":"ellipse",gmic_selection.data());
                 if (is_verbose) {
                   cimg::mutex(29);
                   if (is_xyz) std::fprintf(cimg::output(),", from point (%u,%u,%u).",X,Y,Z);
@@ -13933,11 +13948,11 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
         CImg<unsigned int>::vector(l).move_to(is_3d?lselection3d:lselection);
       }
       if (is_first3d) {
-        display_objects3d(images,images_names,lselection3d>'y',CImg<unsigned char>::empty());
-        if (lselection) display_images(images,images_names,lselection>'y',0);
+        display_objects3d(images,images_names,lselection3d>'y',CImg<unsigned char>::empty(),false);
+        if (lselection) display_images(images,images_names,lselection>'y',0,false);
       } else {
-        if (lselection) display_images(images,images_names,lselection>'y',0);
-        if (lselection3d) display_objects3d(images,images_names,lselection3d>'y',CImg<unsigned char>::empty());
+        if (lselection) display_images(images,images_names,lselection>'y',0,false);
+        if (lselection3d) display_objects3d(images,images_names,lselection3d>'y',CImg<unsigned char>::empty(),false);
       }
 #else
       CImg<unsigned int> seq(1,images.width());
