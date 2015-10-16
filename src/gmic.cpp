@@ -11353,15 +11353,17 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
           // Select image feature.
           if (!std::strcmp("-select",command)) {
             gmic_substitute_args();
-            unsigned int feature_type = 0, X=~0U, Y=~0U, Z=~0U;
+            unsigned int feature_type = 0, X = ~0U, Y = ~0U, Z = ~0U, exit_on_anykey = 0;
             bool is_xyz = false;
             if ((cimg_sscanf(argument,"%u%c",&feature_type,&end)==1 ||
-                 (is_xyz=cimg_sscanf(argument,"%u,%u,%u,%u%c",&feature_type,&X,&Y,&Z,&end)==4)) &&
-                feature_type<=3) {
+                 (is_xyz=(cimg_sscanf(argument,"%u,%u,%u,%u%c",&feature_type,&X,&Y,&Z,&end)==4)) ||
+                 (is_xyz=(cimg_sscanf(argument,"%u,%u,%u,%u,%u%c",&feature_type,&X,&Y,&Z,&exit_on_anykey,&end)==5))) &&
+                feature_type<=3 && exit_on_anykey<=1) {
 #if cimg_display==0
-              print(images,0,"Select %s in image%s in interactive mode",
+              print(images,0,"Select %s in image%s in interactive mode%s",
                     feature_type==0?"point":feature_type==1?"segment":feature_type==2?"rectangle":
-                    "ellipse",gmic_selection.data());
+                    "ellipse",gmic_selection.data(),
+                    exit_on_anykey?" (exit on any key)":"");
               if (is_verbose) {
                 cimg::mutex(29);
                 if (is_xyz) std::fprintf(cimg::output(),", from point (%u,%u,%u)",X,Y,Z);
@@ -11376,9 +11378,10 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
                 is_available_display = (bool)CImgDisplay::screen_width();
               } catch (CImgDisplayException&) {
                 print(images,0,
-                      "Select %s in image%s in interactive mode",
+                      "Select %s in image%s in interactive mode%s",
                       feature_type==0?"point":feature_type==1?"segment":
-                      feature_type==2?"rectangle":"ellipse",gmic_selection.data());
+                      feature_type==2?"rectangle":"ellipse",gmic_selection.data(),
+                      exit_on_anykey?" (exit on any key)":"");
                 if (is_verbose) {
                   cimg::mutex(29);
                   if (is_xyz) std::fprintf(cimg::output(),", from point (%u,%u,%u)",X,Y,Z);
@@ -11388,9 +11391,10 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
                 }
               }
               if (is_available_display) {
-                print(images,0,"Select %s in image%s in interactive mode",
+                print(images,0,"Select %s in image%s in interactive mode%s",
                       feature_type==0?"point":feature_type==1?"segment":
-                      feature_type==2?"rectangle":"ellipse",gmic_selection.data());
+                      feature_type==2?"rectangle":"ellipse",gmic_selection.data(),
+                      exit_on_anykey?" (exit on any key)":"");
                 if (is_verbose) {
                   cimg::mutex(29);
                   if (is_xyz) std::fprintf(cimg::output(),", from point (%u,%u,%u).",X,Y,Z);
@@ -11400,11 +11404,16 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
                 }
                 unsigned int XYZ[3];
                 XYZ[0] = X; XYZ[1] = Y; XYZ[2] = Z;
-                if (_display_window[0])
-                  cimg_forY(selection,l) { gmic_apply(select(_display_window[0],feature_type,is_xyz?XYZ:0)); }
-                else
-                  cimg_forY(selection,l) gmic_apply(select(images_names[selection[l]].data(),
-                                                           feature_type,is_xyz?XYZ:0));
+                if (_display_window[0]) {
+                  cimg_forY(selection,l)
+                    gmic_apply(select(_display_window[0],feature_type,is_xyz?XYZ:0,
+                                      (bool)exit_on_anykey));
+                }
+                else {
+                  cimg_forY(selection,l)
+                    gmic_apply(select(images_names[selection[l]].data(),feature_type,is_xyz?XYZ:0,
+                                      (bool)exit_on_anykey));
+                }
               }
               if (is_double_hyphen) images.back().value_string().move_to(status);
               else images[selection.back()].value_string().move_to(status);
