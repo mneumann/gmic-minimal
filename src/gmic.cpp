@@ -3584,6 +3584,7 @@ gmic& gmic::display_images(const CImgList<T>& images, const CImgList<char>& imag
 
   // Check for available display.
 #if cimg_display==0
+  cimg::unused(exit_on_anykey);
   print(images,0,"Display image%s",gmic_selection.data());
   if (is_verbose) {
     cimg::mutex(29);
@@ -3686,7 +3687,7 @@ gmic& gmic::display_plots(const CImgList<T>& images, const CImgList<char>& image
 #if cimg_display==0
   print(images,0,"Plot image%s (console output only, no display support).\n",gmic_selection.data());
   print_images(images,images_names,selection,false);
-  cimg::unused(plot_type,vertex_type,xmin,xmax,ymin,ymax);
+  cimg::unused(plot_type,vertex_type,xmin,xmax,ymin,ymax,exit_on_anykey);
 #else // #if cimg_display==0
   bool is_available_display = false;
   try {
@@ -3765,7 +3766,7 @@ gmic& gmic::display_objects3d(const CImgList<T>& images, const CImgList<char>& i
           selection[l],gmic_selection_err.data(),error_message.data());
 #if cimg_display==0
   print(images,0,"Display 3d object%s (skipped, no display support).",gmic_selection.data());
-  cimg::unused(background3d);
+  cimg::unused(background3d,exit_on_anykey);
 #else // #if cimg_display==0
   bool is_available_display = false;
   try {
