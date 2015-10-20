@@ -4584,23 +4584,23 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
         } else if (err==4 && sep1==']') { // Other selections.
           is_restriction = true;
           if ((!std::strcmp("-wait",command) || !std::strcmp("-cursor",command)) && !is_double_hyphen)
-            selection = selection2cimg(restriction,10,CImgList<char>::empty(),command,true,
-                                       false,CImg<char>::empty());
+            selection2cimg(restriction,10,CImgList<char>::empty(),command,true,
+                           false,CImg<char>::empty()).move_to(selection);
           else if ((!std::strcmp("-i",command) || !std::strcmp("-input",command)) &&
                    !is_double_hyphen)
-            selection = selection2cimg(restriction,siz + 1,images_names,command,true,
-                                       true,new_name);
+            selection2cimg(restriction,siz + 1,images_names,command,true,
+                           true,new_name).move_to(selection);
           else if ((!std::strcmp("-e",command) || !std::strcmp("-echo",command) ||
                     !std::strcmp("-error",command) || !std::strcmp("-warn",command)) &&
                    !is_double_hyphen)
-            selection = selection2cimg(restriction,callstack.size(),CImgList<char>::empty(),
-                                       command,true,false,CImg<char>::empty());
+            selection2cimg(restriction,callstack.size(),CImgList<char>::empty(),
+                           command,true,false,CImg<char>::empty()).move_to(selection);
           else if (!std::strcmp("-pass",command))
-            selection = selection2cimg(restriction,parent_images.size(),parent_images_names,command,true,
-                                       false,CImg<char>::empty());
+            selection2cimg(restriction,parent_images.size(),parent_images_names,command,true,
+                           false,CImg<char>::empty()).move_to(selection);
           else
-            selection = selection2cimg(restriction,siz,images_names,command,true,
-                                       false,CImg<char>::empty());
+            selection2cimg(restriction,siz,images_names,command,true,
+                           false,CImg<char>::empty()).move_to(selection);
         } else {
           std::strncpy(command,item,_command.width() - 1);
           command[_command.width() - 1] = *restriction = 0;
