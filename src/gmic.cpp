@@ -6006,7 +6006,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
             const unsigned int counter = ++rd[2];
             unsigned int hashcode = ~0U, pos = ~0U;
             if (rd.height()>3) { hashcode = (unsigned int)rd[3]; pos = (unsigned int)rd[4]; }
-            if (--rd[1]) {
+            if ((rd[2]==~0U && --rd[2]) || --rd[1]) {
               position = rd[0];
               if (hashcode!=~0U) {
                 cimg_snprintf(argx,_argx.width(),"%u",counter);
