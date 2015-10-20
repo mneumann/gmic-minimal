@@ -9875,7 +9875,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
               const unsigned int nb = number<=0?0U:
                 cimg::type<float>::is_inf(number)?~0U:(unsigned int)cimg::round(number);
               if (nb) {
-                if (is_verbose && is_debug_info && debug_line!=~0U) {
+                if (is_debug_info && debug_line!=~0U) {
                   cimg_snprintf(argx,_argx.width(),"*repeat#%u",debug_line);
                   CImg<char>::string(argx).move_to(callstack);
                 } else CImg<char>::string("*repeat").move_to(callstack);
