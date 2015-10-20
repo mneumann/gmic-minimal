@@ -2623,7 +2623,7 @@ CImg<char> gmic::callstack2string(const CImg<unsigned int> *const callstack_sele
     res[8].assign(input_callstack[siz - 1],false);
   }
   cimglist_for(res,l) {
-    if (!is_debug) {
+    if (!verbosity && !is_debug) {
       char *const s = res(l,0)!='*'?0:std::strchr(res[l],'#');
       if (s) { *s = 0; CImg<char>(res[l].data(),(unsigned int)(s - res[l].data() + 1)).move_to(res[l]); }
     }
@@ -9875,7 +9875,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
               const unsigned int nb = number<=0?0U:
                 cimg::type<float>::is_inf(number)?~0U:(unsigned int)cimg::round(number);
               if (nb) {
-                if (is_debug_info && debug_line!=~0U) {
+                if (is_verbose && is_debug_info && debug_line!=~0U) {
                   cimg_snprintf(argx,_argx.width(),"*repeat#%u",debug_line);
                   CImg<char>::string(argx).move_to(callstack);
                 } else CImg<char>::string("*repeat").move_to(callstack);
@@ -13481,7 +13481,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
             print(images,0,"Input frame %u of file '%s' at position%s",
                   _first_frame,_filename0,
                   _gmic_selection.data());
-            input_images.load_video(filename,_first_frame,(unsigned int)first_frame);
+            input_images.load_video(filename,_first_frame,_first_frame);
           } else if (!*options) {
             // Read all frames.
             print(images,0,"Input all frames of file '%s' at position%s",
