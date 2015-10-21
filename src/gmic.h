@@ -279,7 +279,8 @@ struct gmic {
   gmic_image<char> substitute_item(const char *const source,
                                    gmic_list<T>& images, gmic_list<char>& images_names,
                                    gmic_list<T>& parent_images, gmic_list<char>& parent_images_names,
-				   const unsigned int *const variables_sizes);
+				   const unsigned int *const variables_sizes,
+                                   const gmic_image<unsigned int> *const command_selection);
   template<typename T>
   gmic& print(const gmic_list<T>& list, const gmic_image<unsigned int> *const callstack_selection,
 	      const char *format, ...);
@@ -340,7 +341,8 @@ struct gmic {
              gmic_list<T>& images, gmic_list<char>&images_names,
              gmic_list<T>& parent_images, gmic_list<char>& parent_images_names,
              const unsigned int *const variables_sizes,
-             bool *const is_noargs, const char *const parent_arguments);
+             bool *const is_noargs, const char *const parent_arguments,
+             const gmic_image<unsigned int> *const command_selection);
 
   // Class variables.
   static gmic_image<char> stdlib;

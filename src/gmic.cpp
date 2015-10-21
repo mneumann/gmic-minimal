@@ -2147,7 +2147,8 @@ void gmic::_gmic_substitute_args(const char *const argument, const char *const a
 
 #define gmic_substitute_args() { \
   const char *const argument0 = argument; \
-  substitute_item(argument,images,images_names,parent_images,parent_images_names,variables_sizes).move_to(_argument); \
+  substitute_item(argument,images,images_names,parent_images,parent_images_names,variables_sizes,\
+                  command_selection).move_to(_argument); \
   _gmic_substitute_args(argument = _argument,argument0,command,images); \
 }
 
@@ -2285,6 +2286,7 @@ struct st_gmic_parallel {
   CImgList<st_gmic_parallel<T> > *threads_data;
   CImgList<T> *images, *parent_images;
   CImg<unsigned int> variables_sizes;
+  const CImg<unsigned int> *command_selection;
   volatile bool is_thread_running;
   gmic_exception exception;
   gmic gmic_instance;
@@ -2311,7 +2313,7 @@ static DWORD WINAPI gmic_parallel(void *arg)
     st.gmic_instance.is_debug_info = false;
     st.gmic_instance._run(st.commands_line,pos,*st.images,*st.images_names,
                           *st.parent_images,*st.parent_images_names,
-                          st.variables_sizes,0,0);
+                          st.variables_sizes,0,0,st.command_selection);
   } catch (gmic_exception &e) {
 
     // Send all remaining running threads the 'abort' signal.
@@ -2667,7 +2669,7 @@ CImgList<char> gmic::commands_line_to_CImgList(const char *const commands_line) 
     } else if (is_dquoted) { // If non-escaped character inside string.
       if (c=='\"') is_dquoted = false;
       else if (c==1) while (c && c!=' ') c = *(++ptrs); // Discard debug info inside string.
-      else *(ptrd++) = c=='$'?_dollar:c=='{'?_lbrace:c=='}'?_rbrace:
+      else *(ptrd++) = (c=='$' && ptrs[1]!='?')?_dollar:c=='{'?_lbrace:c=='}'?_rbrace:
              c==','?_comma:c;
     } else { // Non-escaped character outside string.
       if (c=='\"') is_dquoted = true;
@@ -3140,14 +3142,14 @@ CImg<unsigned int> gmic::selection2cimg(const char *const string, const unsigned
 // Return selection or filename strings from a set of indices.
 //------------------------------------------------------------
 // output_type can be { 0=display indices without brackets | 1=display indices with brackets | 2=display image names }
+
 CImg<char>& gmic::selection2string(const CImg<unsigned int>& selection,
                                    const CImgList<char>& images_names,
                                    const unsigned int output_type,
                                    const bool is_verbose,
                                    CImg<char>& res) const {
   if (!is_verbose) return res.assign();
-
-  res.assign(1024);
+  res.assign(512);
   if (output_type<2) {
     const char *const bl = output_type?"[":"", *const br = output_type?"]":"";
     switch (selection.height()) {
@@ -3843,7 +3845,8 @@ template<typename T>
 CImg<char> gmic::substitute_item(const char *const source,
                                  CImgList<T>& images, CImgList<char>& images_names,
                                  CImgList<T>& parent_images, CImgList<char>& parent_images_names,
-                                 const unsigned int *const variables_sizes) {
+                                 const unsigned int *const variables_sizes,
+                                 const CImg<unsigned int> *const command_selection) {
 #if cimg_display!=0
   CImgDisplay *const _display_window = (CImgDisplay*)display_window;
 #endif
@@ -3875,8 +3878,8 @@ CImg<char> gmic::substitute_item(const char *const source,
 
         if (l_inbraces>0) {
           inbraces.assign(ptr_beg,l_inbraces + 1).back() = 0;
-          substitute_item(inbraces,images,images_names,parent_images,parent_images_names,variables_sizes).
-            move_to(inbraces);
+          substitute_item(inbraces,images,images_names,parent_images,parent_images_names,variables_sizes,
+                          command_selection).move_to(inbraces);
           strreplace_fw(inbraces);
         }
         nsource+=l_inbraces + 2;
@@ -4260,14 +4263,24 @@ CImg<char> gmic::substitute_item(const char *const source,
         l_inbraces = (int)(ptr_end - ptr_beg - 1);
         if (l_inbraces>0) {
           inbraces.assign(ptr_beg,l_inbraces + 1).back() = 0;
-          substitute_item(inbraces,images,images_names,parent_images,parent_images_names,variables_sizes).
-            move_to(inbraces);
+          substitute_item(inbraces,images,images_names,parent_images,parent_images_names,variables_sizes,
+                          command_selection).move_to(inbraces);
         }
         is_braces = true;
       }
 
-      // Substitute '$!' -> Number of images in the list.
-      if (nsource[1]=='!') {
+      // Substitute '$?' -> String that describes the current command selection.
+      if (nsource[1]=='?') {
+        if ((verbosity>=0 || is_debug) && command_selection) {
+          const unsigned int substr_width = (unsigned int)substr.width();
+          selection2string(*command_selection,images_names,1,true,substr);
+          CImg<char>(substr.data(),(unsigned int)std::strlen(substr)).append_string_to(substituted_items);
+          substr.assign(substr_width);
+          nsource+=2;
+        } else  CImg<char>(nsource++,1).append_string_to(substituted_items);
+
+        // Substitute '$!' -> Number of images in the list.
+      } else if (nsource[1]=='!') {
         cimg_snprintf(substr,substr.width(),"%u",images.size());
         CImg<char>(substr.data(),(unsigned int)std::strlen(substr)).append_string_to(substituted_items);
         nsource+=2;
@@ -4354,7 +4367,7 @@ CImg<char> gmic::substitute_item(const char *const source,
           CImg<unsigned int> nvariables_sizes(512);
           cimg_forX(nvariables_sizes,l) nvariables_sizes[l] = variables[l]->size();
           _run(ncommands_line,nposition,images,images_names,parent_images,parent_images_names,
-               nvariables_sizes,0,inbraces);
+               nvariables_sizes,0,inbraces,command_selection);
           for (unsigned int l = 0; l<nvariables_sizes._width - 2; ++l) if (variables[l]->size()>nvariables_sizes[l]) {
               variables_names[l]->remove(nvariables_sizes[l],variables[l]->size() - 1);
               variables[l]->remove(nvariables_sizes[l],variables[l]->size() - 1);
@@ -4430,7 +4443,7 @@ gmic& gmic::_run(const gmic_list<char>& commands_line,
   is_abort_thread = false;
   *progress = -1;
   cimglist_for(commands_line,l) if (!std::strcmp("-debug",commands_line[l].data())) { is_debug = true; break; }
-  return _run(commands_line,position,images,images_names,images,images_names,variables_sizes,0,0);
+  return _run(commands_line,position,images,images_names,images,images_names,variables_sizes,0,0,0);
 }
 
 #ifdef _MSC_VER
@@ -4442,7 +4455,8 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
                  CImgList<T>& images, CImgList<char>& images_names,
                  CImgList<T>& parent_images, CImgList<char>& parent_images_names,
                  const unsigned int *const variables_sizes,
-                 bool *const is_noarg, const char *const parent_arguments) {
+                 bool *const is_noarg, const char *const parent_arguments,
+                 const CImg<unsigned int> *const command_selection) {
 
 #if cimg_display!=0
   CImgDisplay *const _display_window = (CImgDisplay*)display_window;
@@ -4565,7 +4579,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
 
       CImg<char> _item, _argument;
       substitute_item(initial_item,images,images_names,parent_images,parent_images_names,
-                      variables_sizes).move_to(_item);
+                      variables_sizes,command_selection).move_to(_item);
       char *item = _item;
       const char *argument = initial_argument;
 
@@ -4634,11 +4648,16 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
         current_command[_current_command.width() - 1] = 0;
       } else *current_command = 0;
 
+      const bool
+        is_verbosity = (*item=='-' && item[1]=='v' && !item[2]) || !std::strcmp(item,"-verbose"),
+        is_echo = is_verbosity?false:(*command=='-' && command[1]=='e' && !command[2]) || !std::strcmp(command,"-echo"),
+        is_check = is_verbosity || is_echo?false:!std::strcmp(item,"-check"),
+        is_skip = is_verbosity || is_echo || is_check?false:!std::strcmp(item,"-skip");
 
       // Check for verbosity command, prior to the first output of a log message.
       bool is_verbose = verbosity>=0 || is_debug, is_verbose_argument = false;
       const int old_verbosity = verbosity;
-      if ((*item=='-' && item[1]=='v') && (!std::strcmp("-v",item) || !std::strcmp("-verbose",item))) {
+      if (is_verbosity) {
         // Do a first fast check.
         if (*argument=='-' && !argument[1]) { --verbosity; is_verbose_argument = true; }
         else if (*argument=='+' && !argument[1]) { ++verbosity; is_verbose_argument = true; }
@@ -4661,7 +4680,9 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
 
       // Generate strings for displaying image selections when verbosity>=0.
       CImg<char> gmic_selection;
-      selection2string(selection,images_names,1,is_verbose,gmic_selection);
+      selection2string(selection,images_names,1,
+                       is_verbose && !is_check && !is_skip && !is_echo && !is_verbosity,
+                       gmic_selection);
 
       if (is_debug) {
         if (std::strcmp(item,initial_item))
@@ -5202,7 +5223,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
         else if (command1=='c') {
 
           // Check expression or filename.
-          if (!std::strcmp("-check",item)) {
+          if (is_check) {
             gmic_substitute_args();
             name.assign(argument,(unsigned int)std::strlen(argument) + 1);
             strreplace_fw(name);
@@ -6513,7 +6534,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
           }
 
           // Echo.
-          if (!std::strcmp("-echo",command) && !is_double_hyphen) {
+          if (is_echo && !is_double_hyphen) {
             if (is_verbose) {
               gmic_substitute_args();
               name.assign(argument,(unsigned int)std::strlen(argument) + 1);
@@ -7855,7 +7876,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
             try {
               if (next_debug_line!=~0U) { debug_line = next_debug_line; next_debug_line = ~0U; }
               if (next_debug_filename!=~0U) { debug_filename = next_debug_filename; next_debug_filename = ~0U; }
-              _run(commands_line,position,g_list,g_list_c,images,images_names,variables_sizes,is_noarg,0);
+              _run(commands_line,position,g_list,g_list_c,images,images_names,variables_sizes,is_noarg,0,command_selection);
             } catch (gmic_exception &e) {
               int nb_locals = 0;
               for (nb_locals = 1; nb_locals && position<commands_line.size(); ++position) {
@@ -7875,7 +7896,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
                 if (is_very_verbose) print(images,0,"Reach '-onfail' block.");
                 try {
                   _run(commands_line,++position,g_list,g_list_c,
-                       parent_images,parent_images_names,variables_sizes,is_noarg,0);
+                       parent_images,parent_images_names,variables_sizes,is_noarg,0,0);
                 } catch (gmic_exception &e) {
                   cimg::swap(exception._command_help,e._command_help);
                   cimg::swap(exception._message,e._message);
@@ -9386,6 +9407,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
               _threads_data[l].parent_images = &parent_images;
               _threads_data[l].parent_images_names = &parent_images_names;
               _threads_data[l].threads_data = &threads_data;
+              _threads_data[l].command_selection = command_selection;
               _threads_data[l].is_thread_running = true;
 
               // Substitute special characters codes appearing outside strings.
@@ -10414,7 +10436,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
           }
 
           // Skip argument.
-          if (!std::strcmp("-skip",item)) {
+          if (is_skip) {
             gmic_substitute_args();
             if (is_very_verbose)
               print(images,0,"Skip argument '%s'.",
@@ -12699,15 +12721,8 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
                       is_braces = true;
                     }
 
-                    // Substitute $? -> string describing image indices.
-                    if (nsource[1]=='?') {
-                      nsource+=2;
-                      selection2string(selection,images_names,1,true,gmic_selection);
-                      cimg_snprintf(substr,substr.width(),"%s",gmic_selection.data());
-                      CImg<char>(substr.data(),(unsigned int)std::strlen(substr)).move_to(substituted_items);
-
-                      // Substitute $# -> maximum indice of known arguments.
-                    } else if (nsource[1]=='#') {
+                    // Substitute $# -> maximum indice of known arguments.
+                    if (nsource[1]=='#') {
                       nsource+=2;
                       cimg_snprintf(substr,substr.width(),"%u",nb_arguments);
                       CImg<char>(substr.data(),(unsigned int)std::strlen(substr)).move_to(substituted_items);
@@ -12921,7 +12936,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
               try {
                 is_debug_info = false;
                 _run(ncommands_line,nposition,g_list,g_list_c,images,images_names,nvariables_sizes,&_is_noarg,
-                     argument);
+                     argument,&selection);
               } catch (gmic_exception &e) {
                 cimg::swap(exception._command_help,e._command_help);
                 cimg::swap(exception._message,e._message);
@@ -12955,7 +12970,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
               try {
                 is_debug_info = false;
                 _run(ncommands_line,nposition,g_list,g_list_c,images,images_names,nvariables_sizes,&_is_noarg,
-                     argument);
+                     argument,&selection);
               } catch (gmic_exception &e) {
                 cimg::swap(exception._command_help,e._command_help);
                 cimg::swap(exception._message,e._message);
