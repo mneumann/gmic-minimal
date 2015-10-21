@@ -3141,10 +3141,10 @@ CImg<unsigned int> gmic::selection2cimg(const char *const string, const unsigned
 //------------------------------------------------------------
 // output_type can be { 0=display indices without brackets | 1=display indices with brackets | 2=display image names }
 CImg<char>& gmic::selection2string(const CImg<unsigned int>& selection,
-                                  const CImgList<char>& images_names,
-                                  const unsigned int output_type,
-                                  const bool is_verbose,
-                                  CImg<char>& res) const {
+                                   const CImgList<char>& images_names,
+                                   const unsigned int output_type,
+                                   const bool is_verbose,
+                                   CImg<char>& res) const {
   if (!is_verbose) return res.assign();
 
   res.assign(1024);
