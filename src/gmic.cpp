@@ -4270,7 +4270,7 @@ CImg<char> gmic::substitute_item(const char *const source,
 
       // Substitute '$?' -> String that describes the current command selection.
       if (nsource[1]=='?') {
-        if ((verbosity>=0 || is_debug) && command_selection) {
+        if (command_selection) {
           const unsigned int substr_width = (unsigned int)substr.width();
           selection2string(*command_selection,images_names,1,substr);
           CImg<char>(substr.data(),(unsigned int)std::strlen(substr)).append_string_to(substituted_items);
