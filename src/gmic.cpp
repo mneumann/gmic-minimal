@@ -4617,14 +4617,14 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
                                     !std::strcmp("-cursor",command)))
             selection2cimg(restriction,10,CImgList<char>::empty(),command,true,
                            false,CImg<char>::empty()).move_to(selection);
-          else if (!is_double_hyphen && ((command[1]=='i' && !command[2]) ||
-                                         !std::strcmp("-input",command)))
+          else if (!is_double_hyphen && command[1]=='i' && (!command[2] || !std::strcmp("-input",command)))
             selection2cimg(restriction,siz + 1,images_names,command,true,
                            true,new_name).move_to(selection);
-          else if (!is_double_hyphen && ((command[1]=='e' && !command[2]) ||
+          else if (!is_double_hyphen &&
+                   ((command[1]=='e' && (!command[2] ||
                                          !std::strcmp("-echo",command) ||
-                                         !std::strcmp("-error",command) ||
-                                         !std::strcmp("-warn",command)))
+                                         !std::strcmp("-error",command))) ||
+                    !std::strcmp("-warn",command)))
             selection2cimg(restriction,callstack.size(),CImgList<char>::empty(),
                            command,true,false,CImg<char>::empty()).move_to(selection);
           else if (!is_double_hyphen && !std::strcmp("-pass",command))
@@ -4650,18 +4650,19 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
       } else *current_command = 0;
 
       const bool
-        is_verbosity = ((*item=='-' && item[1]=='v' && !item[2]) || !std::strcmp(item,"-verbose")),
-        is_echo = is_double_hyphen || is_verbosity?false:
-                  (*command=='-' && command[1]=='e' && !command[2]) || !std::strcmp(command,"-echo"),
-        is_check = is_verbosity || is_echo?false:!std::strcmp(item,"-check"),
-        is_skip = is_verbosity || is_echo || is_check?false:!std::strcmp(item,"-skip"),
-        is_input = is_double_hyphen || is_verbosity || is_echo || is_check || is_skip?false:
-                   (*command=='-' && command[1]=='i' && !command[2]) || !std::strcmp(command,"-input");
+        is_verbose_command = *item=='-' && item[1]=='v' && (!item[2] || !std::strcmp(item,"-verbose")),
+        is_echo_command = is_double_hyphen || is_verbose_command?false:
+        *command=='-' && command[1]=='e' && (!command[2] || !std::strcmp(command,"-echo")),
+        is_input_command = is_double_hyphen || is_verbose_command || is_echo_command?false:
+        *command=='-' && command[1]=='i' && (!command[2] || !std::strcmp(command,"-input")),
+        is_check_command = is_verbose_command || is_echo_command || is_input_command?false:!std::strcmp(item,"-check"),
+        is_skip_command = is_verbose_command || is_echo_command || is_input_command || is_check_command?false:
+        !std::strcmp(item,"-skip");
 
       // Check for verbosity command, prior to the first output of a log message.
       bool is_verbose = verbosity>=0 || is_debug, is_verbose_argument = false;
       const int old_verbosity = verbosity;
-      if (is_verbosity) {
+      if (is_verbose_command) {
         // Do a first fast check.
         if (*argument=='-' && !argument[1]) { --verbosity; is_verbose_argument = true; }
         else if (*argument=='+' && !argument[1]) { ++verbosity; is_verbose_argument = true; }
@@ -4684,7 +4685,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
 
       // Generate strings for displaying image selections when verbosity>=0.
       CImg<char> gmic_selection;
-      if (is_verbose && !is_check && !is_skip && !is_echo && !is_verbosity)
+      if (is_verbose && !is_check_command && !is_skip_command && !is_echo_command && !is_verbose_command)
         selection2string(selection,images_names,1,gmic_selection);
 
       if (is_debug) {
@@ -4802,7 +4803,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
         command1 = *command?command[1]:item[1];
 
         // Check if a new name has been requested for a command that does not allow that.
-        if (new_name && !is_double_hyphen && !is_input)
+        if (new_name && !is_double_hyphen && !is_input_command)
           error(images,0,0,
                 "Item '%s %s': Unknow name '%s'.",
                 initial_item,initial_argument,new_name.data());
@@ -5230,7 +5231,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
         else if (command1=='c') {
 
           // Check expression or filename.
-          if (is_check) {
+          if (is_check_command) {
             gmic_substitute_args();
             name.assign(argument,(unsigned int)std::strlen(argument) + 1);
             strreplace_fw(name);
@@ -6541,7 +6542,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
           }
 
           // Echo.
-          if (!is_double_hyphen && is_echo) {
+          if (!is_double_hyphen && is_echo_command) {
             if (is_verbose) {
               gmic_substitute_args();
               name.assign(argument,(unsigned int)std::strlen(argument) + 1);
@@ -9295,7 +9296,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
         else if (command1=='p') {
 
           // Pass image from parent context.
-          if (!std::strcmp("-pass",command)) {
+          if (!is_double_hyphen && !std::strcmp("-pass",command)) {
             gmic_substitute_args();
             unsigned int shared_state = 2;
             if (cimg_sscanf(argument,"%u%c",&shared_state,&end)==1 && shared_state<=2) ++position;
@@ -10444,7 +10445,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
           }
 
           // Skip argument.
-          if (is_skip) {
+          if (is_skip_command) {
             gmic_substitute_args();
             if (is_very_verbose)
               print(images,0,"Skip argument '%s'.",
@@ -11930,7 +11931,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
 
           // Set verbosity
           // (actually only display a log message, since it has been already processed before).
-          if (!std::strcmp("-verbose",item)) {
+          if (is_verbose_command) {
             if (*argument=='-' && !argument[1])
               print(images,0,"Decrement verbosity level (set to %d).",
                     verbosity);
@@ -12630,7 +12631,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
         }
 
         // Check for a custom command, and execute it, if found.
-        if (!is_input) {
+        if (!is_input_command) {
           const char *custom_command = 0, cc = *(command + 1);
           bool custom_command_found = false, has_arguments = false, _is_noarg = false;
           CImg<char> substituted_command;
@@ -13054,7 +13055,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
       }
 
       // Input.
-      if (is_input) ++position; else { std::strcpy(command,"-input"); argument = item; *restriction = 0; }
+      if (is_input_command) ++position; else { std::strcpy(command,"-input"); argument = item; *restriction = 0; }
       gmic_substitute_args();
       if (!is_restriction || !selection) selection.assign(1,1,1,1,images.size());
 
