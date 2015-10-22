@@ -4654,7 +4654,9 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
         is_echo = is_double_hyphen || is_verbosity?false:
                   (*command=='-' && command[1]=='e' && !command[2]) || !std::strcmp(command,"-echo"),
         is_check = is_verbosity || is_echo?false:!std::strcmp(item,"-check"),
-        is_skip = is_verbosity || is_echo || is_check?false:!std::strcmp(item,"-skip");
+        is_skip = is_verbosity || is_echo || is_check?false:!std::strcmp(item,"-skip"),
+        is_input = is_double_hyphen || is_verbosity || is_echo || is_check || is_skip?false:
+                   (*command=='-' && command[1]=='i' && !command[2]) || !std::strcmp(command,"-input");
 
       // Check for verbosity command, prior to the first output of a log message.
       bool is_verbose = verbosity>=0 || is_debug, is_verbose_argument = false;
@@ -4800,7 +4802,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
         command1 = *command?command[1]:item[1];
 
         // Check if a new name has been requested for a command that does not allow that.
-        if (new_name && !is_double_hyphen && std::strcmp("-input",command))
+        if (new_name && !is_double_hyphen && !is_input)
           error(images,0,0,
                 "Item '%s %s': Unknow name '%s'.",
                 initial_item,initial_argument,new_name.data());
@@ -12628,7 +12630,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
         }
 
         // Check for a custom command, and execute it, if found.
-        if (std::strcmp("-input",command)) {
+        if (!is_input) {
           const char *custom_command = 0, cc = *(command + 1);
           bool custom_command_found = false, has_arguments = false, _is_noarg = false;
           CImg<char> substituted_command;
@@ -13052,8 +13054,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
       }
 
       // Input.
-      if (!is_double_hyphen && !std::strcmp("-input",command)) ++position;
-      else { std::strcpy(command,"-input"); argument = item; *restriction = 0; }
+      if (is_input) ++position; else { std::strcpy(command,"-input"); argument = item; *restriction = 0; }
       gmic_substitute_args();
       if (!is_restriction || !selection) selection.assign(1,1,1,1,images.size());
 
