@@ -4613,14 +4613,18 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
           selection.assign(); is_restriction = true;
         } else if (err==4 && sep1==']') { // Other selections.
           is_restriction = true;
-          if (!is_double_hyphen && (!std::strcmp("-wait",command) || !std::strcmp("-cursor",command)))
+          if (!is_double_hyphen && (!std::strcmp("-wait",command) ||
+                                    !std::strcmp("-cursor",command)))
             selection2cimg(restriction,10,CImgList<char>::empty(),command,true,
                            false,CImg<char>::empty()).move_to(selection);
-          else if (!is_double_hyphen && (!std::strcmp("-i",command) || !std::strcmp("-input",command)))
+          else if (!is_double_hyphen && (!std::strcmp("-i",command) ||
+                                         !std::strcmp("-input",command)))
             selection2cimg(restriction,siz + 1,images_names,command,true,
                            true,new_name).move_to(selection);
-          else if (!is_double_hyphen && (!std::strcmp("-e",command) || !std::strcmp("-echo",command) ||
-                                         !std::strcmp("-error",command) || !std::strcmp("-warn",command)))
+          else if (!is_double_hyphen && (!std::strcmp("-e",command) ||
+                                         !std::strcmp("-echo",command) ||
+                                         !std::strcmp("-error",command) ||
+                                         !std::strcmp("-warn",command)))
             selection2cimg(restriction,callstack.size(),CImgList<char>::empty(),
                            command,true,false,CImg<char>::empty()).move_to(selection);
           else if (!std::strcmp("-pass",command))
@@ -4646,8 +4650,9 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
       } else *current_command = 0;
 
       const bool
-        is_verbosity = (*item=='-' && item[1]=='v' && !item[2]) || !std::strcmp(item,"-verbose"),
-        is_echo = is_double_hyphen || is_verbosity?false:(*command=='-' && command[1]=='e' && !command[2]) || !std::strcmp(command,"-echo"),
+        is_verbosity = ((*item=='-' && item[1]=='v' && !item[2]) || !std::strcmp(item,"-verbose")),
+        is_echo = is_double_hyphen || is_verbosity?false:
+                  (*command=='-' && command[1]=='e' && !command[2]) || !std::strcmp(command,"-echo"),
         is_check = is_verbosity || is_echo?false:!std::strcmp(item,"-check"),
         is_skip = is_verbosity || is_echo || is_check?false:!std::strcmp(item,"-skip");
 
@@ -4737,9 +4742,9 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
           }
 
         } else if (!command3) { // Two-chars shortcuts.
-          if (command1=='s' && command2=='h') std::strcpy(command,"-shared");
+          if (command1=='s' && command2=='h' && !is_double_hyphen) std::strcpy(command,"-shared");
           else if (command1=='m' && command2=='v') std::strcpy(command,"-move");
-          else if (command1=='n' && command2=='m') std::strcpy(command,"-name");
+          else if (command1=='n' && command2=='m' && !is_double_hyphen) std::strcpy(command,"-name");
           else if (command1=='r' && command2=='m') std::strcpy(command,"-remove");
           else if (command1=='r' && command2=='v') std::strcpy(command,"-reverse");
           else if (command1=='<' && command2=='<') std::strcpy(command,"-bsl");
@@ -4757,7 +4762,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
 
         } else if (!command4 && command2=='3' && command3=='d') switch (command1) {
             // Three-chars shortcuts (ending with '3d').
-          case 'd' : std::strcpy(command,"-display3d"); break;
+          case 'd' : if (!is_double_hyphen) std::strcpy(command,"-display3d"); break;
           case 'j' : std::strcpy(command,"-object3d"); break;
           case '+' : std::strcpy(command,"-add3d"); break;
           case '/' : std::strcpy(command,"-div3d"); break;
