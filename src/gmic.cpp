@@ -4617,11 +4617,11 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
                                     !std::strcmp("-cursor",command)))
             selection2cimg(restriction,10,CImgList<char>::empty(),command,true,
                            false,CImg<char>::empty()).move_to(selection);
-          else if (!is_double_hyphen && (!std::strcmp("-i",command) ||
+          else if (!is_double_hyphen && ((command[1]=='i' && !command[2]) ||
                                          !std::strcmp("-input",command)))
             selection2cimg(restriction,siz + 1,images_names,command,true,
                            true,new_name).move_to(selection);
-          else if (!is_double_hyphen && (!std::strcmp("-e",command) ||
+          else if (!is_double_hyphen && ((command[1]=='e' && !command[2]) ||
                                          !std::strcmp("-echo",command) ||
                                          !std::strcmp("-error",command) ||
                                          !std::strcmp("-warn",command)))
