@@ -4613,16 +4613,14 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
           selection.assign(); is_restriction = true;
         } else if (err==4 && sep1==']') { // Other selections.
           is_restriction = true;
-          if ((!std::strcmp("-wait",command) || !std::strcmp("-cursor",command)) && !is_double_hyphen)
+          if (!is_double_hyphen && (!std::strcmp("-wait",command) || !std::strcmp("-cursor",command)))
             selection2cimg(restriction,10,CImgList<char>::empty(),command,true,
                            false,CImg<char>::empty()).move_to(selection);
-          else if ((!std::strcmp("-i",command) || !std::strcmp("-input",command)) &&
-                   !is_double_hyphen)
+          else if (!is_double_hyphen && (!std::strcmp("-i",command) || !std::strcmp("-input",command)))
             selection2cimg(restriction,siz + 1,images_names,command,true,
                            true,new_name).move_to(selection);
-          else if ((!std::strcmp("-e",command) || !std::strcmp("-echo",command) ||
-                    !std::strcmp("-error",command) || !std::strcmp("-warn",command)) &&
-                   !is_double_hyphen)
+          else if (!is_double_hyphen && (!std::strcmp("-e",command) || !std::strcmp("-echo",command) ||
+                                         !std::strcmp("-error",command) || !std::strcmp("-warn",command)))
             selection2cimg(restriction,callstack.size(),CImgList<char>::empty(),
                            command,true,false,CImg<char>::empty()).move_to(selection);
           else if (!std::strcmp("-pass",command))
@@ -4793,7 +4791,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
         command1 = *command?command[1]:item[1];
 
         // Check if a new name has been requested for a command that does not allow that.
-        if (new_name && std::strcmp("-input",command) && !is_double_hyphen)
+        if (new_name && !is_double_hyphen && std::strcmp("-input",command))
           error(images,0,0,
                 "Item '%s %s': Unknow name '%s'.",
                 initial_item,initial_argument,new_name.data());
@@ -5770,7 +5768,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
           }
 
           // Check validity of 3d object.
-          if (!std::strcmp("-check3d",command) && !is_double_hyphen) {
+          if (!is_double_hyphen && !std::strcmp("-check3d",command)) {
             gmic_substitute_args();
             bool is_full_check = true;
             if (!argument[1] && (*argument=='0' || *argument=='1')) {
@@ -5990,7 +5988,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
           }
 
           // Show/hide mouse cursor.
-          if (!std::strcmp("-cursor",command) && !is_double_hyphen) {
+          if (!is_double_hyphen && !std::strcmp("-cursor",command)) {
             gmic_substitute_args();
             if (!is_restriction)
               CImg<unsigned int>::vector(0,1,2,3,4,5,6,7,8,9).move_to(selection);
@@ -6447,7 +6445,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
           }
 
           // Display.
-          if (!std::strcmp("-display",command) && !is_double_hyphen) {
+          if (!is_double_hyphen && !std::strcmp("-display",command)) {
             gmic_substitute_args();
             unsigned int X,Y,Z, XYZ[3];
             bool is_xyz = false;
@@ -6461,7 +6459,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
           }
 
           // Display 3d object.
-          if (!std::strcmp("-display3d",command) && !is_double_hyphen) {
+          if (!is_double_hyphen && !std::strcmp("-display3d",command)) {
             gmic_substitute_args();
             exit_on_anykey = 0;
             sep = 0;
@@ -6532,7 +6530,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
           }
 
           // Echo.
-          if (is_echo && !is_double_hyphen) {
+          if (!is_double_hyphen && is_echo) {
             if (is_verbose) {
               gmic_substitute_args();
               name.assign(argument,(unsigned int)std::strlen(argument) + 1);
@@ -6567,7 +6565,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
           }
 
           // Error.
-          if (!std::strcmp("-error",command) && !is_double_hyphen) {
+          if (!is_double_hyphen && !std::strcmp("-error",command)) {
             gmic_substitute_args();
             name.assign(argument,(unsigned int)std::strlen(argument) + 1);
             cimg::strunescape(name);
@@ -8397,7 +8395,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
         else if (command1=='n') {
 
           // Set image name.
-          if (!std::strcmp("-name",command) && !is_double_hyphen) {
+          if (!is_double_hyphen && !std::strcmp("-name",command)) {
             gmic_substitute_args();
             print(images,0,"Set name of image%s to '%s'.",
                   gmic_selection.data(),gmic_argument_text_printed());
@@ -8698,7 +8696,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
           }
 
           // Output.
-          if (!std::strcmp("-output",command) && !is_double_hyphen) {
+          if (!is_double_hyphen && !std::strcmp("-output",command)) {
             gmic_substitute_args();
 
             // Set good alias for shared variables.
@@ -9503,7 +9501,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
           }
 
           // Print.
-          if (!std::strcmp("-print",command) && !is_double_hyphen) {
+          if (!is_double_hyphen && !std::strcmp("-print",command)) {
             print_images(images,images_names,selection);
             is_released = true; continue;
           }
@@ -9751,7 +9749,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
           }
 
           // Display as a graph plot.
-          if (!std::strcmp("-plot",command) && !is_double_hyphen) {
+          if (!is_double_hyphen && !std::strcmp("-plot",command)) {
             gmic_substitute_args();
             double ymin = 0, ymax = 0, xmin = 0, xmax = 0;
             unsigned int plot_type = 1, vertex_type = 1;
@@ -12003,7 +12001,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
           }
 
           // Warning.
-          if (!std::strcmp("-warn",command) && !is_double_hyphen) {
+          if (!is_double_hyphen && !std::strcmp("-warn",command)) {
             gmic_substitute_args();
             bool force_visible = false;
             if ((*argument=='0' || *argument=='1') && argument[1]==',') {
@@ -12018,10 +12016,11 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
 
           // Display images in display window.
           unsigned int wind = 0;
-          if ((!std::strcmp("-window",command) ||
+          if (!is_double_hyphen &&
+              (!std::strcmp("-window",command) ||
                cimg_sscanf(command,"-window%u%c",&wind,&end)==1 ||
                cimg_sscanf(command,"-w%u%c",&wind,&end)==1) &&
-              wind<10 && !is_double_hyphen) {
+              wind<10) {
             gmic_substitute_args();
             int norm = -1, fullscreen = -1;
             float dimw = -1, dimh = -1, posx = -1, posy = -1;
@@ -12259,7 +12258,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
           }
 
           // Wait for a given delay of for user events on display window.
-          if (!std::strcmp("-wait",command) && !is_double_hyphen) {
+          if (!is_double_hyphen && !std::strcmp("-wait",command)) {
             gmic_substitute_args();
             if (!is_restriction)
               CImg<unsigned int>::vector(0,1,2,3,4,5,6,7,8,9).move_to(selection);
@@ -13044,7 +13043,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
       }
 
       // Input.
-      if (!std::strcmp("-input",command) && !is_double_hyphen) ++position;
+      if (!is_double_hyphen && !std::strcmp("-input",command)) ++position;
       else { std::strcpy(command,"-input"); argument = item; *restriction = 0; }
       gmic_substitute_args();
       if (!is_restriction || !selection) selection.assign(1,1,1,1,images.size());
