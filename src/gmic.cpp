@@ -4627,7 +4627,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
                                          !std::strcmp("-warn",command)))
             selection2cimg(restriction,callstack.size(),CImgList<char>::empty(),
                            command,true,false,CImg<char>::empty()).move_to(selection);
-          else if (!std::strcmp("-pass",command))
+          else if (!is_double_hyphen && !std::strcmp("-pass",command))
             selection2cimg(restriction,parent_images.size(),parent_images_names,command,true,
                            false,CImg<char>::empty()).move_to(selection);
           else
