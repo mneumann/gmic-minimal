@@ -4647,7 +4647,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
 
       const bool
         is_verbosity = (*item=='-' && item[1]=='v' && !item[2]) || !std::strcmp(item,"-verbose"),
-        is_echo = is_verbosity?false:(*command=='-' && command[1]=='e' && !command[2]) || !std::strcmp(command,"-echo"),
+        is_echo = is_double_hyphen || is_verbosity?false:(*command=='-' && command[1]=='e' && !command[2]) || !std::strcmp(command,"-echo"),
         is_check = is_verbosity || is_echo?false:!std::strcmp(item,"-check"),
         is_skip = is_verbosity || is_echo || is_check?false:!std::strcmp(item,"-skip");
 
@@ -4724,9 +4724,13 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
             "-local","-command","-normalize","-output","-print","-quit","-resize","-split","-text","-status", // 108-117
             "-verbose","-window","-exec","-unroll","-crop",0,"-or",0,0,0 // 118-127
           };
-          const bool is_mquvx = command1=='m' || command1=='q' || command1=='u' || command1=='v' || command1=='x';
+          const bool
+            is_mquvx = command1=='m' || command1=='q' || command1=='u' || command1=='v' || command1=='x',
+            is_deiopwx = command1=='d' || command1=='e' || command1=='i' || command1=='o' || command1=='p' ||
+                         command1=='w' || command1=='x';
           if ((unsigned int)command1<128 && onechar_shortcuts[(unsigned int)command1] &&
-              (!is_mquvx || (!is_double_hyphen && !is_restriction))) {
+              (!is_mquvx || (!is_double_hyphen && !is_restriction)) &&
+              (!is_deiopwx || !is_double_hyphen)) {
             std::strcpy(command,onechar_shortcuts[(unsigned int)command1]);
             if (is_mquvx) { CImg<char>::string(command).move_to(_item); *command = 0; }
             else *item = 0;
