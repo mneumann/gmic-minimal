@@ -43,7 +43,7 @@
  #
 */
 #ifndef gmic_version
-#define gmic_version 167
+#define gmic_version 168
 
 #include <cstdio>
 #include <cstring>

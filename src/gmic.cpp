@@ -5510,6 +5510,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
               cimg_forY(selection,l) gmic_apply(cut((T)value0,(T)value1));
               ++position;
             } else {
+              g_img.assign(2,selection.height()).fill(0);
 #if cimg_display==0
               print(images,0,"Cut image%s in interactive mode (skipped, no display support).",
                     gmic_selection.data());
@@ -5527,6 +5528,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
                 CImgDisplay _disp, &disp = _display_window[0]?_display_window[0]:_disp;
                 cimg_forY(selection,l) {
                   CImg<T> &img = gmic_check(images[selection[l]]);
+                  value0 = value1 = 0;
                   if (img) {
                     CImg<T> visu = img.depth()>1?img.get_projections2d(img.width()/2,
                                                                        img.height()/2,
@@ -5545,18 +5547,16 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
                     for (disp.show().flush(); !stopflag; ) {
                       const unsigned char white[] = { 255,255,255 }, black[] = { 0,0,0 };
                       const unsigned int key = disp.key();
-                      if (!g_img_uc)
-                        disp.display((g_img_uc=visu.get_cut((T)(vmin + percent0*(vmax - vmin)/100),
-                                                       (T)(vmin + percent1*(vmax - vmin)/100)).
-                                      resize(disp).normalize((T)0,(T)255)).
+                      if (!g_img_uc) {
+                        value0 = vmin + percent0*(vmax - vmin)/100;
+                        value1 = vmin + percent1*(vmax - vmin)/100;
+                        disp.display((g_img_uc=visu.get_cut((T)value0,(T)value1).normalize((T)0,(T)255).resize(disp)).
                                      draw_text(0,0,"Cut [%g,%g] = [%.3g%%,%.3g%%]",
-                                               white,black,0.7f,13,
-                                               (double)(vmin + percent0*(vmax - vmin)/100),
-                                               (double)(vmin + percent1*(vmax - vmin)/100),
-                                               percent0,percent1)).
+                                               white,black,0.7f,13,value0,value1,percent0,percent1)).
                           set_title("%s (%dx%dx%dx%d)",
                                     basename(images_names[selection[l]].data()),
                                     img.width(),img.height(),img.depth(),img.spectrum()).wait();
+                      }
                       const int mx = disp.mouse_x(), my = disp.mouse_y();
                       if (disp.button()) {
                         if (mx>=0 && my>=0 && (mx!=omx || my!=omy)) {
@@ -5582,19 +5582,20 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
                       }
                       if (disp.is_resized()) { disp.resize(false); g_img_uc.assign(); }
                     }
-                    g_img_uc.assign();
+                    value0 = vmin + percent0*(vmax - vmin)/100;
+                    value1 = vmin + percent1*(vmax - vmin)/100;
                     print(images,0,"Cut image [%d] in range [%g,%g] = [%.3g%%,%.3g%%].",
-                          selection[l],
-                          (double)(vmin + percent0*(vmax - vmin)/100),
-                          (double)(vmin + percent1*(vmax - vmin)/100),
-                          percent0,percent1);
-                    gmic_apply(cut((T)(vmin + percent0*(vmax - vmin)/100),(T)(vmin + percent1*(vmax - vmin)/100)));
+                          selection[l],value0,value1,percent0,percent1);
+                    gmic_apply(cut((T)value0,(T)value1));
                   } else gmic_apply(replace(img));
+                  g_img(0,l) = value0; g_img(1,l) = value1;
                 }
+                g_img_uc.assign();
               }
 #endif // #if cimg_display==0
+              g_img.value_string().move_to(status);
+              g_img.assign();
             }
-            g_img_uc.assign();
             is_released = false; continue;
           }
 
@@ -11605,6 +11606,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
               }
               ++position;
             } else {
+              g_img.assign(1,selection.height()).fill(0);
 #if cimg_display==0
               print(images,0,
                     "Threshold image%s in interactive mode (skipped, no display support).",
@@ -11624,6 +11626,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
                 CImgDisplay _disp, &disp = _display_window[0]?_display_window[0]:_disp;
                 cimg_forY(selection,l) {
                   CImg<T>& img = gmic_check(images[selection[l]]);
+                  value = 0;
                   if (img) {
                     CImg<T> visu = img.depth()>1?img.get_projections2d(img.width()/2,
                                                                        img.height()/2,
@@ -11642,16 +11645,15 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
                     for (disp.show().flush(); !stopflag; ) {
                       const unsigned char white[] = { 255,255,255 }, black[] = { 0,0,0 };
                       const unsigned int key = disp.key();
-                      if (!g_img_uc)
-                        disp.display(((g_img_uc=visu.get_threshold((T)(vmin + percent*(vmax - vmin)/100)).
-                                       resize(disp))*=255).
+                      if (!g_img_uc) {
+                        value = vmin + percent*(vmax - vmin)/100;
+                        disp.display(((g_img_uc=visu.get_threshold((T)value)*=255).resize(disp)).
                                      draw_text(0,0,"Threshold %g = %.3g%%",
-                                               white,black,0.7f,13,
-                                               (double)(vmin + percent*(vmax - vmin)/100),
-                                               percent)).
+                                               white,black,0.7f,13,value,percent)).
                           set_title("%s (%dx%dx%dx%d)",
                                     basename(images_names[selection[l]].data()),
                                     img.width(),img.height(),img.depth(),img.spectrum()).wait();
+                      }
                       const int mx = disp.mouse_x(), my = disp.mouse_y();
                       if (disp.button()) {
                         if (mx>=0 && my>=0 && (mx!=omx || my!=omy)) {
@@ -11674,15 +11676,21 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
                       }
                       if (disp.is_resized()) { disp.resize(false); g_img_uc.assign(); }
                     }
-                    print(images,0,"Hard-threshold image [%d] by %g = %.3g%%.",
-                          selection[l],(double)(vmin + percent*(vmax - vmin)/100),percent);
-                    gmic_apply(threshold((T)(vmin + percent*(vmax - vmin)/100)));
+                    value = vmin + percent*(vmax - vmin)/100;
+                    print(images,0,
+                          "Hard-threshold image [%d] by %g = %.3g%%.",
+                          selection[l],value,percent);
+                    gmic_apply(threshold((T)value));
+                    cimg_snprintf(title,_title.width(),"%g",value);
+                    CImg<char>::string(title).move_to(status);
                   } else gmic_apply(replace(img));
+                  g_img[l] = value;
                 }
                 g_img_uc.assign();
               }
-
 #endif // #if cimg_display==0
+              g_img.value_string().move_to(status);
+              g_img.assign();
             }
             is_released = false; continue;
           }
