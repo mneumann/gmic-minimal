@@ -13025,31 +13025,33 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
       }  // if (*item=='-') {
 
       // Variable assignment.
-      const char *const s_eq = std::strchr(item,'='), *new_value = 0;
-      if (s_eq) {
-        sep0 = s_eq>item?*(s_eq - 1):0;
-        sep1 = s_eq>item + 1?*(s_eq - 2):0;
-        if (cimg_sscanf(item,"%255[a-zA-Z0-9_]",title)==1 && (*title<'0' || *title>'9')) {
-          pattern = (unsigned int)std::strlen(title);
-          if ((sep0=='<' || sep0=='>') && sep1==sep0 && s_eq==item + pattern + 2) {
-            new_value = set_variable(title,s_eq + 1,sep0,variables_sizes);
-            print(images,0,"Update %s variable %s%c%c='%s' -> %s='%s'.",
-                  *title=='_'?"global":"local",
-                  title,sep0,sep0,s_eq + 1,title,new_value);
-            continue;
-          } else if ((sep0=='+' || sep0=='-' || sep0=='*' || sep0=='/' ||
-                      sep0=='%' || sep0=='&' || sep0=='|' || sep0=='^') && s_eq==item + pattern + 1) {
-            new_value = set_variable(title,s_eq + 1,sep0,variables_sizes);
-            print(images,0,"Update %s variable %s%c='%s' -> %s='%s'.",
-                  *title=='_'?"global":"local",
-                  title,sep0,s_eq + 1,title,new_value);
-            continue;
-          } else if (s_eq==item + pattern) {
-            set_variable(title,s_eq + 1,'=',variables_sizes);
-            print(images,0,"Set %s variable %s='%s'.",
-                  *title=='_'?"global":"local",
-                  title,s_eq + 1);
-            continue;
+      if (!is_input_command) {
+        const char *const s_eq = std::strchr(item,'='), *new_value = 0;
+        if (s_eq) {
+          sep0 = s_eq>item?*(s_eq - 1):0;
+          sep1 = s_eq>item + 1?*(s_eq - 2):0;
+          if (cimg_sscanf(item,"%255[a-zA-Z0-9_]",title)==1 && (*title<'0' || *title>'9')) {
+            pattern = (unsigned int)std::strlen(title);
+            if ((sep0=='<' || sep0=='>') && sep1==sep0 && s_eq==item + pattern + 2) {
+              new_value = set_variable(title,s_eq + 1,sep0,variables_sizes);
+              print(images,0,"Update %s variable %s%c%c='%s' -> %s='%s'.",
+                    *title=='_'?"global":"local",
+                    title,sep0,sep0,s_eq + 1,title,new_value);
+              continue;
+            } else if ((sep0=='+' || sep0=='-' || sep0=='*' || sep0=='/' ||
+                        sep0=='%' || sep0=='&' || sep0=='|' || sep0=='^') && s_eq==item + pattern + 1) {
+              new_value = set_variable(title,s_eq + 1,sep0,variables_sizes);
+              print(images,0,"Update %s variable %s%c='%s' -> %s='%s'.",
+                    *title=='_'?"global":"local",
+                    title,sep0,s_eq + 1,title,new_value);
+              continue;
+            } else if (s_eq==item + pattern) {
+              set_variable(title,s_eq + 1,'=',variables_sizes);
+              print(images,0,"Set %s variable %s='%s'.",
+                    *title=='_'?"global":"local",
+                    title,s_eq + 1);
+              continue;
+            }
           }
         }
       }
