@@ -1290,18 +1290,18 @@ CImgList<char> update_filters(const bool try_net_update, const bool is_silent=fa
       cimg::exception_mode(0);
       if (sources[l].back()==1) { // Overload default, add more checking.
         com.load_raw(filename);
-        if (cimg_sscanf(com," #@gmi%c",&sep)==1 && sep=='c') {
+        if (com && cimg_sscanf(com," #@gmi%c",&sep)==1 && sep=='c') {
           is_default_update = true;
           com.move_to(_gmic_additional_commands);
           add_code_separator = true;
-        } else if (cimg_sscanf(com,"1 unsigned_cha%c",&sep)==1 && sep=='r') {
+        } else if (com && cimg_sscanf(com,"1 unsigned_cha%c",&sep)==1 && sep=='r') {
           CImgList<char>::get_unserialize(com)[0].move_to(_gmic_additional_commands);
           is_default_update = true;
           add_code_separator = true;
         }
       } else {
         com.load_raw(filename);
-        if (cimg_sscanf(com,"1 unsigned_cha%c",&sep)==1 && sep=='r')
+        if (com && cimg_sscanf(com,"1 unsigned_cha%c",&sep)==1 && sep=='r')
           CImgList<char>::get_unserialize(com)[0].move_to(_gmic_additional_commands);
         else com.move_to(_gmic_additional_commands);
         add_code_separator = true;
