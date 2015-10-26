@@ -1857,12 +1857,11 @@ CImg<int> get_input_layers(CImgList<T>& images) {
 // Return the G'MIC command line needed to run the selected filter.
 //-----------------------------------------------------------------
 CImg<char> get_commands_line(const bool is_preview) {
+  CImg<char> res;
   const unsigned int
     filter = get_current_filter(),
     nbparams = get_filter_nbparams(filter);
-  if (!filter) return 0;
-
-  CImg<char> res;
+  if (!filter) return res;
   CImgList<char> lres;
   switch (get_verbosity_mode()) {
   case 0: case 1: case 2: case 3: CImg<char>("-v -99 -",8).move_to(lres); break;  // Quiet or Verbose.
