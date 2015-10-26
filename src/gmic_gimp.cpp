@@ -320,8 +320,9 @@ void set_locale() {
   gimp_set_data("gmic_locale",locale,std::strlen(locale) + 1);
 }
 
-const char *get_locale() {
-  static CImg<char> locale(16); *locale = 0;
+CImg<char> get_locale() {
+  CImg<char> locale(16);
+  *locale = 0;
   gimp_get_data("gmic_locale",locale);
   return locale;
 }
@@ -393,13 +394,14 @@ void get_output_layer_props(const char *const s, GimpLayerModeEffects &blendmode
 
 // Translate string into the current locale.
 //------------------------------------------
-#define _t(source,dest) if (!std::strcmp(source,s)) { static const char *const ns = dest; return ns; }
+#define _t(source,dest) if (!std::strcmp(source,s)) { const char *const ns = dest; return ns; }
 const char *t(const char *const s) {
+  const CImg<char> locale = get_locale();
 
   // Catalan translation.
-  if (!std::strcmp(get_locale(),"ca")) {
+  if (!std::strcmp(locale,"ca")) {
     if (!s) {
-      static const char *const ns = "No ha estat possible establir una connexi&#243; a Internet !\n\n"
+      const char *const ns = "No ha estat possible establir una connexi&#243; a Internet !\n\n"
         "No es possible arribar a aquestes fonts de filtres :\n";
       return ns;
     }
@@ -462,9 +464,9 @@ const char *t(const char *const s) {
   }
 
   // Dutch translation.
-  else if (!std::strcmp(get_locale(),"nl")) {
+  else if (!std::strcmp(locale,"nl")) {
     if (!s) {
-      static const char *const ns = "Geen internet-update mogelijk !\n\n"
+      const char *const ns = "Geen internet-update mogelijk !\n\n"
         "Kan deze filters bronnen te bereiken :\n";
       return ns;
     }
@@ -527,9 +529,9 @@ const char *t(const char *const s) {
   }
 
   // French translation.
-  else if (!std::strcmp(get_locale(),"fr")) {
+  else if (!std::strcmp(locale,"fr")) {
     if (!s) {
-      static const char *const ns = "Mise &#224; jour depuis Internet incompl&#232;te !\n\n"
+      const char *const ns = "Mise &#224; jour depuis Internet incompl&#232;te !\n\n"
         "Acc&#232;s impossible aux sources de filtres :\n";
       return ns;
     }
@@ -592,9 +594,9 @@ const char *t(const char *const s) {
   }
 
   // German translation.
-  else if (!std::strcmp(get_locale(),"de")) {
+  else if (!std::strcmp(locale,"de")) {
     if (!s) {
-      static const char *const ns = "Kein Internet-Update m\303\266glich !\n\n"
+      const char *const ns = "Kein Internet-Update m\303\266glich !\n\n"
         "Kann diese Filter Quellen erreichen :\n";
       return ns;
     }
@@ -657,9 +659,9 @@ const char *t(const char *const s) {
   }
 
   // Italian translation.
-  else if (!std::strcmp(get_locale(),"it")) {
+  else if (!std::strcmp(locale,"it")) {
     if (!s) {
-      static const char *const ns = "Impossibile aggiornare da Internet !\n\n"
+      const char *const ns = "Impossibile aggiornare da Internet !\n\n"
         "Impossibile raggiungere queste fonti filtri :\n";
       return ns;
     }
@@ -722,9 +724,9 @@ const char *t(const char *const s) {
   }
 
   // Japanese translation.
-  else if (!std::strcmp(get_locale(),"ja")) {
+  else if (!std::strcmp(locale,"ja")) {
     if (!s) {
-      static const char *const ns = "\xE3\x82\xA4\xE3\x83\xB3\xE3\x82\xBF\xE3\x83\xBC\xE3\x83\x8D\xE3\x83\x83\xE3\x83"
+      const char *const ns = "\xE3\x82\xA4\xE3\x83\xB3\xE3\x82\xBF\xE3\x83\xBC\xE3\x83\x8D\xE3\x83\x83\xE3\x83"
         "\x88\xE7\xB5\x8C\xE7\x94\xB1\xE3\x81\xA7\xE3\x81\xAE\xE6\x9B\xB4\xE6\x96\xB0\xE3\x81\xAB\xE5\xA4\xB1\xE6\x95"
         "\x97\xE3\x81\x97\xE3\x81\x9F\xE3\x83\x95\xE3\x82\xA3\xE3\x83\xAB\xE3\x82\xBF\xE3\x81\x8C\xE3\x81\x82\xE3\x82"
         "\x8A\xE3\x81\xBE\xE3\x81\x99\xEF\xBC\x81\n\n"
@@ -830,9 +832,9 @@ const char *t(const char *const s) {
   }
 
   // Polish translation.
-  else if (!std::strcmp(get_locale(),"pl")) {
+  else if (!std::strcmp(locale,"pl")) {
     if (!s) {
-      static const char *const ns = "Aktualizacja filtr\303\263w przez internet (cz\304\231\305\233ciowo) nie "
+      const char *const ns = "Aktualizacja filtr\303\263w przez internet (cz\304\231\305\233ciowo) nie "
         "powiod\305\202a si\304\231 !\n\n"
         "Brak dost\304\231pu do tych \305\272r\303\263de\305\202 filtr\303\263w :\n";
       return ns;
@@ -897,9 +899,9 @@ const char *t(const char *const s) {
   }
 
   // Portuguese translation.
-  else if (!std::strcmp(get_locale(),"pt")) {
+  else if (!std::strcmp(locale,"pt")) {
     if (!s) {
-      static const char *const ns = "A atualiza\303\247\303\243o pela internet falhou !\n\n"
+      const char *const ns = "A atualiza\303\247\303\243o pela internet falhou !\n\n"
         "Incapaz de chegar a essas fontes de filtros :\n";
       return ns;
     }
@@ -963,9 +965,9 @@ const char *t(const char *const s) {
   }
 
   // Serbian translation.
-  else if (!std::strcmp(get_locale(),"sr")) {
+  else if (!std::strcmp(locale,"sr")) {
     if (!s) {
-      static const char *const ns = "A\305\276uriranje filtera sa interneta (delimi\304\215no) neuspe\305\241no !\n\n"
+      const char *const ns = "A\305\276uriranje filtera sa interneta (delimi\304\215no) neuspe\305\241no !\n\n"
         "Nije mogu\304\207e dospeti do izvorne lokacije ovih filtera :\n";
       return ns;
     }
@@ -1028,9 +1030,9 @@ const char *t(const char *const s) {
   }
 
   // Spanish translation (Castillan).
-  else if (!std::strcmp(get_locale(),"es")) {
+  else if (!std::strcmp(locale,"es")) {
     if (!s) {
-      static const char *const ns = "No es posible establecer conexión a Internet !\n\n"
+      const char *const ns = "No es posible establecer conexión a Internet !\n\n"
         "No es posible acceder a estas fuentes de filtros :\n";
       return ns;
     }
@@ -1094,7 +1096,7 @@ const char *t(const char *const s) {
 
   // English translation (default).
   if (!s) {
-    static const char *const ns = "Filters update from Internet (partially) failed !\n\n"
+    const char *const ns = "Filters update from Internet (partially) failed !\n\n"
       "Unable to reach these filters sources:\n";
     return ns;
   }
@@ -1341,9 +1343,8 @@ CImgList<char> update_filters(const bool try_net_update, const bool is_silent=fa
   }
 
   // Parse filters descriptions for GIMP, and create corresponding sorted treeview_store.
-  CImg<char> line(256*1024), preview_command(256), arguments(65536), entry(256), locale(16);
+  CImg<char> line(256*1024), preview_command(256), arguments(65536), entry(256), locale = get_locale();
   *line = *preview_command = *arguments = *entry = *locale = 0;
-  std::strcpy(locale,get_locale());
   int level = 0, err = 0;
   bool is_testing = false;
   nb_available_filters = 0;
@@ -1855,13 +1856,13 @@ CImg<int> get_input_layers(CImgList<T>& images) {
 
 // Return the G'MIC command line needed to run the selected filter.
 //-----------------------------------------------------------------
-const char* get_commands_line(const bool is_preview) {
+CImg<char> get_commands_line(const bool is_preview) {
   const unsigned int
     filter = get_current_filter(),
     nbparams = get_filter_nbparams(filter);
   if (!filter) return 0;
 
-  static CImg<char> res;
+  CImg<char> res;
   CImgList<char> lres;
   switch (get_verbosity_mode()) {
   case 0: case 1: case 2: case 3: CImg<char>("-v -99 -",8).move_to(lres); break;  // Quiet or Verbose.
@@ -2328,7 +2329,7 @@ void on_dialog_apply_clicked() {
   gtk_widget_show(dialog_window);
   _create_dialog_gui = false;
   _gimp_preview_invalidate();
-  const char *const commands_line = get_commands_line(false);
+  const CImg<char> commands_line = get_commands_line(false);
   if (commands_line) { // Remember command line for the next use of the filter.
     CImg<char> s_tmp(48);
     cimg_snprintf(s_tmp,s_tmp.width(),"gmic_commands_line%u",get_current_filter());
@@ -2591,7 +2592,7 @@ void process_image(const char *const commands_line, const bool is_apply) {
 
   if (!commands_line && !filter) return;
   bool update_parameters = false;
-  const char *const _commands_line = commands_line?commands_line:get_commands_line(false);
+  const CImg<char> _commands_line = commands_line?CImg<char>::string(commands_line):get_commands_line(false);
   if (!_commands_line || std::strstr(_commands_line," -_none_")) return;
 
   CImg<char> new_label(256), progress_label;
@@ -2600,17 +2601,17 @@ void process_image(const char *const commands_line, const bool is_apply) {
     gtk_label_set_markup(GTK_LABEL(markup2ascii),gmic_entries[filter].data());
     CImg<char>::string(gtk_label_get_text(GTK_LABEL(markup2ascii))).move_to(progress_label);
     gimp_progress_init_printf(" G'MIC: %s...",progress_label.data());
-    const char *const cl = _commands_line +
+    const char *const cl = _commands_line.data() +
       (!std::strncmp(_commands_line,"-v -99 ",7)?7:
        !std::strncmp(_commands_line,"-v 0 ",5)?5:
        !std::strncmp(_commands_line,"-debug ",7)?7:0);
     cimg_snprintf(new_label,new_label.width(),"[G'MIC] %s: %s",gtk_label_get_text(GTK_LABEL(markup2ascii)),cl);
     cimg::strellipsize(new_label,240,false);
   } else {
-    cimg_snprintf(new_label,new_label.width(),"G'MIC: %s...",_commands_line);
+    cimg_snprintf(new_label,new_label.width(),"G'MIC: %s...",_commands_line.data());
     cimg::strellipsize(new_label,240,false);
     gimp_progress_init_printf("%s",new_label.data());
-    cimg_snprintf(new_label,new_label.width(),"[G'MIC]: %s",_commands_line);
+    cimg_snprintf(new_label,new_label.width(),"[G'MIC]: %s",_commands_line.data());
     cimg::strellipsize(new_label,240,false);
   }
 
@@ -2745,7 +2746,7 @@ void process_image(const char *const commands_line, const bool is_apply) {
       gtk_widget_destroy(message);
     } else {
       std::fprintf(cimg::output(),"\n[gmic_gimp]./error/ When running command '%s', this error occured:\n%s\n",
-                   _commands_line,spt.error_message.data());
+                   _commands_line.data(),spt.error_message.data());
       std::fflush(cimg::output());
     }
     status = GIMP_PDB_CALLING_ERROR;
@@ -3060,7 +3061,7 @@ void process_preview() {
   if (!gimp_image_is_valid(image_id)) return;
   const unsigned int filter = get_current_filter();
   if (!filter) return;
-  const char *const commands_line = get_commands_line(true);
+  const CImg<char> commands_line = get_commands_line(true);
   if (!commands_line || std::strstr(commands_line," -_none_")) return;
 
   bool update_parameters = false;
@@ -4304,7 +4305,7 @@ void gmic_run(const gchar *name, gint nparams, const GimpParam *param,
         if (p_spt) { st_process_thread &spt = *(st_process_thread*)p_spt; spt.is_abort = true; }
         cimg::mutex(25,0);
         process_image(0,false);
-        const char *const commands_line = get_commands_line(false);
+        const CImg<char> commands_line = get_commands_line(false);
         if (commands_line) { // Remember command line for the next use of the filter.
           CImg<char> s_tmp(48);
           cimg_snprintf(s_tmp,s_tmp.width(),"gmic_commands_line%u",get_current_filter());
