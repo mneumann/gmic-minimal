@@ -175,12 +175,11 @@ void set_filter_parameter(const unsigned int filter, const unsigned int n, const
   gimp_set_data(s_tmp,param,std::strlen(param) + 1);
 }
 
-char *get_filter_parameter(const unsigned int filter, const unsigned int n) {
-  static CImg<char> s_param;
-  CImg<char> s_tmp(48);
+CImg<char> get_filter_parameter(const unsigned int filter, const unsigned int n) {
+  CImg<char> s_param, s_tmp(48);
   cimg_snprintf(s_tmp,s_tmp.width(),"gmic_filter%u_parameter%u",filter,n);
   const unsigned int siz = 1U + gimp_get_data_size(s_tmp);
-  if (s_param._width<siz) s_param.assign(siz);
+  s_param.assign(siz);
   *s_param = 0;
   gimp_get_data(s_tmp,s_param);
   return s_param;
@@ -209,7 +208,7 @@ void reset_filters_parameters() {
   const char *const empty = "";
   for (unsigned int i = 1; i<gmic_entries.size(); ++i)
     for (unsigned int j = 0; ; ++j) {
-      const char *const val = get_filter_parameter(i,j);
+      const CImg<char> val = get_filter_parameter(i,j);
       if (*val) set_filter_parameter(i,j,empty); else break;
     }
 }
@@ -1876,12 +1875,13 @@ const char* get_commands_line(const bool is_preview) {
     if (nbparams) {
       lres[1].back() = ' ';
       for (unsigned int p = 0; p<nbparams; ++p) {
-        const char *ss = get_filter_parameter(filter,p);
+        const CImg<char> _ss = get_filter_parameter(filter,p);
+        const char *ss = _ss;
         const unsigned int l = (unsigned int)std::strlen(ss);
         CImg<char> nparam(l + 1);
         *nparam = 0;
         char *sd = nparam.data();
-        if (l>=2 && ss[0]=='\"' && ss[l - 1]=='\"') { // Replace special characters in a string or a filename.
+        if (l>=2 && *ss=='\"' && ss[l - 1]=='\"') { // Replace special characters in a string or a filename.
           ++ss; *(sd++) = '\"';
           for (unsigned int i = 1; i<l - 1; ++i, ++ss) { const char c = *ss; *(sd++) = c=='\"'?_dquote:c; }
           *(sd++) = '\"'; *(sd++) = 0;
@@ -2201,9 +2201,8 @@ void on_file_parameter_changed(GtkFileChooser *const file_chooser, const void *c
   reset_button_parameters();
   const char
     *const _s_value = gtk_file_chooser_get_filename(file_chooser),
-    *const s_value = _s_value?_s_value:"",
-    *const _o_value = get_filter_parameter(get_current_filter(),*(int*)event_infos);
-  CImg<char> o_value = CImg<char>::string(_o_value);
+    *const s_value = _s_value?_s_value:"";
+  CImg<char> o_value = get_filter_parameter(get_current_filter(),*(int*)event_infos);
   cimg::strpare(o_value,'\"',true);
   const bool
     is_same_file = !std::strcmp(gmic::basename(s_value),gmic::basename(o_value)),
@@ -2386,11 +2385,11 @@ void on_dialog_add_fave_clicked(GtkWidget *const tree_view) {
                    gmic_preview_commands[filter].data());
       const unsigned int nbp = get_filter_nbparams(filter);
       for (unsigned int n = 0; n<nbp; ++n) {
-        char *const param = get_filter_parameter(filter,n);
+        CImg<char> param = get_filter_parameter(filter,n);
         set_filter_parameter(gmic_entries.size(),n,param);
         for (char *p = std::strchr(param,'}'); p; p = std::strchr(p,'}')) *p = _rbrace; // Convert '}' if necessary.
         for (char *p = std::strchr(param,'\n'); p; p = std::strchr(p,'\n')) *p = _newline; // Convert '\n' if necessary.
-        std::fprintf(file,"{%s}",param);
+        std::fprintf(file,"{%s}",param.data());
       }
       std::fputc('\n',file);
       std::fclose(file);
@@ -3489,8 +3488,10 @@ void create_parameters_gui(const bool reset_params) {
           const bool is_silent_argument = (*_argument_type=='_');
           char
             *const argument_type = _argument_type.data() + (is_silent_argument?1:0),
-            *const argument_value = get_filter_parameter(filter,current_argument),
             *const argument_fave = get_fave_parameter(filter,current_argument);
+
+          CImg<char> argument_value = get_filter_parameter(filter,current_argument);
+
 
 #if defined(_WIN64)
           typedef unsigned long long pint;
