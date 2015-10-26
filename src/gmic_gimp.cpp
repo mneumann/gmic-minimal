@@ -192,12 +192,11 @@ void set_fave_parameter(const unsigned int filter, const unsigned int n, const c
   gimp_set_data(s_tmp,param,std::strlen(param) + 1);
 }
 
-char *get_fave_parameter(const unsigned int filter, const unsigned int n) {
-  static CImg<char> s_param;
-  CImg<char> s_tmp(48);
+CImg<char> get_fave_parameter(const unsigned int filter, const unsigned int n) {
+  CImg<char> s_param, s_tmp(48);
   cimg_snprintf(s_tmp,s_tmp.width(),"gmic_fave%u_parameter%u",filter,n);
   const unsigned int siz = 1U + gimp_get_data_size(s_tmp);
-  if (s_param._width<siz) s_param.assign(siz);
+  s_param.assign(siz);
   *s_param = 0;
   gimp_get_data(s_tmp,s_param);
   return s_param;
@@ -3487,11 +3486,11 @@ void create_parameters_gui(const bool reset_params) {
 
           const bool is_silent_argument = (*_argument_type=='_');
           char
-            *const argument_type = _argument_type.data() + (is_silent_argument?1:0),
-            *const argument_fave = get_fave_parameter(filter,current_argument);
+            *const argument_type = _argument_type.data() + (is_silent_argument?1:0);
 
-          CImg<char> argument_value = get_filter_parameter(filter,current_argument);
-
+          CImg<char>
+            argument_fave = get_fave_parameter(filter,current_argument),
+            argument_value = get_filter_parameter(filter,current_argument);
 
 #if defined(_WIN64)
           typedef unsigned long long pint;
