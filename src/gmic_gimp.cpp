@@ -1891,7 +1891,7 @@ CImg<char> get_commands_line(const bool is_preview) {
     }
     (res=lres>'x').back() = 0;
   }
-  return res.data();
+  return res;
 }
 
 // Set defaut zoom factor for preview of the current filter.
