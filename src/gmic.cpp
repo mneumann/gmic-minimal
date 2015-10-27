@@ -6564,7 +6564,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
             print(images,0,"Execute external command '%s'\n",
                   gmic_argument_text_printed());
             name.assign(argument,(unsigned int)std::strlen(argument) + 1);
-            cimg::strunescape(name);
+            //            cimg::strunescape(name);
             strreplace_fw(name);
             cimg::mutex(31);
             const int errcode = cimg::system(name);
