@@ -2463,7 +2463,7 @@ char *gmic::strreplace_fw(char *const str) {
       const char c = *s;
       if (c<' ')
         *s = c==_dollar?'$':c==_lbrace?'{':c==_rbrace?'}':c==_comma?',':
-          c==_backslash?'\\':c==_dquote?'\"':c;
+          c==_dquote?'\"':c;
     }
   return str;
 }
@@ -2472,7 +2472,7 @@ char *gmic::strreplace_bw(char *const str) {
   if (str) for (char *s = str ; *s; ++s) {
       const char c = *s;
       *s = c=='$'?_dollar:c=='{'?_lbrace:c=='}'?_rbrace:c==','?_comma:
-        c=='\\'?_backslash:c=='\"'?_dquote:c;
+        c=='\"'?_dquote:c;
     }
   return str;
 }
@@ -2692,16 +2692,15 @@ CImgList<char> gmic::commands_line_to_CImgList(const char *const commands_line) 
       else if (c=='{') c = _lbrace;
       else if (c=='}') c = _rbrace;
       else if (c==',') c = _comma;
-      else if (c=='\\') c = _backslash;
       else if (c=='\"') c = _dquote;
-      else if (!is_dquoted && c==' ') c = ' ';
+      else if (c==' ') c = ' ';
       else *(ptrd++) = '\\';
       *(ptrd++) = c;
     } else if (is_dquoted) { // If non-escaped character inside string.
       if (c=='\"') is_dquoted = false;
       else if (c==1) while (c && c!=' ') c = *(++ptrs); // Discard debug info inside string.
       else *(ptrd++) = (c=='$' && ptrs[1]!='?')?_dollar:c=='{'?_lbrace:c=='}'?_rbrace:
-             c=='\\'?_backslash:c==','?_comma:c;
+             c==','?_comma:c;
     } else { // Non-escaped character outside string.
       if (c=='\"') is_dquoted = true;
       else if (c==' ') {
@@ -2854,7 +2853,6 @@ gmic& gmic::debug(const char *format, ...) {
       case _dollar : std::fprintf(cimg::output(),"\\$"); break;
       case _lbrace : std::fprintf(cimg::output(),"\\{"); break;
       case _rbrace : std::fprintf(cimg::output(),"\\}"); break;
-      case _backslash : std::fprintf(cimg::output(),"\\\\"); break;
       case _comma : std::fprintf(cimg::output(),"\\,"); break;
       case _dquote : std::fprintf(cimg::output(),"\\\""); break;
       default : std::fputc(c,cimg::output());
@@ -3422,7 +3420,6 @@ gmic& gmic::debug(const CImgList<T>& list, const char *format, ...) {
       case _dollar : std::fprintf(cimg::output(),"\\$"); break;
       case _lbrace : std::fprintf(cimg::output(),"\\{"); break;
       case _rbrace : std::fprintf(cimg::output(),"\\}"); break;
-      case _backslash : std::fprintf(cimg::output(),"\\\\"); break;
       case _comma : std::fprintf(cimg::output(),"\\,"); break;
       case _dquote : std::fprintf(cimg::output(),"\\\""); break;
       default : std::fputc(c,cimg::output());
@@ -6597,6 +6594,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
             print(images,0,"Execute external command '%s'\n",
                   gmic_argument_text_printed());
             name.assign(argument,(unsigned int)std::strlen(argument) + 1);
+            //            cimg::strunescape(name);
             strreplace_fw(name);
             cimg::mutex(31);
             const int errcode = cimg::system(name);
@@ -9459,7 +9457,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
                 const char c = *s;
                 if (c=='\"') is_dquoted = !is_dquoted;
                 if (!is_dquoted) *s = c<' '?(c==_dollar?'$':c==_lbrace?'{':c==_rbrace?'}':
-                                             c==_backslash?'\\':c==_comma?',':c==_dquote?'\"':c):c;
+                                             c==_comma?',':c==_dquote?'\"':c):c;
               }
               gi.commands_line_to_CImgList(arguments[l].data()).
                 move_to(_threads_data[l].commands_line);
@@ -12941,7 +12939,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
                   const char c = *s;
                   if (c=='\"') is_dquoted = !is_dquoted;
                   if (!is_dquoted) *s = c<' '?(c==_dollar?'$':c==_lbrace?'{':c==_rbrace?'}':
-                                               c==_backslash?'\\':c==_comma?',':c==_dquote?'\"':c):c;
+                                               c==_comma?',':c==_dquote?'\"':c):c;
                 }
 
                 if (is_debug) {
