@@ -182,7 +182,7 @@ static struct cimg_is_abort {
 #endif // #if cimg_OS==2
 
 // Define some special character codes used for replacement in double quoted strings.
-const char _dollar = 23, _lbrace = 24, _rbrace = 25, _comma = 26, _dquote = 28, _newline = 29;
+const char _dollar = 23, _lbrace = 24, _rbrace = 25, _comma = 26, _backslash = 27, _dquote = 28, _newline = 29;
 
 #endif // #ifndef gmic_build
 
