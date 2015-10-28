@@ -86,7 +86,8 @@ CImg<T>& operator_eq(const char *const expression) {
   const unsigned int omode = cimg::exception_mode();
   cimg::exception_mode(0);
   try {
-    const CImg<T> _base = cimg::_is_self_expr(expression)?+*this:CImg<T>(),
+    const CImg<T>
+      _base = _cimg_math_parser::needs_input_copy(expression)?+*this:CImg<T>(),
       &base = _base?_base:*this;
     _cimg_math_parser mp(expression + (*expression=='>' || *expression=='<'?1:0),
                          "operator_eq",base,this);
@@ -147,7 +148,8 @@ CImg<T>& operator_neq(const char *const expression) {
   const unsigned int omode = cimg::exception_mode();
   cimg::exception_mode(0);
   try {
-    const CImg<T> _base = cimg::_is_self_expr(expression)?+*this:CImg<T>(),
+    const CImg<T>
+      _base = _cimg_math_parser::needs_input_copy(expression)?+*this:CImg<T>(),
       &base = _base?_base:*this;
     _cimg_math_parser mp(expression + (*expression=='>' || *expression=='<'?1:0),
                          "operator_neq",base,this);
@@ -208,7 +210,8 @@ CImg<T>& operator_gt(const char *const expression) {
   const unsigned int omode = cimg::exception_mode();
   cimg::exception_mode(0);
   try {
-    const CImg<T> _base = cimg::_is_self_expr(expression)?+*this:CImg<T>(),
+    const CImg<T>
+      _base = _cimg_math_parser::needs_input_copy(expression)?+*this:CImg<T>(),
       &base = _base?_base:*this;
     _cimg_math_parser mp(expression + (*expression=='>' || *expression=='<'?1:0),
                          "operator_gt",base,this);
@@ -269,7 +272,8 @@ CImg<T>& operator_ge(const char *const expression) {
   const unsigned int omode = cimg::exception_mode();
   cimg::exception_mode(0);
   try {
-    const CImg<T> _base = cimg::_is_self_expr(expression)?+*this:CImg<T>(),
+    const CImg<T>
+      _base = _cimg_math_parser::needs_input_copy(expression)?+*this:CImg<T>(),
       &base = _base?_base:*this;
     _cimg_math_parser mp(expression + (*expression=='>' || *expression=='<'?1:0),
                          "operator_ge",base,this);
@@ -330,7 +334,8 @@ CImg<T>& operator_lt(const char *const expression) {
   const unsigned int omode = cimg::exception_mode();
   cimg::exception_mode(0);
   try {
-    const CImg<T> _base = cimg::_is_self_expr(expression)?+*this:CImg<T>(),
+    const CImg<T>
+      _base = _cimg_math_parser::needs_input_copy(expression)?+*this:CImg<T>(),
       &base = _base?_base:*this;
     _cimg_math_parser mp(expression + (*expression=='>' || *expression=='<'?1:0),
                          "operator_lt",base,this);
@@ -391,7 +396,8 @@ CImg<T>& operator_le(const char *const expression) {
   const unsigned int omode = cimg::exception_mode();
   cimg::exception_mode(0);
   try {
-    const CImg<T> _base = cimg::_is_self_expr(expression)?+*this:CImg<T>(),
+    const CImg<T>
+      _base = _cimg_math_parser::needs_input_copy(expression)?+*this:CImg<T>(),
       &base = _base?_base:*this;
     _cimg_math_parser mp(expression + (*expression=='>' || *expression=='<'?1:0),
                          "operator_le",base,this);
