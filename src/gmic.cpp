@@ -86,17 +86,21 @@ CImg<T>& operator_eq(const char *const expression) {
   const unsigned int omode = cimg::exception_mode();
   cimg::exception_mode(0);
   try {
+    bool is_parallelizable = true;
     const CImg<T>
-      _base = _cimg_math_parser::needs_input_copy(expression)?+*this:CImg<T>(),
+      _base = _cimg_math_parser::needs_input_copy(expression,is_parallelizable)?+*this:CImg<T>(),
       &base = _base?_base:*this;
     _cimg_math_parser mp(expression + (*expression=='>' || *expression=='<'?1:0),
                          "operator_eq",base,this);
     T *ptrd = *expression=='<'?end() - 1:_data;
-    if (*expression=='<') cimg_rofXYZC(*this,x,y,z,c) { *ptrd = (T)(*ptrd == (T)mp(x,y,z,c)); --ptrd; }
-    else if (*expression=='>') cimg_forXYZC(*this,x,y,z,c) { *ptrd = (T)(*ptrd == (T)mp(x,y,z,c)); ++ptrd; }
+    if (*expression=='<')
+      cimg_rofXYZC(*this,x,y,z,c) { *ptrd = (T)(*ptrd == (T)mp(x,y,z,c)); --ptrd; }
+    else if (*expression=='>')
+      cimg_forXYZC(*this,x,y,z,c) { *ptrd = (T)(*ptrd == (T)mp(x,y,z,c)); ++ptrd; }
     else {
 #ifdef cimg_use_openmp
-      if (_width>=512 && _height*_depth*_spectrum>=2 && std::strlen(expression)>=6)
+      if (*expression=='*' ||
+          (is_parallelizable && _width>=512 && _height*_depth*_spectrum>=2 && std::strlen(expression)>=6))
 #pragma omp parallel
         {
           _cimg_math_parser _mp = omp_get_thread_num()?mp:_cimg_math_parser(), &lmp = omp_get_thread_num()?_mp:mp;
@@ -148,17 +152,21 @@ CImg<T>& operator_neq(const char *const expression) {
   const unsigned int omode = cimg::exception_mode();
   cimg::exception_mode(0);
   try {
+    bool is_parallelizable = true;
     const CImg<T>
-      _base = _cimg_math_parser::needs_input_copy(expression)?+*this:CImg<T>(),
+      _base = _cimg_math_parser::needs_input_copy(expression,is_parallelizable)?+*this:CImg<T>(),
       &base = _base?_base:*this;
     _cimg_math_parser mp(expression + (*expression=='>' || *expression=='<'?1:0),
                          "operator_neq",base,this);
     T *ptrd = *expression=='<'?end() - 1:_data;
-    if (*expression=='<') cimg_rofXYZC(*this,x,y,z,c) { *ptrd = (T)(*ptrd != (T)mp(x,y,z,c)); --ptrd; }
-    else if (*expression=='>') cimg_forXYZC(*this,x,y,z,c) { *ptrd = (T)(*ptrd != (T)mp(x,y,z,c)); ++ptrd; }
+    if (*expression=='<')
+      cimg_rofXYZC(*this,x,y,z,c) { *ptrd = (T)(*ptrd != (T)mp(x,y,z,c)); --ptrd; }
+    else if (*expression=='>')
+      cimg_forXYZC(*this,x,y,z,c) { *ptrd = (T)(*ptrd != (T)mp(x,y,z,c)); ++ptrd; }
     else {
 #ifdef cimg_use_openmp
-      if (_width>=512 && _height*_depth*_spectrum>=2 && std::strlen(expression)>=6)
+      if (*expression=='*' ||
+          (is_parallelizable && _width>=512 && _height*_depth*_spectrum>=2 && std::strlen(expression)>=6))
 #pragma omp parallel
         {
           _cimg_math_parser _mp = omp_get_thread_num()?mp:_cimg_math_parser(), &lmp = omp_get_thread_num()?_mp:mp;
@@ -210,17 +218,21 @@ CImg<T>& operator_gt(const char *const expression) {
   const unsigned int omode = cimg::exception_mode();
   cimg::exception_mode(0);
   try {
+    bool is_parallelizable = true;
     const CImg<T>
-      _base = _cimg_math_parser::needs_input_copy(expression)?+*this:CImg<T>(),
+      _base = _cimg_math_parser::needs_input_copy(expression,is_parallelizable)?+*this:CImg<T>(),
       &base = _base?_base:*this;
     _cimg_math_parser mp(expression + (*expression=='>' || *expression=='<'?1:0),
                          "operator_gt",base,this);
     T *ptrd = *expression=='<'?end() - 1:_data;
-    if (*expression=='<') cimg_rofXYZC(*this,x,y,z,c) { *ptrd = (T)(*ptrd > (T)mp(x,y,z,c)); --ptrd; }
-    else if (*expression=='>') cimg_forXYZC(*this,x,y,z,c) { *ptrd = (T)(*ptrd > (T)mp(x,y,z,c)); ++ptrd; }
+    if (*expression=='<')
+      cimg_rofXYZC(*this,x,y,z,c) { *ptrd = (T)(*ptrd > (T)mp(x,y,z,c)); --ptrd; }
+    else if (*expression=='>')
+      cimg_forXYZC(*this,x,y,z,c) { *ptrd = (T)(*ptrd > (T)mp(x,y,z,c)); ++ptrd; }
     else {
 #ifdef cimg_use_openmp
-      if (_width>=512 && _height*_depth*_spectrum>=2 && std::strlen(expression)>=6)
+      if (*expression=='*' ||
+          (is_parallelizable && _width>=512 && _height*_depth*_spectrum>=2 && std::strlen(expression)>=6))
 #pragma omp parallel
         {
           _cimg_math_parser _mp = omp_get_thread_num()?mp:_cimg_math_parser(), &lmp = omp_get_thread_num()?_mp:mp;
@@ -272,17 +284,21 @@ CImg<T>& operator_ge(const char *const expression) {
   const unsigned int omode = cimg::exception_mode();
   cimg::exception_mode(0);
   try {
+    bool is_parallelizable = true;
     const CImg<T>
-      _base = _cimg_math_parser::needs_input_copy(expression)?+*this:CImg<T>(),
+      _base = _cimg_math_parser::needs_input_copy(expression,is_parallelizable)?+*this:CImg<T>(),
       &base = _base?_base:*this;
     _cimg_math_parser mp(expression + (*expression=='>' || *expression=='<'?1:0),
                          "operator_ge",base,this);
     T *ptrd = *expression=='<'?end() - 1:_data;
-    if (*expression=='<') cimg_rofXYZC(*this,x,y,z,c) { *ptrd = (T)(*ptrd >= (T)mp(x,y,z,c)); --ptrd; }
-    else if (*expression=='>') cimg_forXYZC(*this,x,y,z,c) { *ptrd = (T)(*ptrd >= (T)mp(x,y,z,c)); ++ptrd; }
+    if (*expression=='<')
+      cimg_rofXYZC(*this,x,y,z,c) { *ptrd = (T)(*ptrd >= (T)mp(x,y,z,c)); --ptrd; }
+    else if (*expression=='>')
+      cimg_forXYZC(*this,x,y,z,c) { *ptrd = (T)(*ptrd >= (T)mp(x,y,z,c)); ++ptrd; }
     else {
 #ifdef cimg_use_openmp
-      if (_width>=512 && _height*_depth*_spectrum>=2 && std::strlen(expression)>=6)
+      if (*expression=='*' ||
+          (is_parallelizable && _width>=512 && _height*_depth*_spectrum>=2 && std::strlen(expression)>=6))
 #pragma omp parallel
         {
           _cimg_math_parser _mp = omp_get_thread_num()?mp:_cimg_math_parser(), &lmp = omp_get_thread_num()?_mp:mp;
@@ -334,17 +350,21 @@ CImg<T>& operator_lt(const char *const expression) {
   const unsigned int omode = cimg::exception_mode();
   cimg::exception_mode(0);
   try {
+    bool is_parallelizable = true;
     const CImg<T>
-      _base = _cimg_math_parser::needs_input_copy(expression)?+*this:CImg<T>(),
+      _base = _cimg_math_parser::needs_input_copy(expression,is_parallelizable)?+*this:CImg<T>(),
       &base = _base?_base:*this;
     _cimg_math_parser mp(expression + (*expression=='>' || *expression=='<'?1:0),
                          "operator_lt",base,this);
     T *ptrd = *expression=='<'?end() - 1:_data;
-    if (*expression=='<') cimg_rofXYZC(*this,x,y,z,c) { *ptrd = (T)(*ptrd < (T)mp(x,y,z,c)); --ptrd; }
-    else if (*expression=='>') cimg_forXYZC(*this,x,y,z,c) { *ptrd = (T)(*ptrd < (T)mp(x,y,z,c)); ++ptrd; }
+    if (*expression=='<')
+      cimg_rofXYZC(*this,x,y,z,c) { *ptrd = (T)(*ptrd < (T)mp(x,y,z,c)); --ptrd; }
+    else if (*expression=='>')
+      cimg_forXYZC(*this,x,y,z,c) { *ptrd = (T)(*ptrd < (T)mp(x,y,z,c)); ++ptrd; }
     else {
 #ifdef cimg_use_openmp
-      if (_width>=512 && _height*_depth*_spectrum>=2 && std::strlen(expression)>=6)
+      if (*expression=='*' ||
+          (is_parallelizable && _width>=512 && _height*_depth*_spectrum>=2 && std::strlen(expression)>=6))
 #pragma omp parallel
         {
           _cimg_math_parser _mp = omp_get_thread_num()?mp:_cimg_math_parser(), &lmp = omp_get_thread_num()?_mp:mp;
@@ -396,17 +416,21 @@ CImg<T>& operator_le(const char *const expression) {
   const unsigned int omode = cimg::exception_mode();
   cimg::exception_mode(0);
   try {
+    bool is_parallelizable = true;
     const CImg<T>
-      _base = _cimg_math_parser::needs_input_copy(expression)?+*this:CImg<T>(),
+      _base = _cimg_math_parser::needs_input_copy(expression,is_parallelizable)?+*this:CImg<T>(),
       &base = _base?_base:*this;
     _cimg_math_parser mp(expression + (*expression=='>' || *expression=='<'?1:0),
                          "operator_le",base,this);
     T *ptrd = *expression=='<'?end() - 1:_data;
-    if (*expression=='<') cimg_rofXYZC(*this,x,y,z,c) { *ptrd = (T)(*ptrd <= (T)mp(x,y,z,c)); --ptrd; }
-    else if (*expression=='>') cimg_forXYZC(*this,x,y,z,c) { *ptrd = (T)(*ptrd <= (T)mp(x,y,z,c)); ++ptrd; }
+    if (*expression=='<')
+      cimg_rofXYZC(*this,x,y,z,c) { *ptrd = (T)(*ptrd <= (T)mp(x,y,z,c)); --ptrd; }
+    else if (*expression=='>')
+      cimg_forXYZC(*this,x,y,z,c) { *ptrd = (T)(*ptrd <= (T)mp(x,y,z,c)); ++ptrd; }
     else {
 #ifdef cimg_use_openmp
-      if (_width>=512 && _height*_depth*_spectrum>=2 && std::strlen(expression)>=6)
+      if (*expression=='*' ||
+          (is_parallelizable && _width>=512 && _height*_depth*_spectrum>=2 && std::strlen(expression)>=6))
 #pragma omp parallel
         {
           _cimg_math_parser _mp = omp_get_thread_num()?mp:_cimg_math_parser(), &lmp = omp_get_thread_num()?_mp:mp;
