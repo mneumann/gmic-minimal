@@ -3265,6 +3265,8 @@ void process_preview() {
       }
     }
 
+    //    spt.images.display("DEBUG");
+
     // Run G'MIC.
     CImg<unsigned char> original_preview;
     CImg<char> progress_label;
