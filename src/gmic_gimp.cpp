@@ -2030,7 +2030,9 @@ void _gimp_preview_invalidate() {
     const int w = gimp_image_width(image_id), h = gimp_image_height(image_id);
     if (preview_image_id) gimp_image_delete(preview_image_id);
     preview_image_id = 0; preview_image_factor = 1;
-    const int min_preview_size = (200 + 120*(2 + get_preview_size(true)))/2;
+    const int
+      max_preview_size = 200 + 120*(2 + get_preview_size(true)),
+      min_preview_size = max_preview_size/2;
     if (cimg::max(w,h)<min_preview_size) { // Image too small, prevent preview to be tiny.
       int pw = 0, ph = 0;
       if (w>=h) ph = cimg::max(1,h*(pw=min_preview_size)/w); else pw = cimg::max(1,w*(ph=min_preview_size)/h);
@@ -2040,6 +2042,9 @@ void _gimp_preview_invalidate() {
       gimp_context_set_interpolation(GIMP_INTERPOLATION_NONE);
       gimp_image_scale(preview_image_id,pw,ph);
       gimp_context_set_interpolation(mode);
+
+      std::fprintf(stderr,"\nDEBUG : pw = %d, ph = %d\n",pw,ph);
+
     }
 
 #if GIMP_MINOR_VERSION<=8
