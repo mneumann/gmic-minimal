@@ -4855,7 +4855,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
             *ptrd = 0;
             CImg<char>::string(name).move_to(status);
             _gmic_argument_text(status,name,is_verbose);
-            print(images,0,"Set status to string '%s' (escaped backslash).",name.data());
+            print(images,0,"Set status to string '%s' (escape backslash).",name.data());
             ++position; continue;
           }
 
