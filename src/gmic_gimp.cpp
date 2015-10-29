@@ -2030,12 +2030,18 @@ void _gimp_preview_invalidate() {
     const int w = gimp_image_width(image_id), h = gimp_image_height(image_id);
     if (preview_image_id) gimp_image_delete(preview_image_id);
     preview_image_id = 0; preview_image_factor = 1;
+
+    // Pre-compute image thumbnail for preview if image has bad dimensions
+    // (too small/big or wrong aspect ratio).
     const int
+      mwh = cimg::min(w,h),
+      Mwh = cimg::max(w,h),
       max_preview_size = 200 + 120*(2 + get_preview_size(true)),
       min_preview_size = max_preview_size/2;
-    if (cimg::max(w,h)<min_preview_size) { // Image too small, prevent preview to be tiny.
+    if (Mwh<min_preview_size) {
       int pw = 0, ph = 0;
-      if (w>=h) ph = cimg::max(1,h*(pw=min_preview_size)/w); else pw = cimg::max(1,w*(ph=min_preview_size)/h);
+      if (w>=h) ph = cimg::max(1,h*(pw=min_preview_size)/w);
+      else pw = cimg::max(1,w*(ph=min_preview_size)/h);
       preview_image_id = gimp_image_duplicate(image_id);
       preview_image_factor = (double)cimg::max(pw,ph)/cimg::max(w,h);
       const GimpInterpolationType mode = gimp_context_get_interpolation();
