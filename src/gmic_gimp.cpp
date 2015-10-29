@@ -2038,19 +2038,39 @@ void _gimp_preview_invalidate() {
       Mwh = cimg::max(w,h),
       max_preview_size = 200 + 120*(2 + get_preview_size(true)),
       min_preview_size = max_preview_size/2;
-    if (Mwh<min_preview_size) {
-      int pw = 0, ph = 0;
-      if (w>=h) ph = cimg::max(1,h*(pw=min_preview_size)/w);
-      else pw = cimg::max(1,w*(ph=min_preview_size)/h);
+
+    if (Mwh<min_preview_size || mwh>max_preview_size || Mwh>2*mwh) {
+      int pw = 0, ph = 0, preview_size = min_preview_size;
+      GimpInterpolationType interpolation = GIMP_INTERPOLATION_NONE;
+      if (Mwh<min_preview_size) {
+        preview_size = min_preview_size;
+        interpolation = GIMP_INTERPOLATION_NONE;
+      } else if (mwh>max_preview_size) {
+        preview_size = max_preview_size;
+        interpolation = GIMP_INTERPOLATION_LINEAR;
+      } else {
+        preview_size = cimg::min(Mwh,max_preview_size);
+        interpolation = GIMP_INTERPOLATION_LINEAR;
+      }
+      if (w>=h) ph = cimg::max(1,h*(pw=preview_size)/w);
+      else pw = cimg::max(1,w*(ph=preview_size)/h);
       preview_image_id = gimp_image_duplicate(image_id);
       preview_image_factor = (double)cimg::max(pw,ph)/cimg::max(w,h);
       const GimpInterpolationType mode = gimp_context_get_interpolation();
-      gimp_context_set_interpolation(GIMP_INTERPOLATION_NONE);
+      gimp_context_set_interpolation(interpolation);
       gimp_image_scale(preview_image_id,pw,ph);
       gimp_context_set_interpolation(mode);
-
-      std::fprintf(stderr,"\nDEBUG : pw = %d, ph = %d\n",pw,ph);
-
+      const int
+        mpwh = cimg::min(pw,ph),
+        Mpwh = cimg::max(pw,ph);
+      if (2*Mpwh>3*mpwh) { // Unusual aspect ratio.
+        gimp_layer_add_alpha(gimp_image_get_active_layer(preview_image_id));
+        const int
+          nw = pw>ph?pw:2*Mpwh/3,
+          nh = pw>ph?2*Mpwh/3:ph;
+        gimp_image_resize(preview_image_id,nw,nh,(nw-pw)/2,(nh-ph)/2);
+        gimp_layer_resize_to_image_size(gimp_image_get_active_layer(preview_image_id));
+      }
     }
 
 #if GIMP_MINOR_VERSION<=8
