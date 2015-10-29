@@ -370,14 +370,14 @@ gmic: gmic.cpp gmic.h gmic_stdlib.h CImg.h
 	$(CC) -o gmic gmic.cpp -Dgmic_main $(CFLAGS) $(LIBS)
 
 gmic_stdlib.h:
-	@echo "> Retrieve G'MIC Standard Library...\r"
+	@echo -n "> Retrieve G'MIC Standard Library..."
 	@$(WGET) gmic_stdlib.h http://gmic.eu/gmic_stdlib.h
 	@touch gmic_stdlib.h
-	@echo ">   ...done!"
+	@echo " done!"
 CImg.h:
-	@echo "> Retrieve CImg Library..."
+	@echo -n "> Retrieve CImg Library..."
 	@if [ -f ../../CImg/CImg.h ]; then if [ ! -f ./CImg.h ]; then ln -s ../../CImg/CImg.h .; fi; else $(WGET) CImg.h https://github.com/dtschump/CImg/blob/master/CImg.h?raw=true; touch CImg.h; fi
-	@echo ">   ...done!"
+	@echo " done!"
 
 # Generate gmic_stdlib.h file (requires 'gmic' to be installed first).
 stdlib:
