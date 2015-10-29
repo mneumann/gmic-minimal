@@ -370,7 +370,7 @@ gmic: gmic.cpp gmic.h gmic_stdlib.h CImg.h
 	$(CC) -o gmic gmic.cpp -Dgmic_main $(CFLAGS) $(LIBS)
 
 gmic_stdlib.h:
-	@echo "> Retrieve G'MIC Standard Library...\r"
+	@echo "> Retrieve G'MIC Standard Library..."
 	@$(WGET) gmic_stdlib.h http://gmic.eu/gmic_stdlib.h
 	@touch gmic_stdlib.h
 	@echo ">   ...done!"
