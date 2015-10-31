@@ -389,7 +389,10 @@ void get_output_layer_props(const char *const s, GimpLayerModeEffects &blendmode
       else if (*ps==')') --level;
       ++ps;
     }
-    if (!level || *(ps - 1)==')') name.assign(S + 5,(unsigned int)(ps - S - 5)).back() = 0;
+    if (!level || *(ps - 1)==')') {
+      name.assign(S + 5,(unsigned int)(ps - S - 5)).back() = 0;
+      cimg_for(name,pn,char) if (*pn==21) *pn = '('; else if (*pn==22) *pn = ')';
+    }
   }
 }
 
@@ -2033,9 +2036,7 @@ void _gimp_preview_invalidate() {
     if (preview_image_ratio_id) gimp_image_delete(preview_image_ratio_id);
     preview_image_id = preview_image_ratio_id = 0; preview_image_factor = 1;
 
-    // Pre-compute image thumbnail for preview if image is too small.
-
-   // Pre-compute image thumbnail for preview if image has bad dimensions
+    // Pre-compute image thumbnail for preview if image has bad dimensions
     // (too small/big or wrong aspect ratio).
     const int
       mwh = cimg::min(w,h),
@@ -2043,7 +2044,7 @@ void _gimp_preview_invalidate() {
       max_preview_size = 200 + 120*(2 + get_preview_size(true)),
       min_preview_size = max_preview_size/2;
 
-    if (Mwh<min_preview_size || mwh>max_preview_size || Mwh>2*mwh) {
+    if (Mwh<min_preview_size) { // || mwh>max_preview_size || Mwh>2*mwh) {
       int pw = 0, ph = 0, preview_size = min_preview_size;
       GimpInterpolationType interpolation = GIMP_INTERPOLATION_NONE;
       if (Mwh<min_preview_size) {
@@ -2695,7 +2696,7 @@ void process_image(const char *const commands_line, const bool is_apply) {
       if (output_mode>=1 && output_mode<=2) { posx = sel_x0; posy = sel_y0; }
     } else gimp_drawable_offsets(layers[p],&posx,&posy);
     CImg<char> _layer_name = CImg<char>::string(gimp_item_get_name(layers[p]));
-    cimg_for(_layer_name,p,char) if (*p=='(') *p = '['; else if (*p==')') *p = ']';
+    cimg_for(_layer_name,pn,char) if (*pn=='(') *pn = 21; else if (*pn==')') *pn = 22;
     cimg_snprintf(layer_name,layer_name.width(),"mode(%s),opacity(%g),pos(%d,%d),name(%s)",
                   s_blendmode[blendmode],opacity,posx,posy,
                   _layer_name.data());
