@@ -3263,10 +3263,11 @@ void process_preview() {
             CImg<char>::string(layer_name).move_to(spt.images_names[p]);
           }
         }
+
+        //        spt.images.display("DEBUG : custom preview");
+
       }
     }
-
-    //    spt.images.display("DEBUG");
 
     // Run G'MIC.
     CImg<unsigned char> original_preview;
