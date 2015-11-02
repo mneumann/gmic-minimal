@@ -95,7 +95,6 @@ bool is_block_preview = false;                 // Flag to block preview, when do
 void **event_infos;                            // Infos that are passed to the GUI callback functions.
 int image_id = 0;                              // The image concerned by the plug-in execution.
 int preview_image_id = 0;                      // The alternate preview image used if image is too small.
-int preview_image_ratio_id = 0;                // A "ratio-corrected" version of preview_image_id, if required.
 double preview_image_factor = 0;               // If alternative preview image used, tell about the size factor (>1).
 unsigned int indice_faves = 0;                 // The starting index of favorite filters.
 unsigned int nb_available_filters = 0;         // The number of available filters (non-testing).
@@ -2033,8 +2032,7 @@ void _gimp_preview_invalidate() {
     if (GTK_IS_WIDGET(gui_preview)) gtk_widget_destroy(gui_preview);
     const int w = gimp_image_width(image_id), h = gimp_image_height(image_id);
     if (preview_image_id) gimp_image_delete(preview_image_id);
-    if (preview_image_ratio_id) gimp_image_delete(preview_image_ratio_id);
-    preview_image_id = preview_image_ratio_id = 0; preview_image_factor = 1;
+    preview_image_id = 0; preview_image_factor = 1;
 
     // Pre-compute image thumbnail for preview if image has bad dimensions
     // (too small/big or wrong aspect ratio).
@@ -2065,10 +2063,11 @@ void _gimp_preview_invalidate() {
       gimp_context_set_interpolation(interpolation);
       gimp_image_scale(preview_image_id,pw,ph);
       gimp_context_set_interpolation(mode);
+
+      /*
       const int
         mpwh = cimg::min(pw,ph),
         Mpwh = cimg::max(pw,ph);
-
       if (2*Mpwh>3*mpwh) { // Unusual aspect ratio.
         preview_image_ratio_id = gimp_image_duplicate(preview_image_id);
         gimp_layer_add_alpha(gimp_image_get_active_layer(preview_image_ratio_id));
@@ -2078,10 +2077,7 @@ void _gimp_preview_invalidate() {
         gimp_image_resize(preview_image_ratio_id,nw,nh,(nw-pw)/2,(nh-ph)/2);
         gimp_layer_resize_to_image_size(gimp_image_get_active_layer(preview_image_ratio_id));
       }
-
-      std::fprintf(stderr,"\nPREVIEW : %d x %d -> %d x %d\n",
-                   gimp_image_width(preview_image_id),gimp_image_height(preview_image_id),
-                   gimp_image_width(preview_image_ratio_id),gimp_image_height(preview_image_ratio_id));
+      */
 
     }
 
@@ -2101,12 +2097,10 @@ void _gimp_preview_invalidate() {
 
 #if GIMP_MINOR_VERSION<=8
     GimpDrawable *const preview_drawable =
-      gimp_drawable_get(gimp_image_get_active_drawable(preview_image_ratio_id?preview_image_ratio_id:
-                                                       preview_image_id?preview_image_id:image_id));
+      gimp_drawable_get(gimp_image_get_active_drawable(preview_image_id?preview_image_id:image_id));
     gui_preview = gimp_zoom_preview_new(preview_drawable);
 #else
-    const int preview_drawable_id = gimp_image_get_active_drawable(preview_image_ratio_id?preview_image_ratio_id:
-                                                                   preview_image_id?preview_image_id:image_id);
+    const int preview_drawable_id = gimp_image_get_active_drawable(preview_image_id?preview_image_id:image_id);
     gui_preview = gimp_zoom_preview_new_from_drawable_id(preview_drawable_id);
 #endif
 
@@ -4420,7 +4414,6 @@ void gmic_run(const gchar *name, gint nparams, const GimpParam *param,
 
   gtk_widget_destroy(markup2ascii);
   if (preview_image_id) gimp_image_delete(preview_image_id);
-  if (preview_image_ratio_id) gimp_image_delete(preview_image_ratio_id);
   if (logfile) std::fclose(logfile);
   return_values[0].data.d_status = status;
 }
