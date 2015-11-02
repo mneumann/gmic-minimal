@@ -389,10 +389,7 @@ void get_output_layer_props(const char *const s, GimpLayerModeEffects &blendmode
       else if (*ps==')') --level;
       ++ps;
     }
-    if (!level || *(ps - 1)==')') {
-      name.assign(S + 5,(unsigned int)(ps - S - 5)).back() = 0;
-      cimg_for(name,pn,char) if (*pn==21) *pn = '('; else if (*pn==22) *pn = ')';
-    }
+    if (!level || *(ps - 1)==')') name.assign(S + 5,(unsigned int)(ps - S - 5)).back() = 0;
   }
 }
 
@@ -2078,11 +2075,6 @@ void _gimp_preview_invalidate() {
         gimp_image_resize(preview_image_ratio_id,nw,nh,(nw-pw)/2,(nh-ph)/2);
         gimp_layer_resize_to_image_size(gimp_image_get_active_layer(preview_image_ratio_id));
       }
-
-      std::fprintf(stderr,"\nPREVIEW : %d x %d -> %d x %d\n",
-                   gimp_image_width(preview_image_id),gimp_image_height(preview_image_id),
-                   gimp_image_width(preview_image_ratio_id),gimp_image_height(preview_image_ratio_id));
-
     }
 
     /*    const int min_preview_size = (200 + 120*get_preview_size(true))*2/3;
@@ -2701,7 +2693,7 @@ void process_image(const char *const commands_line, const bool is_apply) {
       if (output_mode>=1 && output_mode<=2) { posx = sel_x0; posy = sel_y0; }
     } else gimp_drawable_offsets(layers[p],&posx,&posy);
     CImg<char> _layer_name = CImg<char>::string(gimp_item_get_name(layers[p]));
-    cimg_for(_layer_name,pn,char) if (*pn=='(') *pn = 21; else if (*pn==')') *pn = 22;
+    cimg_for(_layer_name,p,char) if (*p=='(') *p = '['; else if (*p==')') *p = ']';
     cimg_snprintf(layer_name,layer_name.width(),"mode(%s),opacity(%g),pos(%d,%d),name(%s)",
                   s_blendmode[blendmode],opacity,posx,posy,
                   _layer_name.data());
@@ -3243,10 +3235,6 @@ void process_preview() {
             _hp = (int)cimg::round(hp/preview_image_factor);
           const double ratio = cimg::max((double)_wp/w0,(double)_hp/h0);
 
-          /*          std::fprintf(stderr,"\nDEBUG : w0,h0 = %d,%d   wp,hp = %d,%d   ratio = %g  -> _wp,_hp = %d,%d\n",
-                       w0,h0,wp,hp,ratio,_wp,_hp);
-          */
-
           // Retrieve resized and cropped preview layers.
           cimg_forY(layers,p) {
             const float opacity = gimp_layer_get_opacity(layers[p]);
@@ -3272,11 +3260,10 @@ void process_preview() {
             CImg<char>::string(layer_name).move_to(spt.images_names[p]);
           }
         }
-
-        //        spt.images.display("DEBUG : custom preview");
-
       }
     }
+
+    //    spt.images.display("DEBUG");
 
     // Run G'MIC.
     CImg<unsigned char> original_preview;
