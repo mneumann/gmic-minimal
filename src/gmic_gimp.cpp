@@ -2078,6 +2078,11 @@ void _gimp_preview_invalidate() {
         gimp_image_resize(preview_image_ratio_id,nw,nh,(nw-pw)/2,(nh-ph)/2);
         gimp_layer_resize_to_image_size(gimp_image_get_active_layer(preview_image_ratio_id));
       }
+
+      std::fprintf(stderr,"\nPREVIEW : %d x %d -> %d x %d\n",
+                   gimp_image_width(preview_image_id),gimp_image_height(preview_image_id),
+                   gimp_image_width(preview_image_ratio_id),gimp_image_height(preview_image_ratio_id));
+
     }
 
     /*    const int min_preview_size = (200 + 120*get_preview_size(true))*2/3;
@@ -3237,6 +3242,10 @@ void process_preview() {
             _wp = (int)cimg::round(wp/preview_image_factor),
             _hp = (int)cimg::round(hp/preview_image_factor);
           const double ratio = cimg::max((double)_wp/w0,(double)_hp/h0);
+
+          /*          std::fprintf(stderr,"\nDEBUG : w0,h0 = %d,%d   wp,hp = %d,%d   ratio = %g  -> _wp,_hp = %d,%d\n",
+                       w0,h0,wp,hp,ratio,_wp,_hp);
+          */
 
           // Retrieve resized and cropped preview layers.
           cimg_forY(layers,p) {
