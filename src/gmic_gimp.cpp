@@ -2137,7 +2137,7 @@ void _gimp_preview_invalidate() {
 }
 
 // Resize preview widget.
-void resize_preview(const unsigned int size=2) {
+void resize_preview(const unsigned int size) {
   CImg<char> tmp(256);
   cimg_sprintf(tmp,
                "style \"gimp-large-preview\"\n"
