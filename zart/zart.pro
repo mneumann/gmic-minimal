@@ -109,7 +109,7 @@ PRE_TARGETDEPS +=
 debug {
     DEFINES += _ZART_DEBUG_
 }
-release {    
+release {
     QMAKE_CXXFLAGS += -ffast-math
 }
 UI_DIR = .ui

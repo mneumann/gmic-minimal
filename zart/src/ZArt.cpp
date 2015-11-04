@@ -74,6 +74,7 @@ int main( int argc, char *argv[] )
   QCoreApplication::setOrganizationName("GREYC");
   QCoreApplication::setOrganizationDomain("greyc.fr");
   QCoreApplication::setApplicationName("ZArt");
+  QCoreApplication::setAttribute(Qt::AA_DontUseNativeMenuBar);
 
   QStringList args = app.arguments();
   QStringList::iterator it = args.begin();
