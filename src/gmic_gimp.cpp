@@ -2076,7 +2076,6 @@ void _gimp_preview_invalidate() {
     gtk_box_pack_start(GTK_BOX(zoom_buttons),reset_zoom_button,false,false,0);
     gtk_widget_set_tooltip_text(reset_zoom_button,t("Reset zoom"));
     g_signal_connect(reset_zoom_button,"clicked",G_CALLBACK(on_dialog_reset_zoom_button_clicked),0);
-
     gtk_widget_show(gui_preview);
     gtk_box_pack_end(GTK_BOX(left_pane),gui_preview,true,true,0);
     g_signal_connect(gui_preview,"invalidated",G_CALLBACK(process_preview),0);
