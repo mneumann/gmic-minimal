@@ -2057,7 +2057,7 @@ void _gimp_preview_invalidate() {
     gui_preview = gimp_zoom_preview_new_from_drawable_id(preview_drawable_id);
 #endif
 
-    GtkWidget *controls = gimp_preview_get_controls(GIMP_PREVIEW(gui_preview));
+    GtkWidget *const controls = gimp_preview_get_controls(GIMP_PREVIEW(gui_preview));
     GList *const children1 = ((GtkBox*)controls)->children;
     GtkBoxChild *const child1 = (GtkBoxChild*)children1->data;
     GtkWidget *const preview_button = child1->widget;
