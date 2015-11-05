@@ -2034,54 +2034,8 @@ void _gimp_preview_invalidate() {
     if (preview_image_id) gimp_image_delete(preview_image_id);
     preview_image_id = 0; preview_image_factor = 1;
 
-    // Pre-compute image thumbnail for preview if image has bad dimensions
-    // (too small/big or wrong aspect ratio).
-    const int
-      mwh = cimg::min(w,h),
-      Mwh = cimg::max(w,h),
-      max_preview_size = 200 + 120*(2 + get_preview_size(true)),
-      min_preview_size = max_preview_size/2;
-
-    if (Mwh<min_preview_size) { // || mwh>max_preview_size || Mwh>2*mwh) {
-      int pw = 0, ph = 0, preview_size = min_preview_size;
-      GimpInterpolationType interpolation = GIMP_INTERPOLATION_NONE;
-      if (Mwh<min_preview_size) {
-        preview_size = min_preview_size;
-        interpolation = GIMP_INTERPOLATION_NONE;
-      } else if (mwh>max_preview_size) {
-        preview_size = max_preview_size;
-        interpolation = GIMP_INTERPOLATION_LINEAR;
-      } else {
-        preview_size = cimg::min(Mwh,max_preview_size);
-        interpolation = GIMP_INTERPOLATION_LINEAR;
-      }
-      if (w>=h) ph = cimg::max(1,h*(pw=preview_size)/w);
-      else pw = cimg::max(1,w*(ph=preview_size)/h);
-      preview_image_id = gimp_image_duplicate(image_id);
-      preview_image_factor = (double)cimg::max(pw,ph)/cimg::max(w,h);
-      const GimpInterpolationType mode = gimp_context_get_interpolation();
-      gimp_context_set_interpolation(interpolation);
-      gimp_image_scale(preview_image_id,pw,ph);
-      gimp_context_set_interpolation(mode);
-
-      /*
-      const int
-        mpwh = cimg::min(pw,ph),
-        Mpwh = cimg::max(pw,ph);
-      if (2*Mpwh>3*mpwh) { // Unusual aspect ratio.
-        preview_image_ratio_id = gimp_image_duplicate(preview_image_id);
-        gimp_layer_add_alpha(gimp_image_get_active_layer(preview_image_ratio_id));
-        const int
-          nw = pw>ph?pw:2*Mpwh/3,
-          nh = pw>ph?2*Mpwh/3:ph;
-        gimp_image_resize(preview_image_ratio_id,nw,nh,(nw-pw)/2,(nh-ph)/2);
-        gimp_layer_resize_to_image_size(gimp_image_get_active_layer(preview_image_ratio_id));
-      }
-      */
-
-    }
-
-    /*    const int min_preview_size = (200 + 120*get_preview_size(true))*2/3;
+    // Pre-compute image thumbnail for preview if image is too small.
+    const int min_preview_size = (200 + 120*get_preview_size(true))*2/3;
     if (cimg::max(w,h)<min_preview_size) {
       int pw = 0, ph = 0;
       if (w>=h) ph = cimg::max(1,h*(pw=min_preview_size)/w);
@@ -2093,7 +2047,6 @@ void _gimp_preview_invalidate() {
       gimp_image_scale(preview_image_id,pw,ph);
       gimp_context_set_interpolation(mode);
     }
-    */
 
 #if GIMP_MINOR_VERSION<=8
     GimpDrawable *const preview_drawable =
@@ -3237,10 +3190,6 @@ void process_preview() {
             _hp = (int)cimg::round(hp/preview_image_factor);
           const double ratio = cimg::max((double)_wp/w0,(double)_hp/h0);
 
-          /*          std::fprintf(stderr,"\nDEBUG : w0,h0 = %d,%d   wp,hp = %d,%d   ratio = %g  -> _wp,_hp = %d,%d\n",
-                       w0,h0,wp,hp,ratio,_wp,_hp);
-          */
-
           // Retrieve resized and cropped preview layers.
           cimg_forY(layers,p) {
             const float opacity = gimp_layer_get_opacity(layers[p]);
@@ -3266,9 +3215,6 @@ void process_preview() {
             CImg<char>::string(layer_name).move_to(spt.images_names[p]);
           }
         }
-
-        //        spt.images.display("DEBUG : custom preview");
-
       }
     }
 
