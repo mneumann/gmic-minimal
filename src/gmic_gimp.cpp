@@ -103,9 +103,9 @@ void *p_spt = 0;                               // A pointer to the current runni
 GimpRunMode run_mode;                          // Run-mode used to call the plug-in.
 GtkTreeStore *tree_view_store = 0;             // The list of the filters as a GtkTreeView model.
 GtkWidget *dialog_window = 0;                  // The plug-in dialog window.
-GtkWidget *left_pane = 0;                      // The left pane, containing the preview window.
 GtkWidget *gui_preview = 0;                    // The preview window.
 GtkWidget *gui_preview_warning = 0;            // Warning label displaying for unaccurate preview.
+GtkWidget *gui_preview_align = 0;              // Alignment widget that contains the preview.
 GtkWidget *relabel_hbox = 0;                   // The entire widget to relabel filter.
 GtkWidget *relabel_entry = 0;                  // The text entry to relabel filter.
 GtkWidget *tree_view = 0;                      // The filter treeview.
@@ -2077,7 +2077,11 @@ void _gimp_preview_invalidate() {
     gtk_widget_set_tooltip_text(reset_zoom_button,t("Reset zoom"));
     g_signal_connect(reset_zoom_button,"clicked",G_CALLBACK(on_dialog_reset_zoom_button_clicked),0);
     gtk_widget_show(gui_preview);
-    gtk_box_pack_end(GTK_BOX(left_pane),gui_preview,true,true,0);
+    gtk_container_add(GTK_CONTAINER(gui_preview_align),gui_preview);
+    GtkRequisition requisition;
+    gtk_widget_size_request(gui_preview_align,&requisition);
+    gtk_widget_set_size_request(gui_preview_align,
+                                -1,requisition.height<min_preview_size?min_preview_size:-1);
     g_signal_connect(gui_preview,"invalidated",G_CALLBACK(process_preview),0);
   }
 }
@@ -3914,7 +3918,8 @@ void create_parameters_gui(const bool reset_params) {
   gtk_container_add(GTK_CONTAINER(right_frame),table);
 
   // Take care of the size of the parameter table.
-  GtkRequisition requisition; gtk_widget_size_request(table,&requisition);
+  GtkRequisition requisition;
+  gtk_widget_size_request(table,&requisition);
   gtk_widget_set_size_request(right_pane,cimg::max(450,requisition.width),-1);
   gtk_widget_show(dialog_window);
   set_preview_factor();
@@ -3985,7 +3990,7 @@ bool create_dialog_gui() {
   gtk_container_add(GTK_CONTAINER(GTK_DIALOG(dialog_window)->vbox),dialog_hpaned);
 
   // Create the left pane.
-  left_pane = gtk_vbox_new(false,4);
+  GtkWidget *const left_pane = gtk_vbox_new(false,4);
   gtk_widget_show(left_pane);
   gtk_paned_pack1(GTK_PANED(dialog_hpaned),left_pane,true,false);
 
@@ -4095,6 +4100,11 @@ bool create_dialog_gui() {
   gtk_combo_box_set_active(GTK_COMBO_BOX(preview_size_combobox),get_preview_size(false));
   gtk_table_attach_defaults(GTK_TABLE(left_table),preview_size_combobox,0,1,4,5);
   g_signal_connect(preview_size_combobox,"changed",G_CALLBACK(on_dialog_preview_size_changed),0);
+
+  gui_preview_align = gtk_alignment_new(0.5,0.5,0,0);
+  gtk_widget_show(gui_preview_align);
+  gtk_box_pack_end(GTK_BOX(left_pane),gui_preview_align,true,true,0);
+
   gui_preview = 0;
   _gimp_preview_invalidate();
   g_signal_connect(dialog_window,"size-request",G_CALLBACK(on_dialog_resized),0);
@@ -4169,7 +4179,8 @@ bool create_dialog_gui() {
   GtkTreeViewColumn *const column = gtk_tree_view_column_new();
   gtk_tree_view_append_column(GTK_TREE_VIEW(tree_view),column);
   flush_tree_view(tree_view);
-  GtkRequisition requisition; gtk_widget_size_request((GtkWidget*)tree_view,&requisition);
+  GtkRequisition requisition;
+  gtk_widget_size_request((GtkWidget*)tree_view,&requisition);
   gtk_widget_set_size_request((GtkWidget*)tree_view,cimg::max(210,requisition.width),-1);
   g_signal_connect(tree_view,"cursor-changed",G_CALLBACK(on_filter_selected),0);
   g_signal_connect(tree_view,"row-activated",G_CALLBACK(on_filter_doubleclicked),0);
