@@ -1306,7 +1306,7 @@ CImgList<char> update_filters(const bool try_net_update, const bool is_silent=fa
         com.load_raw(filename);
         if (com && cimg_sscanf(com,"1 unsigned_cha%c",&sep)==1 && sep=='r')
           CImgList<char>::get_unserialize(com)[0].move_to(_gmic_additional_commands);
-        else com.move_to(_gmic_additional_commands);
+        else if (com) com.move_to(_gmic_additional_commands);
         add_code_separator = true;
       }
       if (add_code_separator)
