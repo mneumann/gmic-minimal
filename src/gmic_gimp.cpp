@@ -1292,21 +1292,24 @@ CImgList<char> update_filters(const bool try_net_update, const bool is_silent=fa
       bool add_code_separator = false;
       cimg::exception_mode(0);
       if (sources[l].back()==1) { // Overload default, add more checking.
-        com.load_raw(filename).append(CImg<char>::vector(0),'y');
-        if (cimg_sscanf(com," #@gmi%c",&sep)==1 && sep=='c') {
+        com.load_raw(filename);
+        const char *_com = com.data(), *const ecom = com.end();
+        while (_com<ecom && *_com<=32) ++_com;
+        if (_com + 6<ecom && !std::strncmp(_com,"#@gmic",6)) {
           is_default_update = true;
-          com.autocrop('\0',"y").move_to(_gmic_additional_commands);
+          com.move_to(_gmic_additional_commands);
           add_code_separator = true;
-        } else if (cimg_sscanf(com,"1 unsigned_cha%c",&sep)==1 && sep=='r') {
-          CImgList<char>::get_unserialize(com.autocrop('\0',"y"))[0].move_to(_gmic_additional_commands);
+        } else if (com.data() + 15<ecom && !std::strncmp(com,"1 unsigned_char",15)) {
+          CImgList<char>::get_unserialize(com)[0].move_to(_gmic_additional_commands);
           is_default_update = true;
           add_code_separator = true;
         }
       } else {
-        com.load_raw(filename).append(CImg<char>::vector(0),'y');
-        if (cimg_sscanf(com,"1 unsigned_cha%c",&sep)==1 && sep=='r')
-          CImgList<char>::get_unserialize(com.autocrop('\0',"y"))[0].move_to(_gmic_additional_commands);
-        else com.autocrop('\0',"y").move_to(_gmic_additional_commands);
+        com.load_raw(filename);
+        const char *const ecom = com.end();
+        if (com.data() + 15<ecom && !std::strncmp(com,"1 unsigned_char",15))
+          CImgList<char>::get_unserialize(com)[0].move_to(_gmic_additional_commands);
+        else com.move_to(_gmic_additional_commands);
         add_code_separator = true;
       }
       if (add_code_separator)
