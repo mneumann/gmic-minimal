@@ -1862,7 +1862,7 @@ CImg<int> get_input_layers(CImgList<T>& images) {
 
 // Return the G'MIC command line needed to run the selected filter.
 //-----------------------------------------------------------------
-CImg<char> get_commands_line(const bool is_preview) {
+CImg<char> get_command_line(const bool is_preview) {
   CImg<char> res;
   const unsigned int
     filter = get_current_filter(),
@@ -1941,7 +1941,7 @@ struct st_process_thread {
   CImg<char> env, error_message, status;
   bool is_thread, is_preview;
   unsigned int verbosity_mode;
-  const char *commands_line;
+  const char *command_line;
   float progress;
   bool is_abort;
   pthread_mutex_t is_running, wait_lock;
@@ -1966,7 +1966,7 @@ void *process_thread(void *arg) {
   }
   try {
     if (spt.verbosity_mode>1) {
-      CImg<char> cl = CImg<char>::string(spt.commands_line);
+      CImg<char> cl = CImg<char>::string(spt.command_line);
       std::fprintf(cimg::output(),
                    "\n[gmic_gimp]./%s/ %s\n",
                    spt.is_preview?"preview":"apply",
@@ -1974,7 +1974,7 @@ void *process_thread(void *arg) {
       std::fflush(cimg::output());
     }
     gmic gmic_instance(spt.env,gmic_additional_commands,true);
-    gmic_instance.run(spt.commands_line,spt.images,spt.images_names,&spt.progress,&spt.is_abort);
+    gmic_instance.run(spt.command_line,spt.images,spt.images_names,&spt.progress,&spt.is_abort);
     gmic_instance.status.move_to(spt.status);
   } catch (gmic_exception &e) {
     spt.images.assign();
@@ -2340,11 +2340,11 @@ void on_dialog_apply_clicked() {
   gtk_widget_show(dialog_window);
   _create_dialog_gui = false;
   _gimp_preview_invalidate();
-  const CImg<char> commands_line = get_commands_line(false);
-  if (commands_line) { // Remember command line for the next use of the filter.
+  const CImg<char> command_line = get_command_line(false);
+  if (command_line) { // Remember command line for the next use of the filter.
     CImg<char> s_tmp(48);
-    cimg_snprintf(s_tmp,s_tmp.width(),"gmic_commands_line%u",get_current_filter());
-    gimp_set_data(s_tmp,commands_line,std::strlen(commands_line) + 1);
+    cimg_snprintf(s_tmp,s_tmp.width(),"gmic_command_line%u",get_current_filter());
+    gimp_set_data(s_tmp,command_line,std::strlen(command_line) + 1);
   }
 }
 
@@ -2593,7 +2593,7 @@ void on_filter_doubleclicked(GtkWidget *const tree_view) {
 
 // Process the selected image/layers.
 //------------------------------------
-void process_image(const char *const commands_line, const bool is_apply) {
+void process_image(const char *const command_line, const bool is_apply) {
   if (!gimp_image_is_valid(image_id)) return;
   const unsigned int
     filter = get_current_filter(),
@@ -2601,10 +2601,10 @@ void process_image(const char *const commands_line, const bool is_apply) {
     output_mode = get_input_mode()==0?cimg::max(1U,_output_mode):_output_mode,
     verbosity_mode = get_verbosity_mode();
 
-  if (!commands_line && !filter) return;
+  if (!command_line && !filter) return;
   bool update_parameters = false;
-  const CImg<char> _commands_line = commands_line?CImg<char>::string(commands_line):get_commands_line(false);
-  if (!_commands_line || std::strstr(_commands_line," -_none_")) return;
+  const CImg<char> _command_line = command_line?CImg<char>::string(command_line):get_command_line(false);
+  if (!_command_line || std::strstr(_command_line," -_none_")) return;
 
   CImg<char> new_label(256), progress_label;
   *new_label = 0;
@@ -2612,24 +2612,24 @@ void process_image(const char *const commands_line, const bool is_apply) {
     gtk_label_set_markup(GTK_LABEL(markup2ascii),gmic_entries[filter].data());
     CImg<char>::string(gtk_label_get_text(GTK_LABEL(markup2ascii))).move_to(progress_label);
     gimp_progress_init_printf(" G'MIC: %s...",progress_label.data());
-    const char *const cl = _commands_line.data() +
-      (!std::strncmp(_commands_line,"-v -99 ",7)?7:
-       !std::strncmp(_commands_line,"-v 0 ",5)?5:
-       !std::strncmp(_commands_line,"-debug ",7)?7:0);
+    const char *const cl = _command_line.data() +
+      (!std::strncmp(_command_line,"-v -99 ",7)?7:
+       !std::strncmp(_command_line,"-v 0 ",5)?5:
+       !std::strncmp(_command_line,"-debug ",7)?7:0);
     cimg_snprintf(new_label,new_label.width(),"[G'MIC] %s: %s",gtk_label_get_text(GTK_LABEL(markup2ascii)),cl);
     cimg::strellipsize(new_label,240,false);
   } else {
-    cimg_snprintf(new_label,new_label.width(),"G'MIC: %s...",_commands_line.data());
+    cimg_snprintf(new_label,new_label.width(),"G'MIC: %s...",_command_line.data());
     cimg::strellipsize(new_label,240,false);
     gimp_progress_init_printf("%s",new_label.data());
-    cimg_snprintf(new_label,new_label.width(),"[G'MIC]: %s",_commands_line.data());
+    cimg_snprintf(new_label,new_label.width(),"[G'MIC]: %s",_command_line.data());
     cimg::strellipsize(new_label,240,false);
   }
 
   // Get input layers for the chosen filter.
   st_process_thread spt;
   spt.is_preview = false;
-  spt.commands_line = _commands_line;
+  spt.command_line = _command_line;
   spt.verbosity_mode = get_verbosity_mode();
   spt.images_names.assign();
   spt.progress = -1;
@@ -2757,7 +2757,7 @@ void process_image(const char *const commands_line, const bool is_apply) {
       gtk_widget_destroy(message);
     } else {
       std::fprintf(cimg::output(),"\n[gmic_gimp]./error/ When running command '%s', this error occured:\n%s\n",
-                   _commands_line.data(),spt.error_message.data());
+                   _command_line.data(),spt.error_message.data());
       std::fflush(cimg::output());
     }
     status = GIMP_PDB_CALLING_ERROR;
@@ -3072,8 +3072,8 @@ void process_preview() {
   if (!gimp_image_is_valid(image_id)) return;
   const unsigned int filter = get_current_filter();
   if (!filter) return;
-  const CImg<char> commands_line = get_commands_line(true);
-  if (!commands_line || std::strstr(commands_line," -_none_")) return;
+  const CImg<char> command_line = get_command_line(true);
+  if (!command_line || std::strstr(command_line," -_none_")) return;
 
   bool update_parameters = false;
   int wp, hp, sp, xp, yp;
@@ -3094,7 +3094,7 @@ void process_preview() {
     st_process_thread spt;
     spt.is_preview = true;
     spt.is_thread = false;
-    spt.commands_line = commands_line;
+    spt.command_line = command_line;
     spt.verbosity_mode = get_verbosity_mode();
     spt.progress = -1;
     spt.set_env();
@@ -4328,11 +4328,11 @@ void gmic_run(const gchar *name, gint nparams, const GimpParam *param,
         if (p_spt) { st_process_thread &spt = *(st_process_thread*)p_spt; spt.is_abort = true; }
         cimg::mutex(25,0);
         process_image(0,false);
-        const CImg<char> commands_line = get_commands_line(false);
-        if (commands_line) { // Remember command line for the next use of the filter.
+        const CImg<char> command_line = get_command_line(false);
+        if (command_line) { // Remember command line for the next use of the filter.
           CImg<char> s_tmp(48);
-          cimg_snprintf(s_tmp,s_tmp.width(),"gmic_commands_line%u",get_current_filter());
-          gimp_set_data(s_tmp,commands_line,std::strlen(commands_line) + 1);
+          cimg_snprintf(s_tmp,s_tmp.width(),"gmic_command_line%u",get_current_filter());
+          gimp_set_data(s_tmp,command_line,std::strlen(command_line) + 1);
         }
       }
     } break;
@@ -4341,14 +4341,14 @@ void gmic_run(const gchar *name, gint nparams, const GimpParam *param,
       const unsigned int filter = get_current_filter();
       if (filter) {
         CImg<char> s_tmp(48);
-        cimg_snprintf(s_tmp,s_tmp.width(),"gmic_commands_line%u",filter);
+        cimg_snprintf(s_tmp,s_tmp.width(),"gmic_command_line%u",filter);
         const unsigned int siz = 1U + gimp_get_data_size(s_tmp);
-        CImg<char> commands_line(2*siz); *commands_line = 0;
-        gimp_get_data(s_tmp,commands_line);
-        process_image(commands_line,false);
-        const char *const next_commands_line = get_commands_line(false);
+        CImg<char> command_line(2*siz); *command_line = 0;
+        gimp_get_data(s_tmp,command_line);
+        process_image(command_line,false);
+        const CImg<char> next_command_line = get_command_line(false);
         // Remember command line for the next use of the filter.
-        if (next_commands_line) gimp_set_data(s_tmp,next_commands_line,std::strlen(next_commands_line) + 1);
+        if (next_command_line) gimp_set_data(s_tmp,next_command_line,std::strlen(next_command_line) + 1);
       }
     } break;
 
