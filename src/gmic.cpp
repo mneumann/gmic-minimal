@@ -2149,8 +2149,7 @@ using namespace cimg_library;
 
 // Define default pixel type.
 #ifndef gmic_pixel_type
-//#define gmic_pixel_type float
-#define gmic_pixel_type long double
+#define gmic_pixel_type float
 #endif
 
 // Macro to force stringifying selection for error messages.
