@@ -2049,7 +2049,7 @@ CImg<T> get_gmic_patchmatch(const CImg<T>& patch_image,
   res = _get_patchmatch(patch_image,patch_width,patch_height,patch_depth,
                         nb_iterations,nb_randoms,
                         initialization?*initialization:CImg<T>::const_empty(),
-                        is_score,is_score?score:CImg<T>::empty());
+                        is_score,is_score?score:CImg<floatT>::empty());
   if (score) res.resize(-100,-100,-100,3,0).draw_image(0,0,0,2,score);
   return res;
 }
@@ -2149,7 +2149,8 @@ using namespace cimg_library;
 
 // Define default pixel type.
 #ifndef gmic_pixel_type
-#define gmic_pixel_type float
+//#define gmic_pixel_type float
+#define gmic_pixel_type long double
 #endif
 
 // Macro to force stringifying selection for error messages.
