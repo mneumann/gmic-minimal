@@ -1330,7 +1330,7 @@ CImgList<char> update_filters(const bool try_net_update, const bool is_silent=fa
   }
   cimglist_for(_gmic_additional_commands,l) // Remove unusual characters.
     cimg_for(_gmic_additional_commands[l],p,char)
-    if (*p==13) *p = 10; else if (*p<' ') *p = ' ';
+    if (*p==13) *p = 10; else if ((unsigned char)*p<' ') *p = ' ';
 
   CImg<char>::vector(0).move_to(_gmic_additional_commands);
   (_gmic_additional_commands>'y').move_to(gmic_additional_commands);
