@@ -6490,14 +6490,19 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
           // Display.
           if (!is_double_hyphen && !std::strcmp("-display",command)) {
             gmic_substitute_args();
-            unsigned int X,Y,Z, XYZ[3];
-            bool is_xyz = false;
+            unsigned int XYZ[3];
+            bool is_args = false;
             exit_on_anykey = 0;
-            if ((cimg_sscanf(argument,"%u,%u,%u%c",&X,&Y,&Z,&end)==3 ||
-                 cimg_sscanf(argument,"%u,%u,%u,%u%c",&X,&Y,&Z,&exit_on_anykey,&end)==4) &&
-                exit_on_anykey<=1) { is_xyz = true; ++position; }
-            XYZ[0] = X; XYZ[1] = Y; XYZ[2] = Z;
-            display_images(images,images_names,selection,is_xyz?XYZ:0,exit_on_anykey);
+            if ((cimg_sscanf(argument,"%lf,%lf,%lf%c",&value,&value0,&value1,&end)==3 ||
+                 cimg_sscanf(argument,"%lf,%lf,%lf,%u%c",&value,&value0,&value1,&exit_on_anykey,&end)==4) &&
+                value>=0 && value0>=0 && value1>=0 && exit_on_anykey<=1) {
+              is_args = true;
+              XYZ[0] = (unsigned int)cimg::round(value);
+              XYZ[1] = (unsigned int)cimg::round(value0);
+              XYZ[2] = (unsigned int)cimg::round(value1);
+              ++position;
+            }
+            display_images(images,images_names,selection,is_args?XYZ:0,exit_on_anykey);
             is_released = true; continue;
           }
 
