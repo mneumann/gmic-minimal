@@ -1331,6 +1331,7 @@ CImgList<char> update_filters(const bool try_net_update, const bool is_silent=fa
   }
   CImg<char>::vector(0).move_to(_gmic_additional_commands);
   (_gmic_additional_commands>'y').move_to(gmic_additional_commands);
+  cimg_for(gmic_additional_commands,p,char) if (*p && (*p<32 || *p>=127) && *p!=10) *p = 32;  // Constrain to ASCII characters only.
 
   // Add fave folder if necessary (make it before actually adding faves to make tree paths valids).
   CImgList<char> gmic_1stlevel_names;
