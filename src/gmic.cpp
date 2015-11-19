@@ -2869,7 +2869,7 @@ gmic& gmic::debug(const char *format, ...) {
 
 // Set variable in the interpreter environment.
 //---------------------------------------------
-// 'operation' can be { 0 (add new variable), = (replace or add),+,-,*,/,%,&,|,^,<,> }
+// 'operation' can be { 0 (add new variable), '=' (replace or add),'+','-','*','/','%','&','|','^','<','>' }
 // Return the variable value.
 inline const char * gmic::set_variable(const char *const name, const char *const value,
                                        const char operation,
