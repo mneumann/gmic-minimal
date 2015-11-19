@@ -76,7 +76,7 @@ CImg<T> get_gmic_invert_endianness(const char *const stype) const {
 template<typename t>
 CImg<T>& operator_eq(const t val) {
 #ifdef cimg_use_openmp
-#pragma omp parallel for if (size()>=131072)
+#pragma omp parallel for cimg_openmp_if (size()>=131072)
 #endif
   cimg_rof(*this,ptrd,T) *ptrd = (T)(*ptrd == (T)val);
   return *this;
@@ -99,7 +99,7 @@ CImg<T>& operator_eq(const char *const expression) {
       cimg_forXYZC(*this,x,y,z,c) { *ptrd = (T)(*ptrd == (T)mp(x,y,z,c)); ++ptrd; }
     else {
 #ifdef cimg_use_openmp
-      if (*expression=='*' ||
+      cimg_openmp_if (*expression=='*' ||
           (is_parallelizable && _width>=512 && _height*_depth*_spectrum>=2 && std::strlen(expression)>=6))
 #pragma omp parallel
         {
@@ -142,7 +142,7 @@ CImg<T>& operator_eq(const CImg<t>& img) {
 template<typename t>
 CImg<T>& operator_neq(const t val) {
 #ifdef cimg_use_openmp
-#pragma omp parallel for if (size()>=131072)
+#pragma omp parallel for cimg_openmp_if (size()>=131072)
 #endif
   cimg_rof(*this,ptrd,T) *ptrd = (T)(*ptrd != (T)val);
   return *this;
@@ -165,7 +165,7 @@ CImg<T>& operator_neq(const char *const expression) {
       cimg_forXYZC(*this,x,y,z,c) { *ptrd = (T)(*ptrd != (T)mp(x,y,z,c)); ++ptrd; }
     else {
 #ifdef cimg_use_openmp
-      if (*expression=='*' ||
+      cimg_openmp_if (*expression=='*' ||
           (is_parallelizable && _width>=512 && _height*_depth*_spectrum>=2 && std::strlen(expression)>=6))
 #pragma omp parallel
         {
@@ -208,7 +208,7 @@ CImg<T>& operator_neq(const CImg<t>& img) {
 template<typename t>
 CImg<T>& operator_gt(const t val) {
 #ifdef cimg_use_openmp
-#pragma omp parallel for if (size()>=131072)
+#pragma omp parallel for cimg_openmp_if (size()>=131072)
 #endif
   cimg_rof(*this,ptrd,T) *ptrd = (T)(*ptrd > (T)val);
   return *this;
@@ -231,7 +231,7 @@ CImg<T>& operator_gt(const char *const expression) {
       cimg_forXYZC(*this,x,y,z,c) { *ptrd = (T)(*ptrd > (T)mp(x,y,z,c)); ++ptrd; }
     else {
 #ifdef cimg_use_openmp
-      if (*expression=='*' ||
+      cimg_openmp_if (*expression=='*' ||
           (is_parallelizable && _width>=512 && _height*_depth*_spectrum>=2 && std::strlen(expression)>=6))
 #pragma omp parallel
         {
@@ -274,7 +274,7 @@ CImg<T>& operator_gt(const CImg<t>& img) {
 template<typename t>
 CImg<T>& operator_ge(const t val) {
 #ifdef cimg_use_openmp
-#pragma omp parallel for if (size()>=131072)
+#pragma omp parallel for cimg_openmp_if (size()>=131072)
 #endif
   cimg_rof(*this,ptrd,T) *ptrd = (T)(*ptrd >= (T)val);
   return *this;
@@ -297,7 +297,7 @@ CImg<T>& operator_ge(const char *const expression) {
       cimg_forXYZC(*this,x,y,z,c) { *ptrd = (T)(*ptrd >= (T)mp(x,y,z,c)); ++ptrd; }
     else {
 #ifdef cimg_use_openmp
-      if (*expression=='*' ||
+      cimg_openmp_if (*expression=='*' ||
           (is_parallelizable && _width>=512 && _height*_depth*_spectrum>=2 && std::strlen(expression)>=6))
 #pragma omp parallel
         {
@@ -340,7 +340,7 @@ CImg<T>& operator_ge(const CImg<t>& img) {
 template<typename t>
 CImg<T>& operator_lt(const t val) {
 #ifdef cimg_use_openmp
-#pragma omp parallel for if (size()>=131072)
+#pragma omp parallel for cimg_openmp_if (size()>=131072)
 #endif
   cimg_rof(*this,ptrd,T) *ptrd = (T)(*ptrd < (T)val);
   return *this;
@@ -363,7 +363,7 @@ CImg<T>& operator_lt(const char *const expression) {
       cimg_forXYZC(*this,x,y,z,c) { *ptrd = (T)(*ptrd < (T)mp(x,y,z,c)); ++ptrd; }
     else {
 #ifdef cimg_use_openmp
-      if (*expression=='*' ||
+      cimg_openmp_if (*expression=='*' ||
           (is_parallelizable && _width>=512 && _height*_depth*_spectrum>=2 && std::strlen(expression)>=6))
 #pragma omp parallel
         {
@@ -406,7 +406,7 @@ CImg<T>& operator_lt(const CImg<t>& img) {
 template<typename t>
 CImg<T>& operator_le(const t val) {
 #ifdef cimg_use_openmp
-#pragma omp parallel for if (size()>=131072)
+#pragma omp parallel for cimg_openmp_if (size()>=131072)
 #endif
   cimg_rof(*this,ptrd,T) *ptrd = (T)(*ptrd <= (T)val);
   return *this;
@@ -429,7 +429,7 @@ CImg<T>& operator_le(const char *const expression) {
       cimg_forXYZC(*this,x,y,z,c) { *ptrd = (T)(*ptrd <= (T)mp(x,y,z,c)); ++ptrd; }
     else {
 #ifdef cimg_use_openmp
-      if (*expression=='*' ||
+      cimg_openmp_if (*expression=='*' ||
           (is_parallelizable && _width>=512 && _height*_depth*_spectrum>=2 && std::strlen(expression)>=6))
 #pragma omp parallel
         {
