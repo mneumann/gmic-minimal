@@ -2956,7 +2956,7 @@ gmic& gmic::add_commands(const char *const data_commands,
     if (_line<line_end) *_line = 0; else *(line_end - 1) = 0;
     if (*data=='\n') { is_newline = true; ++data; } else is_newline = false; // Skip next '\n'.
 
-    // Replace/remove non-usual characters.
+    // Replace/remove unusual characters.
     char *__line = line;
     for (_line = line; *_line; ++_line) if (*_line!=13) *(__line++) = (unsigned char)*_line<' '?' ':*_line;
     *__line = 0;
