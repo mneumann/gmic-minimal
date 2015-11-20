@@ -1332,7 +1332,9 @@ CImgList<char> update_filters(const bool try_net_update, const bool is_silent=fa
   cimglist_for(_gmic_additional_commands,l) { // Remove unusual characters.
     char *_p = _gmic_additional_commands[l];
     cimg_for(_gmic_additional_commands[l],p,char) if (*p!=13) *(_p++) = (unsigned char)*p<' ' && *p!=10?' ':*p;
-    *_p = 0;
+    if (_p<_gmic_additional_commands[l].end())
+      CImg<char>(_gmic_additional_commands[l].data(),1,_p - _gmic_additional_commands[l].data()).
+        move_to(_gmic_additional_commands[l]);
   }
 
   CImg<char>::vector(0).move_to(_gmic_additional_commands);
