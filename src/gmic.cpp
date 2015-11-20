@@ -2958,7 +2958,7 @@ gmic& gmic::add_commands(const char *const data_commands,
 
     // Replace/remove non-usual characters.
     char *__line = line;
-    for (_line = line; *_line; ++_line) if (*_line!=13) *(__line++) = *_line<' '?' ':*_line;
+    for (_line = line; *_line; ++_line) if (*_line!=13) *(__line++) = (unsigned char)*_line<' '?' ':*_line;
     *__line = 0;
     _line = line; if (*_line=='#') *_line = 0; else do { // Remove comments.
         if ((_line=std::strchr(_line,'#')) && *(_line - 1)==' ') { *--_line = 0; break; }
