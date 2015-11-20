@@ -2956,8 +2956,10 @@ gmic& gmic::add_commands(const char *const data_commands,
     if (_line<line_end) *_line = 0; else *(line_end - 1) = 0;
     if (*data=='\n') { is_newline = true; ++data; } else is_newline = false; // Skip next '\n'.
 
-    // Replace non-usual characters (by spaces or LF)
-    for (_line = line; *_line; ++_line) if (*_line==13) *_line = 10; else if ((unsigned char)*_line<' ') *_line = ' ';
+    // Replace/remove non-usual characters.
+    char *__line = line;
+    for (_line = line; *_line; ++_line) if (*_line!=13) { if ((unsigned char)*_line<' ') *__line = ' '; ++__line; }
+    *__line = 0;
     _line = line; if (*_line=='#') *_line = 0; else do { // Remove comments.
         if ((_line=std::strchr(_line,'#')) && *(_line - 1)==' ') { *--_line = 0; break; }
       } while (_line++);
