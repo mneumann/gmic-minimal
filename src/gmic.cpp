@@ -5768,7 +5768,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
                     arg_command_text,
                     !add_debug_info?" without debug info":"");
               try {
-                file = std::fopen(cimg::load_network(arg_command,argx,0,false,gmic_referer),"r");
+                file = std::fopen(cimg::load_network(arg_command,argx),"r");
               } catch (...) {
                 file = 0;
               }
@@ -13313,7 +13313,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
         if (!cimg::strncasecmp(_filename,"http://",7) ||
             !cimg::strncasecmp(_filename,"https://",8)) {
           try {
-            cimg::load_network(_filename,filename_tmp,0,false,gmic_referer);
+            cimg::load_network(_filename,filename_tmp);
           } catch (CImgIOException&) {
             print(images,0,"Input file '%s' at position%s",
                   _filename0,
@@ -14211,14 +14211,14 @@ int main(int argc, char **argv) {
         const char *const filename = argv[++i];
         if (!cimg::strncasecmp(filename,"http://",7) || !cimg::strncasecmp(filename,"https://",8))
           try {
-            file = std::fopen(cimg::load_network(filename,filename_tmp,0,false,gmic_referer),"r");
+            file = std::fopen(cimg::load_network(filename,filename_tmp),"r");
           } catch (CImgException&) { file = 0; }
         else file = std::fopen(filename,"r");
       } else if (!cimg::strcasecmp("gmic",cimg::split_filename(argv[i]))) {
         const char *const filename = argv[i];
         if (!cimg::strncasecmp(filename,"http://",7) || !cimg::strncasecmp(filename,"https://",8))
           try {
-            file = std::fopen(cimg::load_network(filename,filename_tmp,0,false,gmic_referer),"r");
+            file = std::fopen(cimg::load_network(filename,filename_tmp),"r");
           } catch (CImgException&) { file = 0; }
         else file = std::fopen(filename,"r");
       }
