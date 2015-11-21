@@ -44,6 +44,7 @@
 */
 #ifndef gmic_version
 #define gmic_version 168
+#define gmic_referer "http://gmic.eu"
 
 #include <cstdio>
 #include <cstring>

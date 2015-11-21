@@ -2152,9 +2152,6 @@ using namespace cimg_library;
 #define gmic_pixel_type float
 #endif
 
-// Define URL for referer.
-#define gmic_referer "http://gmic.eu"
-
 // Macro to force stringifying selection for error messages.
 #define gmic_selection_err selection2string(selection,images_names,1,gmic_selection)
 

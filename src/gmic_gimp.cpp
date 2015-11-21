@@ -1235,7 +1235,7 @@ CImgList<char> update_filters(const bool try_net_update, const bool is_silent=fa
     const unsigned int omode = cimg::exception_mode();
     cimg::exception_mode() = 0;
     try {
-      cimg::load_network(sources[l],filename_tmp,is_silent?4:60,false);
+      cimg::load_network(sources[l],filename_tmp,is_silent?4:60,false,gmic_referer);
       std::FILE *file = std::fopen(filename_tmp,"rb");
 
       // Eventually, uncompress .cimgz file.
