@@ -2152,6 +2152,9 @@ using namespace cimg_library;
 #define gmic_pixel_type float
 #endif
 
+// Define URL for referer.
+#define gmic_referer "http://gmic.eu"
+
 // Macro to force stringifying selection for error messages.
 #define gmic_selection_err selection2string(selection,images_names,1,gmic_selection)
 
@@ -5768,7 +5771,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
                     arg_command_text,
                     !add_debug_info?" without debug info":"");
               try {
-                file = std::fopen(cimg::load_network(arg_command,argx),"r");
+                file = std::fopen(cimg::load_network(arg_command,argx,0,false,gmic_referer),"r");
               } catch (...) {
                 file = 0;
               }
@@ -13313,7 +13316,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
         if (!cimg::strncasecmp(_filename,"http://",7) ||
             !cimg::strncasecmp(_filename,"https://",8)) {
           try {
-            cimg::load_network(_filename,filename_tmp);
+            cimg::load_network(_filename,filename_tmp,0,false,gmic_referer);
           } catch (CImgIOException&) {
             print(images,0,"Input file '%s' at position%s",
                   _filename0,
@@ -14211,14 +14214,14 @@ int main(int argc, char **argv) {
         const char *const filename = argv[++i];
         if (!cimg::strncasecmp(filename,"http://",7) || !cimg::strncasecmp(filename,"https://",8))
           try {
-            file = std::fopen(cimg::load_network(filename,filename_tmp),"r");
+            file = std::fopen(cimg::load_network(filename,filename_tmp,0,false,gmic_referer),"r");
           } catch (CImgException&) { file = 0; }
         else file = std::fopen(filename,"r");
       } else if (!cimg::strcasecmp("gmic",cimg::split_filename(argv[i]))) {
         const char *const filename = argv[i];
         if (!cimg::strncasecmp(filename,"http://",7) || !cimg::strncasecmp(filename,"https://",8))
           try {
-            file = std::fopen(cimg::load_network(filename,filename_tmp),"r");
+            file = std::fopen(cimg::load_network(filename,filename_tmp,0,false,gmic_referer),"r");
           } catch (CImgException&) { file = 0; }
         else file = std::fopen(filename,"r");
       }
