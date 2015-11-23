@@ -2787,8 +2787,7 @@ void process_image(const char *const command_line, const bool is_apply) {
         dest_is_alpha = (img.spectrum()==2 || img.spectrum()>=4);
       if (dest_is_alpha && !source_is_alpha) { gimp_layer_add_alpha(layers[p]); ++layer_dimensions(p,3); }
       if (img.width()!=layer_dimensions(p,0) ||
-          img.height()!=layer_dimensions(p,1) ||
-          img.spectrum()>layer_dimensions(p,3)) is_compatible_dimensions = false;
+          img.height()!=layer_dimensions(p,1)) is_compatible_dimensions = false;
     }
 
     // Transfer the output layers back into GIMP.
