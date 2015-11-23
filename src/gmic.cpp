@@ -8972,7 +8972,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
                                                    _filename.data(),stype);
 
             } else if (!cimg::strcasecmp(ext,"gif")) {
-              float _fps = 0, _nb_loops = 0;
+              float fps = 0, _nb_loops = 0;
               g_list.assign(selection.height());
               cimg_forY(selection,l) if (!gmic_check(images[selection(l)]))
                 CImg<unsigned int>::vector(selection(l)).move_to(empty_indices);
@@ -8984,18 +8984,16 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
               }
               cimg_forY(selection,l)
                 g_list[l].assign(images[selection[l]],g_list[l]?true:false);
-              if (g_list.size()>1 && cimg_sscanf(options,"%f,%f",&_fps,&_nb_loops)>=1) {
+              if (g_list.size()>1 && cimg_sscanf(options,"%f,%f",&fps,&_nb_loops)>=1 && fps>0) {
                 // Save animated .gif file.
-                const unsigned int
-                  fps = (unsigned int)cimg::round(_fps),
-                  nb_loops = (unsigned int)cimg::round(_nb_loops);
+                const unsigned int nb_loops = (unsigned int)cimg::round(_nb_loops);
                 if (nb_loops)
                   print(images,0,
-                        "Output image%s as animated %s file '%s', with %u fps and %u loops.",
+                        "Output image%s as animated %s file '%s', with %g fps and %u loops.",
                         gmic_selection.data(),uext.data(),_filename.data(),fps,nb_loops);
                 else
                   print(images,0,
-                        "Output image%s as animated %s file '%s', with %u fps.",
+                        "Output image%s as animated %s file '%s', with %g fps.",
                         gmic_selection.data(),uext.data(),_filename.data(),fps);
                 g_list.save_gif_external(filename,fps,nb_loops);
               } else {
