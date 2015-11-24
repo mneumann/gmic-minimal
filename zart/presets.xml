@@ -2379,6 +2379,8 @@ You can define a transparent top layer that will help the seam-carving algorithm
   <command>
 -gimp_equalize_details_preview $"*"
   </command>
+  <float name="Base scale" default="5" min="0" max="15" />
+  <float name="Detail scale" default="0.5" min="0" max="5" />
   <note text="&lt;small&gt;&lt;b&gt;Coarse scale:&lt;/b&gt;&lt;/small&gt;" />
   <float name="Threshold" default="0" min="0" max="10" />
   <float name="Smoothness" default="0" min="0" max="10" />
@@ -2403,14 +2405,14 @@ You can define a transparent top layer that will help the seam-carving algorithm
   <choice name="Smoothness type" default="2" choice0="Gaussian" choice1="Bilateral" choice2="Diffusion" />
   <float name="Gain" default="0" min="-4" max="4" />
   <separator />
-  <choice name="Channel(s)" default="11" choice0="All" choice1="RGBA [all]" choice2="RGB [all]" choice3="RGB [red]" choice4="RGB [green]" choice5="RGB [blue]" choice6="RGBA [alpha]" choice7="Linear RGB [all]" choice8="Linear RGB [red]" choice9="Linear RGB [green]" choice10="Linear RGB [blue]" choice11="YCbCr [luminance]" choice12="YCbCr [blue-red chrominances]" choice13="YCbCr [blue chrominance]" choice14="YCbCr [red chrominance]" choice15="YCbCr [green chrominance]" choice16="Lab [lightness]" choice17="Lab [ab-chrominances]" choice18="Lab [a-chrominance]" choice19="Lab [b-chrominance]" choice20="Lch [ch-chrominances]" choice21="Lch [c-chrominance]" choice22="Lch [h-chrominance]" choice23="HSV [hue]" choice24="HSV [saturation]" choice25="HSV [value]" choice26="HSI [intensity]" choice27="HSL [lightness]" choice28="CMYK [cyan]" choice29="CMYK [magenta]" choice30="CMYK [yellow]" choice31="CMYK [key]" />
+  <choice name="Channel(s)" default="11" choice0="All" choice1="RGBA [all]" choice2="RGB [all]" choice3="RGB [red]" choice4="RGB [green]" choice5="RGB [blue]" choice6="RGBA [alpha]" choice7="Linear RGB [all]" choice8="Linear RGB [red]" choice9="Linear RGB [green]" choice10="Linear RGB [blue]" choice11="YCbCr [luminance]" choice12="YCbCr [blue-red chrominances]" choice13="YCbCr [blue chrominance]" choice14="YCbCr [red chrominance]" choice15="YCbCr [green chrominance]" choice16="Lab [lightness]" choice17="Lab [ab-chrominances]" choice18="Lab [a-chrominance]" choice19="Lab [b-chrominance]" choice20="Lch [ch-chrominances]" choice21="Lch [c-chrominance]" choice22="Lch [h-chrominance]" choice23="HSV [hue]" choice24="HSV [saturation]" choice25="HSV [value]" choice26="HSI [intensity]" choice27="HSL [lightness]" choice28="CMYK [cyan]" choice29="CMYK [magenta]" choice30="CMYK [yellow]" choice31="CMYK [key]" choice32="YIQ [luma]" choice33="YIQ [chromas]" />
   <choice name="Value action" default="0" choice0="None" choice1="Cut" choice2="Normalize" />
   <separator />
   <choice name="Parallel processing" default="0" choice0="Auto" choice1="One thread" choice2="Two threads" choice3="Four threads" choice4="Eight threads" choice5="Sixteen threads&quot;)" choice6="Spatial overlap=int(32" choice7="0" choice8="256" />
   <separator />
   <const value="0" />
   <separator />
-  <note text="&lt;small&gt;Author: &lt;i&gt;J&amp;#233;rome Boulanger&lt;/i&gt; and &lt;i&gt;David Tschumperl&amp;#233;&lt;/i&gt;.      Latest update: &lt;i&gt;12/15/2013&lt;/i&gt;.&lt;/small&gt;" />
+  <note text="&lt;small&gt;Author: &lt;i&gt;J&amp;#233;rome Boulanger&lt;/i&gt; and &lt;i&gt;David Tschumperl&amp;#233;&lt;/i&gt;.      Latest update: &lt;i&gt;11/11/2015&lt;/i&gt;.&lt;/small&gt;" />
 </preset>
 
 <!-- /Details/Freaky details -->
