@@ -3600,7 +3600,8 @@ gmic& gmic::print_images(const CImgList<T>& images, const CImgList<char>& images
     print(images,0,"Print image%s = '%s'.\n",
           gmic_selection.data(),gmic_names.data());
   }
-  if (is_verbose) cimg_forY(selection,l) {
+  if (is_verbose) {
+    cimg_forY(selection,l) {
       const unsigned int uind = selection[l];
       const CImg<T>& img = images[uind];
       bool is_valid = true;
@@ -3614,7 +3615,8 @@ gmic& gmic::print_images(const CImgList<T>& images, const CImgList<char>& images
       cimg::strellipsize(title,80,false);
       img.gmic_print(title,is_debug,is_valid);
     }
-  nb_carriages = 0;
+    nb_carriages = 0;
+  }
   return *this;
 }
 
@@ -3689,6 +3691,7 @@ gmic& gmic::display_images(const CImgList<T>& images, const CImgList<char>& imag
     if (XYZ) std::fprintf(cimg::output(),", from point (%u,%u,%u).\n",XYZ[0],XYZ[1],XYZ[2]);
     else std::fprintf(cimg::output(),".\n");
     std::fflush(cimg::output());
+    nb_carriages = 0;
     cimg::mutex(29,0);
   }
   if (visu) {
@@ -3710,7 +3713,6 @@ gmic& gmic::display_images(const CImgList<T>& images, const CImgList<char>& imag
     print_images(images,images_names,selection,false);
     if (disp) visu.display(disp.set_title("%s",title.data()),false,'x',0.5f,XYZ,exit_on_anykey);
     else visu.display(title.data(),false,'x',0.5f,XYZ,exit_on_anykey);
-    nb_carriages = 0;
     cimglist_for(visu,l) visu[l]._is_shared = is_shared(l);
   }
 #endif // #if cimg_display==0
@@ -3783,7 +3785,7 @@ gmic& gmic::display_plots(const CImgList<T>& images, const CImgList<char>& image
                                        basename(images_names[uind].data()),
                                        img.width(),img.height(),img.depth(),img.spectrum()),
                         plot_type,vertex_type,0,xmin,xmax,0,ymin,ymax,exit_on_anykey);
-      nb_carriages = 0;
+      if (is_verbose) nb_carriages = 0;
     }
   }
 #endif // #if cimg_display==0
