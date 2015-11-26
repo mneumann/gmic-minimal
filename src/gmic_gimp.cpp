@@ -1648,10 +1648,11 @@ void calibrate_image(CImg<T>& img, const unsigned int spectrum, const bool is_pr
       img.channel(0);
       break;
     case 3 : // from RGB
-      img.RGBtoYCbCr().channel(0);
+      (img.get_shared_channel(0)+=img.get_shared_channel(1)+=img.get_shared_channel(2))/=3;
+      img.channel(0);
       break;
     case 4 : // from RGBA
-      img.get_shared_channels(0,2).RGBtoYCbCr();
+      (img.get_shared_channel(0)+=img.get_shared_channel(1)+=img.get_shared_channel(2))/=3;
       if (is_preview) {
         T *ptr_r = img.data(0,0,0,0), *ptr_a = img.data(0,0,0,3);
         cimg_forXY(img,x,y) {
@@ -1674,10 +1675,11 @@ void calibrate_image(CImg<T>& img, const unsigned int spectrum, const bool is_pr
     case 2: // from GRAYA
       break;
     case 3: // from RGB
-      img.RGBtoYCbCr().channels(0,1).get_shared_channel(1).fill(255);
+      (img.get_shared_channel(0)+=img.get_shared_channel(1)+=img.get_shared_channel(2))/=3;
+      img.channels(0,1).get_shared_channel(1).fill(255);
       break;
     case 4: // from RGBA
-      img.get_shared_channels(0,2).RGBtoYCbCr();
+      (img.get_shared_channel(0)+=img.get_shared_channel(1)+=img.get_shared_channel(2))/=3;
       img.get_shared_channel(1) = img.get_shared_channel(3);
       img.channels(0,1);
       break;
