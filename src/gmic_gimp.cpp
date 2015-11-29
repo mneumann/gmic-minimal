@@ -3958,13 +3958,13 @@ bool create_dialog_gui() {
   // Create main dialog window with buttons.
   CImg<char> dialog_title(64);
 #ifdef gmic_prerelease
-  cimg_snprintf(dialog_title,dialog_title.width(),"%s %d.%d - %s %u bits - v.%d.%d.%d_pre#%s",
+  cimg_snprintf(dialog_title,dialog_title.width(),"%s %d.%d - %s %u bits - %d.%d.%dpre #%s",
                 t("G'MIC for GIMP"),
                 GIMP_MAJOR_VERSION,GIMP_MINOR_VERSION,
                 cimg::stros(),sizeof(void*)==8?64:32,
                 gmic_version/100,(gmic_version/10)%10,gmic_version%10,gmic_prerelease);
 #else
-  cimg_snprintf(dialog_title,dialog_title.width(),"%s %d.%d - %s %u bits - v.%d.%d.%d",
+  cimg_snprintf(dialog_title,dialog_title.width(),"%s %d.%d - %s %u bits - %d.%d.%d",
                 t("G'MIC for GIMP"),
                 GIMP_MAJOR_VERSION,GIMP_MINOR_VERSION,
                 cimg::stros(),sizeof(void*)==8?64:32,
