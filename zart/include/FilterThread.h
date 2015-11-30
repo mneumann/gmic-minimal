@@ -65,8 +65,10 @@ public:
 
   FilterThread( ImageSource & webcam,
                 const QString & command,
-                QImage * outputImage,
-                QMutex * imageMutex,
+                QImage * outputImageA,
+                QMutex * imageMutexA,
+                QImage * outputImageB,
+                QMutex * imageMutexB,
                 PreviewMode previewMode,
                 int frameSkip,
                 int fps,
@@ -99,8 +101,10 @@ private:
   QString _command;
   CriticalRef<QString> _arguments;
   bool _commandUpdated;
-  QImage * _outputImage;
-  QMutex * _imageMutex;
+  QImage * _outputImageA;
+  QMutex * _imageMutexA;
+  QImage * _outputImageB;
+  QMutex * _imageMutexB;
   QSemaphore * _blockingSemaphore;
   PreviewMode _previewMode;
   int _frameSkip;

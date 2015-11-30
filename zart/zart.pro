@@ -27,7 +27,8 @@ openmp {
 
 # compile our own version of gmic, with the same cimg_* flags as zart
 #LIBS += ../src/libgmic.a
-SOURCES += ../src/gmic.cpp
+SOURCES += ../src/gmic.cpp \
+    src/OutputWindow.cpp
 DEFINES += gmic_build gmic_is_parallel cimg_use_abort
 
 
@@ -66,7 +67,8 @@ HEADERS	+= ../src/gmic.h \
     include/FolderParameter.h \
     include/TextParameter.h \
     include/LinkParameter.h \
-    include/ConstParameter.h
+    include/ConstParameter.h \
+    include/OutputWindow.h
 
 SOURCES	+= \
            src/ImageView.cpp \
@@ -102,7 +104,8 @@ RESOURCES = zart.qrc
 DEPENDPATH += $$PWD/images
 
 FORMS = ui/MainWindow.ui ui/DialogAbout.ui ui/DialogLicense.ui \
-    ui/FullScreenWidget.ui
+    ui/FullScreenWidget.ui \
+    ui/OutputWindow.ui
 
 PRE_TARGETDEPS +=
 

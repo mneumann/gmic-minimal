@@ -60,8 +60,10 @@ using namespace cimg_library;
 
 FilterThread::FilterThread(ImageSource & imageSource,
                            const QString & command,
-                           QImage * outputImage,
-                           QMutex * imageMutex,
+                           QImage * outputImageA,
+                           QMutex * imageMutexA,
+                           QImage * outputImageB,
+                           QMutex * imageMutexB,
                            PreviewMode previewMode,
                            int frameSkip,
                            int fps,
@@ -69,8 +71,10 @@ FilterThread::FilterThread(ImageSource & imageSource,
   : _imageSource( imageSource ),
     _arguments(new QString("")),
     _commandUpdated(true),
-    _outputImage( outputImage ),
-    _imageMutex( imageMutex ),
+    _outputImageA( outputImageA ),
+    _imageMutexA( imageMutexA ),
+    _outputImageB( outputImageB ),
+    _imageMutexB( imageMutexB ),
     _blockingSemaphore( blockingSemaphore ),
     _previewMode( previewMode ),
     _frameSkip( frameSkip ),
@@ -200,51 +204,81 @@ FilterThread::run()
       switch ( _previewMode ) {
       case Full:
         if (_gmic_images && _gmic_images[0]) {
-          _imageMutex->lock();
           QSize size( _gmic_images[0].width(), _gmic_images[0].height() );
-          if ( _outputImage->size() != size ) {
-            *_outputImage = QImage( size, QImage::Format_RGB888 );
+          _imageMutexA->lock();
+          if ( _outputImageA->size() != size ) {
+            *_outputImageA = QImage( size, QImage::Format_RGB888 );
           }
-          _imageMutex->unlock();
-          ImageConverter::convert( _gmic_images[0], _outputImage );
+          _imageMutexA->unlock();
+          ImageConverter::convert( _gmic_images[0], _outputImageA );
+          if ( _outputImageB ) {
+            _imageMutexB->lock();
+            if ( _outputImageB->size() != size ) {
+              *_outputImageB = QImage( size, QImage::Format_RGB888 );
+            }
+            _imageMutexB->unlock();
+            ImageConverter::convert( _gmic_images[0], _outputImageB );
+          }
         }
         break;
       case Original: {
-        _imageMutex->lock();
+        _imageMutexA->lock();
         QSize size( _imageSource.width(), _imageSource.height() );
-        if ( _outputImage->size() != size ) {
-          *_outputImage = QImage( size, QImage::Format_RGB888 );
+        if ( _outputImageA->size() != size ) {
+          *_outputImageA = QImage( size, QImage::Format_RGB888 );
         }
-        _imageMutex->unlock();
-        ImageConverter::convert( _imageSource.image(), _outputImage );
+        _imageMutexA->unlock();
+        if ( _outputImageB ) {
+          if ( _outputImageB->size() != size ) {
+            *_outputImageB = QImage( size, QImage::Format_RGB888 );
+          }
+          _imageMutexB->unlock();
+        }
+        ImageConverter::convert( _imageSource.image(), _outputImageA );
+        ImageConverter::convert( _imageSource.image(), _outputImageB );
       }
         break;
       case LeftHalf:
-        ImageConverter::merge( _imageSource.image(),_gmic_images[0], _outputImage,
-            _imageMutex, ImageConverter::MergeLeft );
+        ImageConverter::merge( _imageSource.image(),_gmic_images[0],
+            _outputImageA, _imageMutexA, ImageConverter::MergeLeft );
+        ImageConverter::merge( _imageSource.image(),_gmic_images[0],
+            _outputImageB, _imageMutexB, ImageConverter::MergeLeft );
         break;
       case TopHalf:
-        ImageConverter::merge( _imageSource.image(), _gmic_images[0], _outputImage,
-            _imageMutex, ImageConverter::MergeTop );
+        ImageConverter::merge( _imageSource.image(), _gmic_images[0],
+            _outputImageA, _imageMutexA, ImageConverter::MergeTop );
+        ImageConverter::merge( _imageSource.image(), _gmic_images[0],
+            _outputImageB, _imageMutexB, ImageConverter::MergeTop );
         break;
       case BottomHalf:
-        ImageConverter::merge( _imageSource.image(), _gmic_images[0], _outputImage,
-            _imageMutex, ImageConverter::MergeBottom );
+        ImageConverter::merge( _imageSource.image(), _gmic_images[0],
+            _outputImageA, _imageMutexA, ImageConverter::MergeBottom );
+        ImageConverter::merge( _imageSource.image(), _gmic_images[0],
+            _outputImageB, _imageMutexB, ImageConverter::MergeBottom );
         break;
       case RightHalf:
-        ImageConverter::merge( _imageSource.image(), _gmic_images[0], _outputImage,
-            _imageMutex, ImageConverter::MergeRight );
+        ImageConverter::merge( _imageSource.image(), _gmic_images[0],
+            _outputImageA, _imageMutexB, ImageConverter::MergeRight );
+        ImageConverter::merge( _imageSource.image(), _gmic_images[0],
+            _outputImageB, _imageMutexB, ImageConverter::MergeRight );
         break;
       case DuplicateHorizontal:
-        ImageConverter::merge( _imageSource.image(), _gmic_images[0], _outputImage,
-            _imageMutex, ImageConverter::DuplicateHorizontal);
+        ImageConverter::merge( _imageSource.image(), _gmic_images[0],
+            _outputImageA, _imageMutexA, ImageConverter::DuplicateHorizontal);
+        ImageConverter::merge( _imageSource.image(), _gmic_images[0],
+            _outputImageB, _imageMutexB, ImageConverter::DuplicateHorizontal);
         break;
       case DuplicateVertical:
-        ImageConverter::merge( _imageSource.image(), _gmic_images[0], _outputImage,
-            _imageMutex, ImageConverter::DuplicateVertical);
+        ImageConverter::merge( _imageSource.image(), _gmic_images[0],
+            _outputImageA, _imageMutexA, ImageConverter::DuplicateVertical);
+        ImageConverter::merge( _imageSource.image(), _gmic_images[0],
+            _outputImageB, _imageMutexB, ImageConverter::DuplicateVertical);
         break;
       default:
-        _outputImage->fill( QColor(255,255,255).rgb() );
+        _outputImageA->fill( QColor(255,255,255).rgb() );
+        if ( _outputImageB ) {
+          _outputImageB->fill( QColor(255,255,255).rgb() );
+        }
         break;
       }
 
@@ -261,12 +295,18 @@ FilterThread::run()
       }
       std::cerr << e.what() << std::endl;
       QSize size( _imageSource.image()->width, _imageSource.image()->height );
-      if ( _outputImage->size() != size ) {
-        _imageMutex->lock();
-        *_outputImage = QImage( size, QImage::Format_RGB888 );
-        _imageMutex->unlock();
+      if ( _outputImageA->size() != size ) {
+        _imageMutexA->lock();
+        *_outputImageA = QImage( size, QImage::Format_RGB888 );
+        _imageMutexA->unlock();
       }
-      ImageConverter::convert( _gmic_images[0], _outputImage );
+      if ( _outputImageB->size() != size ) {
+        _imageMutexB->lock();
+        *_outputImageB = QImage( size, QImage::Format_RGB888 );
+        _imageMutexB->unlock();
+      }
+      ImageConverter::convert( _gmic_images[0], _outputImageA );
+      ImageConverter::convert( _gmic_images[0], _outputImageB );
     }
     emit imageAvailable();
     if ( !_fps && _blockingSemaphore ) {

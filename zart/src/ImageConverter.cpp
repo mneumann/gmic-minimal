@@ -55,6 +55,7 @@ IplImage * ImageConverter::_image = 0;
 
 void ImageConverter::convert( const IplImage * in, QImage * out )
 {
+  if ( !in || !out ) return;
   assert(in->depth== IPL_DEPTH_8U);
   assert(in->nChannels == 3);
   const unsigned int w3 = 3 * in->width;
@@ -80,6 +81,7 @@ void ImageConverter::convert( const IplImage * in, QImage * out )
 
 void ImageConverter::convert(const QImage & in, IplImage **out)
 {
+  if ( !out ) return;
   *out = cvCreateImage(cvSize(in.width(),in.height()),IPL_DEPTH_8U,3);
   const unsigned int w3 = 3 * in.width();
   const unsigned int qiOffset = (w3%4)?(4-(w3%4)):0;
@@ -103,6 +105,7 @@ void ImageConverter::convert(const QImage & in, IplImage **out)
 
 void ImageConverter::convert( const cimg_library::CImg<float> & in, QImage * out )
 {
+  if ( !out ) return;
   const int spectrum = in.spectrum();
   unsigned char * dst = out->scanLine(0);
   const float *srcR = in.data( 0,0,0,0 );
@@ -129,6 +132,7 @@ void ImageConverter::merge( IplImage * iplImage,
                             QMutex * imageMutex,
                             MergeDirection direction )
 {
+  if ( !iplImage || !out ) return;
   IplImage * cameraImage = iplImage;
   if ( iplImage->width != cimgImage.width() || iplImage->height != cimgImage.height() ) {
     if ( _image )

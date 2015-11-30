@@ -80,6 +80,7 @@
 #include "WebcamSource.h"
 #include "FilterThread.h"
 #include "TreeWidgetPresetItem.h"
+#include "OutputWindow.h"
 #include "FullScreenWidget.h"
 
 #if QT_VERSION >= 0x050201
@@ -98,6 +99,8 @@ MainWindow::MainWindow( QWidget * parent )
     _presetsCount(0)
 {
   setupUi(this);
+
+  _outputWindow = 0;
 
   delete _frameImageView->layout();
   _frameImageView->setLayout(new QGridLayout);
@@ -175,12 +178,18 @@ MainWindow::MainWindow( QWidget * parent )
   // Options menu
   menu = menuBar()->addMenu( "&Options" );
 
-  action = menu->addAction("Show right panel",this,SLOT(onRightPanel(bool)),QKeySequence("Ctrl+F"));
+  action = menu->addAction("Show right &panel",this,SLOT(onRightPanel(bool)),QKeySequence("Ctrl+F"));
   action->setCheckable(true);
   action->setChecked(settings.value("showRightPanel",true).toBool());
 
   action = menu->addAction("&Full screen",this,SLOT( enterFullScreenMode() ), QKeySequence( Qt::Key_F5 ) );
   action->setShortcutContext( Qt::ApplicationShortcut );
+
+  _outputWindowAction = new QAction("&Secondary window",this);
+  _outputWindowAction->setCheckable(true);
+  connect( _outputWindowAction, SIGNAL(toggled(bool)),
+           this, SLOT(onOutputWindow(bool)) );
+  menu->addAction(_outputWindowAction);
 
   menu->addSeparator();
   action = menu->addAction("Detect &cameras", this,SLOT(onDetectCameras()) );
@@ -257,6 +266,7 @@ MainWindow::MainWindow( QWidget * parent )
 #else
   _tbCamera->setIcon(QIcon(":images/camera.png");
 #endif
+
 
 
   connect( _cbPreviewMode, SIGNAL(activated(int)),
@@ -354,7 +364,7 @@ MainWindow::MainWindow( QWidget * parent )
   connect(_commandParamsWidget,SIGNAL(valueChanged()),
           this,SLOT(onCommandParametersChanged()));
   connect(_fullScreenWidget->commandParamsWidget(),SIGNAL(valueChanged()),
-          this,SLOT(onCommandParametersChanged()));
+          this,SLOT(onCommandParametersChangedFullScreen()));
 
   if ( ! settings.value("showRightPanel",true).toBool() )
     _rightPanel->hide();
@@ -393,6 +403,7 @@ MainWindow::setCurrentPreset(QDomNode node)
   if ( _displayMode == FullScreen ) {
     _fullScreenWidget->commandParamsWidget()->saveValuesInDOM();
     _fullScreenWidget->commandParamsWidget()->build(node);
+    _commandParamsWidget->build(node);
   } else {
     _commandParamsWidget->saveValuesInDOM();
     _commandParamsWidget->build(node);
@@ -459,9 +470,14 @@ MainWindow::onImageAvailable()
   if ( _displayMode == InWindow ) {
     _imageView->checkSize();
     _imageView->repaint();
-  } else {
+  }
+  if ( _displayMode == FullScreen) {
     _fullScreenWidget->imageView()->checkSize();
     _fullScreenWidget->imageView()->repaint();
+  }
+  if ( _outputWindow && _outputWindow->isVisible() && _outputWindowAction->isChecked() ) {
+    _outputWindow->imageView()->checkSize();
+    _outputWindow->imageView()->repaint();
   }
 }
 
@@ -470,15 +486,20 @@ MainWindow::play()
 {
   int pm = _cbPreviewMode->itemData(_cbPreviewMode->currentIndex()).toInt();
   FilterThread::PreviewMode  previewMode = static_cast<FilterThread::PreviewMode>(pm);
-
-  ImageView * view = (_displayMode==InWindow)?_imageView:_fullScreenWidget->imageView();
+  ImageView * viewA = (_displayMode==InWindow)?_imageView:_fullScreenWidget->imageView();
+  ImageView * viewB = 0;
+  if ( _outputWindow && _outputWindow->isVisible() && _outputWindowAction->isChecked() ) {
+    viewB = _outputWindow->imageView();
+  }
 
   switch (_source) {
   case Webcam:
     _filterThread = new FilterThread( _webcam,
                                       _commandEditor->toPlainText(),
-                                      &view->image(),
-                                      &view->imageMutex(),
+                                      &viewA->image(),
+                                      &viewA->imageMutex(),
+                                      (viewB)?&viewB->image():0,
+                                      (viewB)?&viewB->imageMutex():0,
                                       previewMode,
                                       _sliderWebcamSkipFrames->value(),
                                       -1,
@@ -487,8 +508,10 @@ MainWindow::play()
   case StillImage:
     _filterThread = new FilterThread( _stillImage,
                                       _commandEditor->toPlainText(),
-                                      &view->image(),
-                                      &view->imageMutex(),
+                                      &viewA->image(),
+                                      &viewA->imageMutex(),
+                                      (viewB)?&viewB->image():0,
+                                      (viewB)?&viewB->imageMutex():0,
                                       previewMode,
                                       0,
                                       _sliderImageFPS->value(),
@@ -497,8 +520,10 @@ MainWindow::play()
   case Video:
     _filterThread = new FilterThread( _videoFile,
                                       _commandEditor->toPlainText(),
-                                      &view->image(),
-                                      &view->imageMutex(),
+                                      &viewA->image(),
+                                      &viewA->imageMutex(),
+                                      (viewB)?&viewB->image():0,
+                                      (viewB)?&viewB->imageMutex():0,
                                       previewMode,
                                       _sliderVideoSkipFrames->value(),
                                       _sliderVideoFPS->value(),
@@ -547,11 +572,19 @@ void
 MainWindow::onCommandParametersChanged()
 {
   if ( _filterThread ) {
-    if (_displayMode == FullScreen )
-      _filterThread->setArguments(_fullScreenWidget->commandParamsWidget()->valueString());
-    else
-      _filterThread->setArguments(_commandParamsWidget->valueString());
+    _filterThread->setArguments(_commandParamsWidget->valueString());
     if ( _source == StillImage && _zeroFPS ) _filterThreadSemaphore.release();
+  }
+}
+
+void
+MainWindow::onCommandParametersChangedFullScreen()
+{
+  if ( _filterThread ) {
+    if (_displayMode == FullScreen ) {
+      _filterThread->setArguments(_fullScreenWidget->commandParamsWidget()->valueString());
+      if ( _source == StillImage && _zeroFPS ) _filterThreadSemaphore.release();
+    }
   }
 }
 
@@ -1143,4 +1176,31 @@ MainWindow::initGUIFromCameraList(const QList<int> & camList)
   connect( _comboSource, SIGNAL(currentIndexChanged(int)),
            this, SLOT(onComboSourceChanged(int)));
   onComboSourceChanged(0);
+}
+
+void
+MainWindow::onOutputWindow(bool on)
+{
+  if ( on && !_outputWindow ) {
+    _outputWindow = new OutputWindow(this);
+    connect( _outputWindow, SIGNAL(aboutToClose()),
+             this, SLOT(onOutputWindowClosing()) );
+  }
+  if ( !on && _outputWindow && _outputWindow->isVisible() ) {
+    _outputWindow->close();
+  }
+  if ( on && !_outputWindow->isVisible() ) {
+    bool running = _filterThread && _filterThread->isRunning();
+    stop();
+    _outputWindow->show();
+    if ( running ) {
+      play();
+    }
+  }
+}
+
+void
+MainWindow::onOutputWindowClosing()
+{
+  _outputWindowAction->setChecked(false);
 }

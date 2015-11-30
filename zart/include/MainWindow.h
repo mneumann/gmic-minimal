@@ -72,6 +72,7 @@ class QNetworkAccessManager;
 class QMenu;
 class TreeWidgetPresetItem;
 class FullScreenWidget;
+class OutputWindow;
 
 class MainWindow : public QMainWindow, public Ui::MainWindow {
   Q_OBJECT
@@ -120,11 +121,14 @@ public slots:
   void changePlayButtonAppearence(bool);
   void onFilterThreadFinished();
   void onCommandParametersChanged();
+  void onCommandParametersChangedFullScreen();
   void enterFullScreenMode();
   void leaveFullScreenMode();
   void onRefreshCameraResolutions();
   void onDetectCameras();
   void initGUIFromCameraList(const QList<int> & camList);
+  void onOutputWindow(bool);
+  void onOutputWindowClosing();
 
 private:
 
@@ -152,8 +156,10 @@ private:
   QString _filtersPath;
   QAction * _builtInPresetsAction;
   QAction * _startStopAction;
+  QAction * _outputWindowAction;
   DisplayMode _displayMode;
   FullScreenWidget * _fullScreenWidget;
+  OutputWindow * _outputWindow;
   QSemaphore _filterThreadSemaphore;
   bool _zeroFPS;
   int _presetsCount;
