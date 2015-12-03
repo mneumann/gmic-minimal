@@ -116,9 +116,7 @@ CImg<T>& operator_eq(const char *const expression) {
     }
   } catch (CImgException&) {
     cimg::exception_mode(omode);
-    CImg<T> values(_width,_height,_depth,_spectrum);
-    values = expression;
-    operator_eq(values);
+    operator_eq(CImg<T>(_width,_height,_depth,_spectrum,expression,true));
   }
   cimg::exception_mode(omode);
   return *this;
@@ -182,9 +180,7 @@ CImg<T>& operator_neq(const char *const expression) {
     }
   } catch (CImgException&) {
     cimg::exception_mode(omode);
-    CImg<T> values(_width,_height,_depth,_spectrum);
-    values = expression;
-    operator_neq(values);
+    operator_neq(CImg<T>(_width,_height,_depth,_spectrum,expression,true));
   }
   cimg::exception_mode(omode);
   return *this;
@@ -248,9 +244,7 @@ CImg<T>& operator_gt(const char *const expression) {
     }
   } catch (CImgException&) {
     cimg::exception_mode(omode);
-    CImg<T> values(_width,_height,_depth,_spectrum);
-    values = expression;
-    operator_gt(values);
+    operator_gt(CImg<T>(_width,_height,_depth,_spectrum,expression,true));
   }
   cimg::exception_mode(omode);
   return *this;
@@ -314,9 +308,7 @@ CImg<T>& operator_ge(const char *const expression) {
     }
   } catch (CImgException&) {
     cimg::exception_mode(omode);
-    CImg<T> values(_width,_height,_depth,_spectrum);
-    values = expression;
-    operator_ge(values);
+    operator_ge(CImg<T>(_width,_height,_depth,_spectrum,expression,true));
   }
   cimg::exception_mode(omode);
   return *this;
@@ -380,9 +372,7 @@ CImg<T>& operator_lt(const char *const expression) {
     }
   } catch (CImgException&) {
     cimg::exception_mode(omode);
-    CImg<T> values(_width,_height,_depth,_spectrum);
-    values = expression;
-    operator_lt(values);
+    operator_lt(CImg<T>(_width,_height,_depth,_spectrum,expression,true));
   }
   cimg::exception_mode(omode);
   return *this;
@@ -446,9 +436,7 @@ CImg<T>& operator_le(const char *const expression) {
     }
   } catch (CImgException&) {
     cimg::exception_mode(omode);
-    CImg<T> values(_width,_height,_depth,_spectrum);
-    values = expression;
-    operator_le(values);
+    operator_le(CImg<T>(_width,_height,_depth,_spectrum,expression,true));
   }
   cimg::exception_mode(omode);
   return *this;
