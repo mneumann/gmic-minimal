@@ -115,6 +115,12 @@ ImageView::mouseReleaseEvent( QMouseEvent * )
 }
 
 void
+ImageView::mouseDoubleClickEvent(QMouseEvent * e)
+{
+  emit mouseDoubleClick(e);
+}
+
+void
 ImageView::mouseMoveEvent( QMouseEvent * e )
 {
   if ( !_imagePosition.contains(e->pos()) ) return;

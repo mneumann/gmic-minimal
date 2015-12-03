@@ -64,10 +64,10 @@ protected:
   void showEvent(QShowEvent * event);
   void keyPressEvent( QKeyEvent * );
   void closeEvent(QCloseEvent * event);
-
 public slots:
   void onCloseClicked();
   void onShowFullscreen(bool );
+  void onToggleFullScreen();
 signals:
   void escapePressed();
   void spaceBarPressed();

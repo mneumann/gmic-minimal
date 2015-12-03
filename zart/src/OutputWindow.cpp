@@ -65,15 +65,12 @@ OutputWindow::OutputWindow(MainWindow * mainwindow)
   _tbFullScreen->setText("Fullscreen");
   _tbFullScreen->setToolButtonStyle(Qt::ToolButtonTextOnly);
 #endif
-
+  _pbClose->setCheckable(false);
   _tbFullScreen->setCheckable(true);
   connect( _tbFullScreen, SIGNAL(toggled(bool)),
            this, SLOT(onShowFullscreen(bool)) );
-
-  _pbClose->setCheckable(false);
   connect( _pbClose, SIGNAL(clicked(bool)),
            this, SLOT(onCloseClicked()) );
-
   connect( _imageView, SIGNAL(escapePressed()),
            this, SIGNAL(escapePressed()) );
   connect( _imageView, SIGNAL(spaceBarPressed()),
@@ -82,6 +79,8 @@ OutputWindow::OutputWindow(MainWindow * mainwindow)
            _mainWindow, SLOT( imageViewMouseEvent( QMouseEvent * ) ) );
   connect( _imageView, SIGNAL( mouseMove( QMouseEvent * ) ),
            _mainWindow, SLOT( imageViewMouseEvent( QMouseEvent * ) ) );
+  connect( _imageView, SIGNAL(mouseDoubleClick(QMouseEvent*)),
+           this, SLOT(onToggleFullScreen()) );
   _imageView->setMouseTracking( true );
   setMouseTracking(true);
   layout()->setContentsMargins(1,0,1,0);
@@ -131,6 +130,12 @@ OutputWindow::onShowFullscreen(bool on)
     _tbFullScreen->setChecked(false);
     showNormal();
   }
+}
+
+void
+OutputWindow::onToggleFullScreen()
+{
+  _tbFullScreen->setChecked(!isFullScreen());
 }
 
 ImageView *
