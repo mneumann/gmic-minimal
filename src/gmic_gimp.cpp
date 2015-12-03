@@ -4290,44 +4290,21 @@ void gmic_run(const gchar *name, gint nparams, const GimpParam *param,
 
     case GIMP_RUN_INTERACTIVE : {
 
-      // Try updating filters automatically if necessary (every 24h).
+      // Try updating filters automatically if necessary (every week).
       CImg<char> str(std::strlen(gmic::path_rc()) + 32);
       cimg_snprintf(str,str.width(),"%sgimp_update.lock",
                     gmic::path_rc());
       bool try_network_update = true;
       gimp_get_data("gmic_lock_update",&try_network_update);
-
-#if cimg_OS==2
       if (try_network_update) {
-        HANDLE lockfile = CreateFileA(str,GENERIC_READ,0,0,OPEN_EXISTING,FILE_ATTRIBUTE_NORMAL,0);
-        if (lockfile!=INVALID_HANDLE_VALUE) {
-          FILETIME file_time, current_time;
-          SYSTEMTIME st;
-          GetSystemTime(&st);
-          if (GetFileTime(lockfile,0,0,&file_time) && SystemTimeToFileTime(&st,&current_time)) {
-            ULARGE_INTEGER _if, _is;
-            _if.LowPart = file_time.dwLowDateTime;
-            _if.HighPart = file_time.dwHighDateTime;
-            _is.LowPart = current_time.dwLowDateTime;
-            _is.HighPart = current_time.dwHighDateTime;
-            if ((_is.QuadPart - _if.QuadPart)/10000000<7*24*60*60) try_network_update = false;
-            CloseHandle(lockfile);
-          }
-        }
+        const int date = cimg::date(3), fdate = cimg::fdate(str,3);
+        if (fdate>=0 && fdate>date) try_network_update = false;
       }
-#else
-      struct stat st_buf;
-      if (!stat(str,&st_buf)) {
-        const unsigned long
-          file_time = (unsigned long)st_buf.st_mtime,
-          current_time = (unsigned long)std::time(0);
-        if (current_time - file_time<7*24*60*60) try_network_update = false;
-      }
-#endif
       if (try_network_update) {
         update_filters(true,true);
         std::FILE *lockfile = std::fopen(str,"wb");
         if (lockfile) std::fclose(lockfile);
+        try_network_update = false;
         gimp_set_data("gmic_lock_update",&try_network_update,sizeof(bool));
       }
 
