@@ -4297,8 +4297,8 @@ void gmic_run(const gchar *name, gint nparams, const GimpParam *param,
       bool try_network_update = true;
       gimp_get_data("gmic_lock_update",&try_network_update);
       if (try_network_update) {
-        const int date = cimg::date(3), fdate = cimg::fdate(str,3);
-        if (fdate>=0 && fdate>date) try_network_update = false;
+        const int date = cimg::date(2), fdate = cimg::fdate(str,2);
+        if (fdate>=0 && cimg::mod(date - fdate,31)<7) try_network_update = false;
       }
       if (try_network_update) {
         update_filters(true,true);
