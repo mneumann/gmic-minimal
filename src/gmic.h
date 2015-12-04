@@ -184,7 +184,7 @@ static struct cimg_is_abort {
 const char gmic_dollar = 23, gmic_lbrace = 24, gmic_rbrace = 25, gmic_comma = 26, gmic_dquote = 28, gmic_newline = 29;
 
 // Define some const arrays out of gmic methods, to save stack on Windows.
-const char* gmic_onechar_shortcuts[] = {
+static const char* gmic_onechar_shortcuts[] = {
   0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, // 0-31
   0,0,0,0,0,"-mod","-and",0,0,0,"-mul","-add",0,"-sub",0,"-div",0,0,0,0,0,0,0,0,0,0,0,0, // 32-59
   "-lt","-set","-gt",0, // 60-63
@@ -194,7 +194,7 @@ const char* gmic_onechar_shortcuts[] = {
   "-verbose","-window","-exec","-unroll","-crop",0,"-or",0,0,0 // 118-127
 };
 
-const char *gmic_native_command_names[] = {
+static const char *gmic_native_command_names[] = {
   "a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s",
   "t","u","_u","v","w","x","y","z",
   "+","-","*","/","\\\\",">","<","%","^","=","sh","mv","rm","rv","<<",">>","==",">=",

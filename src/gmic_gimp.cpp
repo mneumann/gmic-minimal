@@ -1510,8 +1510,8 @@ CImgList<char> update_filters(const bool try_net_update, const bool is_silent=fa
 
         CImg<char>::string(line).move_to(gmic_faves);
         // Get back '}' if necessary.
-        for (char *p = std::strchr(label,_rbrace); p; p = std::strchr(p,_rbrace)) *p = '}';
-        for (char *p = std::strchr(entry,_rbrace); p; p = std::strchr(p,_rbrace)) *p = '}';
+        for (char *p = std::strchr(label,gmic_rbrace); p; p = std::strchr(p,gmic_rbrace)) *p = '}';
+        for (char *p = std::strchr(entry,gmic_rbrace); p; p = std::strchr(p,gmic_rbrace)) *p = '}';
 
         if (filter>=indice_faves) { // Entry not found.
           CImg<char>::string(label).move_to(gmic_entries);
@@ -1556,9 +1556,9 @@ CImgList<char> update_filters(const bool try_net_update, const bool is_silent=fa
           unsigned int nbp = 0;
           for (nbp = 0; cimg_sscanf(_line,"{%65533[^}]%c",arguments.data(),&sep)==2 && sep=='}'; ++nbp) {
             // Get back '}' if necessary.
-            for (char *p = std::strchr(arguments,_rbrace); p; p = std::strchr(p,_rbrace)) *p = '}';
+            for (char *p = std::strchr(arguments,gmic_rbrace); p; p = std::strchr(p,gmic_rbrace)) *p = '}';
             // Get back '\n' if necessary.
-            for (char *p = std::strchr(arguments,_newline); p; p = std::strchr(p,_newline)) *p = '\n';
+            for (char *p = std::strchr(arguments,gmic_newline); p; p = std::strchr(p,gmic_newline)) *p = '\n';
             set_fave_parameter(gmic_entries.size() - 1,nbp,arguments);
             _line+=2 + std::strlen(arguments);
           }
@@ -1898,7 +1898,7 @@ CImg<char> get_command_line(const bool is_preview) {
         char *sd = nparam.data();
         if (l>=2 && *ss=='\"' && ss[l - 1]=='\"') { // Replace special characters in a string or a filename.
           ++ss; *(sd++) = '\"';
-          for (unsigned int i = 1; i<l - 1; ++i, ++ss) { const char c = *ss; *(sd++) = c=='\"'?_dquote:c; }
+          for (unsigned int i = 1; i<l - 1; ++i, ++ss) { const char c = *ss; *(sd++) = c=='\"'?gmic_dquote:c; }
           *(sd++) = '\"'; *(sd++) = 0;
           nparam.move_to(lres);
         } else CImg<char>(ss,l + 1).move_to(lres);
@@ -2192,7 +2192,7 @@ void on_text_parameter_changed(const void *const event_infos) {
   CImg<char> s_param;
   if (s_value && *s_value) {
     CImg<char> _s_value = CImg<char>::string(s_value);
-    cimg_for(_s_value,ptr,char) if (*ptr=='\"') *ptr = _dquote;
+    cimg_for(_s_value,ptr,char) if (*ptr=='\"') *ptr = gmic_dquote;
     s_param.assign(_s_value.width() + 2);
     cimg_snprintf(s_param,s_param.width(),"\"%s\"",_s_value.data());
   } else std::strcpy(s_param.assign(3),"\"\"");
@@ -2210,7 +2210,7 @@ void on_multitext_parameter_changed(const void *const event_infos) {
   CImg<char> s_param;
   if (s_value && *s_value) {
     CImg<char> _s_value = CImg<char>::string(s_value);
-    cimg_for(_s_value,ptr,char) if (*ptr=='\"') *ptr = _dquote;
+    cimg_for(_s_value,ptr,char) if (*ptr=='\"') *ptr = gmic_dquote;
     s_param.assign(_s_value.width() + 2);
     cimg_snprintf(s_param,s_param.width(),"\"%s\"",_s_value.data());
   } else std::strcpy(s_param.assign(3),"\"\"");
@@ -2397,8 +2397,8 @@ void on_dialog_add_fave_clicked(GtkWidget *const tree_view) {
           cimg_sprintf(label,"%s (%u)",basename.data(),++ind);
       }
       CImg<char> entry = gmic_entries[filter];
-      for (char *p = std::strchr(label,'}'); p; p = std::strchr(p,'}')) *p = _rbrace;  // Convert '}' if necessary.
-      for (char *p = std::strchr(entry,'}'); p; p = std::strchr(p,'}')) *p = _rbrace;
+      for (char *p = std::strchr(label,'}'); p; p = std::strchr(p,'}')) *p = gmic_rbrace;  // Convert '}' if necessary.
+      for (char *p = std::strchr(entry,'}'); p; p = std::strchr(p,'}')) *p = gmic_rbrace;
       std::fprintf(file,"{%s}{%s}{%s}{%s}",
                    label.data(),
                    entry.data(),
@@ -2408,8 +2408,8 @@ void on_dialog_add_fave_clicked(GtkWidget *const tree_view) {
       for (unsigned int n = 0; n<nbp; ++n) {
         CImg<char> param = get_filter_parameter(filter,n);
         set_filter_parameter(gmic_entries.size(),n,param);
-        for (char *p = std::strchr(param,'}'); p; p = std::strchr(p,'}')) *p = _rbrace; // Convert '}' if necessary.
-        for (char *p = std::strchr(param,'\n'); p; p = std::strchr(p,'\n')) *p = _newline; // Convert '\n' if necessary.
+        for (char *p = std::strchr(param,'}'); p; p = std::strchr(p,'}')) *p = gmic_rbrace; // Convert '}' if necessary.
+        for (char *p = std::strchr(param,'\n'); p; p = std::strchr(p,'\n')) *p = gmic_newline; // Convert '\n' if necessary.
         std::fprintf(file,"{%s}",param.data());
       }
       std::fputc('\n',file);
@@ -2555,7 +2555,7 @@ void _on_filter_doubleclicked(GtkWidget *const entry) {
         cimglist_for(gmic_faves,l) if (l!=(int)_filter) std::fprintf(file,"%s\n",gmic_faves[l].data());
         else {
           CImg<char> _label = CImg<char>::string(label);
-          for (char *p = std::strchr(_label,'}'); p; p = std::strchr(p,'}')) *p = _rbrace; // Convert '}' if necessary.
+          for (char *p = std::strchr(_label,'}'); p; p = std::strchr(p,'}')) *p = gmic_rbrace; // Convert '}' if necessary.
           std::fprintf(file,"{%s%s\n",_label.data(),std::strchr(gmic_faves[l].data(),'}'));
         }
         std::fclose(file);
@@ -3049,9 +3049,9 @@ void process_image(const char *const command_line, const bool is_apply) {
 
     // Update values of parameters if invoked command requests it (using status value).
     const unsigned int l_status = spt.status._width;
-    if (l_status>3 && spt.status[0]==_lbrace && spt.status[l_status - 2]==_rbrace) {
+    if (l_status>3 && spt.status[0]==gmic_lbrace && spt.status[l_status - 2]==gmic_rbrace) {
       spt.status.crop(1,l_status - 3);
-      CImgList<char> return_values = spt.status.get_split(CImg<char>::vector(_rbrace,_lbrace),false,false);
+      CImgList<char> return_values = spt.status.get_split(CImg<char>::vector(gmic_rbrace,gmic_lbrace),false,false);
       if (return_values._width==get_filter_nbparams(filter))
         cimglist_for(return_values,l) {
           gmic::strreplace_fw(return_values[l].resize(1,return_values[l].height() + 1,1,1,0));
@@ -3364,9 +3364,9 @@ void process_preview() {
 
     // Update values of parameters if invoked command requests it (using status value).
     const unsigned int l_status = spt.status._width;
-    if (l_status>3 && spt.status[0]==_lbrace && spt.status[l_status - 2]==_rbrace) {
+    if (l_status>3 && spt.status[0]==gmic_lbrace && spt.status[l_status - 2]==gmic_rbrace) {
       spt.status.crop(1,l_status - 3);
-      CImgList<char> return_values = spt.status.get_split(CImg<char>::vector(_rbrace,_lbrace),false,false);
+      CImgList<char> return_values = spt.status.get_split(CImg<char>::vector(gmic_rbrace,gmic_lbrace),false,false);
       if (return_values._width==get_filter_nbparams(filter))
         cimglist_for(return_values,l) {
           gmic::strreplace_fw(return_values[l].resize(1,return_values[l].height() + 1,1,1,0));
@@ -3712,7 +3712,7 @@ void create_parameters_gui(const bool reset_params) {
               cimg::strpare(value,'\"',true);
               gtk_label_set_markup(GTK_LABEL(markup2ascii),value);
               cimg_snprintf(argument_arg,argument_arg.width(),"%s",gtk_label_get_text(GTK_LABEL(markup2ascii)));
-              for (char *p = argument_arg; *p; ++p) if (*p==_dquote) *p='\"';
+              for (char *p = argument_arg; *p; ++p) if (*p==gmic_dquote) *p='\"';
               gtk_text_buffer_set_text(buffer,argument_arg,-1);
 
               gtk_table_attach(GTK_TABLE(table),frame,0,3,(int)current_table_line,(int)current_table_line + 1,
@@ -3746,7 +3746,7 @@ void create_parameters_gui(const bool reset_params) {
               gtk_label_set_markup(GTK_LABEL(markup2ascii),value);
               cimg_snprintf(argument_arg,argument_arg.width(),"%s",gtk_label_get_text(GTK_LABEL(markup2ascii)));
 
-              for (char *p = value; *p; ++p) if (*p==_dquote) *p='\"';
+              for (char *p = value; *p; ++p) if (*p==gmic_dquote) *p='\"';
               gtk_entry_set_text(GTK_ENTRY(entry),argument_arg);
               gtk_table_attach(GTK_TABLE(table),entry,1,2,(int)current_table_line,(int)current_table_line + 1,
                                (GtkAttachOptions)(GTK_EXPAND | GTK_FILL),(GtkAttachOptions)0,0,0);
