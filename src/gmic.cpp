@@ -2305,7 +2305,7 @@ struct st_gmic_parallel {
   CImgList<T> *images, *parent_images;
   CImg<unsigned int> variables_sizes;
   const CImg<unsigned int> *command_selection;
-  volatile bool is_thread_running;
+  bool is_thread_running;
   gmic_exception exception;
   gmic gmic_instance;
 #ifdef gmic_is_parallel
@@ -2450,8 +2450,8 @@ char *gmic::strreplace_fw(char *const str) {
   if (str) for (char *s = str ; *s; ++s) {
       const char c = *s;
       if (c<' ')
-        *s = c==_dollar?'$':c==_lbrace?'{':c==_rbrace?'}':c==_comma?',':
-          c==_dquote?'\"':c;
+        *s = c==gmic_dollar?'$':c==gmic_lbrace?'{':c==gmic_rbrace?'}':c==gmic_comma?',':
+          c==gmic_dquote?'\"':c;
     }
   return str;
 }
@@ -2459,8 +2459,8 @@ char *gmic::strreplace_fw(char *const str) {
 char *gmic::strreplace_bw(char *const str) {
   if (str) for (char *s = str ; *s; ++s) {
       const char c = *s;
-      *s = c=='$'?_dollar:c=='{'?_lbrace:c=='}'?_rbrace:c==','?_comma:
-        c=='\"'?_dquote:c;
+      *s = c=='$'?gmic_dollar:c=='{'?gmic_lbrace:c=='}'?gmic_rbrace:c==','?gmic_comma:
+        c=='\"'?gmic_dquote:c;
     }
   return str;
 }
@@ -2676,19 +2676,19 @@ CImgList<char> gmic::commands_line_to_CImgList(const char *const commands_line) 
     if (c=='\\') { // If escaped character.
       c = *(++ptrs);
       if (!c) { c = '\\'; --ptrs; }
-      else if (c=='$') c = _dollar;
-      else if (c=='{') c = _lbrace;
-      else if (c=='}') c = _rbrace;
-      else if (c==',') c = _comma;
-      else if (c=='\"') c = _dquote;
+      else if (c=='$') c = gmic_dollar;
+      else if (c=='{') c = gmic_lbrace;
+      else if (c=='}') c = gmic_rbrace;
+      else if (c==',') c = gmic_comma;
+      else if (c=='\"') c = gmic_dquote;
       else if (c==' ') c = ' ';
       else *(ptrd++) = '\\';
       *(ptrd++) = c;
     } else if (is_dquoted) { // If non-escaped character inside string.
       if (c=='\"') is_dquoted = false;
       else if (c==1) while (c && c!=' ') c = *(++ptrs); // Discard debug info inside string.
-      else *(ptrd++) = (c=='$' && ptrs[1]!='?')?_dollar:c=='{'?_lbrace:c=='}'?_rbrace:
-             c==','?_comma:c;
+      else *(ptrd++) = (c=='$' && ptrs[1]!='?')?gmic_dollar:c=='{'?gmic_lbrace:c=='}'?gmic_rbrace:
+             c==','?gmic_comma:c;
     } else { // Non-escaped character outside string.
       if (c=='\"') is_dquoted = true;
       else if (c==' ') {
@@ -2838,11 +2838,11 @@ gmic& gmic::debug(const char *format, ...) {
   for (char *s = message; *s; ++s) {
     char c = *s;
     if (c<' ') switch (c) {
-      case _dollar : std::fprintf(cimg::output(),"\\$"); break;
-      case _lbrace : std::fprintf(cimg::output(),"\\{"); break;
-      case _rbrace : std::fprintf(cimg::output(),"\\}"); break;
-      case _comma : std::fprintf(cimg::output(),"\\,"); break;
-      case _dquote : std::fprintf(cimg::output(),"\\\""); break;
+      case gmic_dollar : std::fprintf(cimg::output(),"\\$"); break;
+      case gmic_lbrace : std::fprintf(cimg::output(),"\\{"); break;
+      case gmic_rbrace : std::fprintf(cimg::output(),"\\}"); break;
+      case gmic_comma : std::fprintf(cimg::output(),"\\,"); break;
+      case gmic_dquote : std::fprintf(cimg::output(),"\\\""); break;
       default : std::fputc(c,cimg::output());
       }
     else std::fputc(c,cimg::output());
@@ -3407,11 +3407,11 @@ gmic& gmic::debug(const CImgList<T>& list, const char *format, ...) {
     char c = *s;
     if (c<' ') {
       switch (c) {
-      case _dollar : std::fprintf(cimg::output(),"\\$"); break;
-      case _lbrace : std::fprintf(cimg::output(),"\\{"); break;
-      case _rbrace : std::fprintf(cimg::output(),"\\}"); break;
-      case _comma : std::fprintf(cimg::output(),"\\,"); break;
-      case _dquote : std::fprintf(cimg::output(),"\\\""); break;
+      case gmic_dollar : std::fprintf(cimg::output(),"\\$"); break;
+      case gmic_lbrace : std::fprintf(cimg::output(),"\\{"); break;
+      case gmic_rbrace : std::fprintf(cimg::output(),"\\}"); break;
+      case gmic_comma : std::fprintf(cimg::output(),"\\,"); break;
+      case gmic_dquote : std::fprintf(cimg::output(),"\\\""); break;
       default : std::fputc(c,cimg::output());
       }
     } else std::fputc(c,cimg::output());
@@ -4032,7 +4032,7 @@ CImg<char> gmic::substitute_item(const char *const source,
               is_substituted = true;
             }
             if (!is_substituted) { // Pressed state of specified key.
-              volatile bool &ik = disp.is_key(feature);
+              bool &ik = disp.is_key(feature);
               cimg_snprintf(substr,substr.width(),"%d",(int)ik);
               is_substituted = true;
               if (flush_request) ik = false;
@@ -4745,23 +4745,14 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
           command4 = command3?command[4]:0, command5 = command4?command[5]:0;
 
         if (!command2) { // Single-char shortcut.
-          const char* onechar_shortcuts[] = {
-            0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, // 0-31
-            0,0,0,0,0,"-mod","-and",0,0,0,"-mul","-add",0,"-sub",0,"-div",0,0,0,0,0,0,0,0,0,0,0,0, // 32-59
-            "-lt","-set","-gt",0, // 60-63
-            0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"-pow",0, // 64-95
-            0,"-append","-blur","-cut","-display","-echo","-fill","-gradient",0,"-input","-image","-keep", // 96-107
-            "-local","-command","-normalize","-output","-print","-quit","-resize","-split","-text","-status", // 108-117
-            "-verbose","-window","-exec","-unroll","-crop",0,"-or",0,0,0 // 118-127
-          };
           const bool
             is_mquvx = command1=='m' || command1=='q' || command1=='u' || command1=='v' || command1=='x',
             is_deiopwx = command1=='d' || command1=='e' || command1=='i' || command1=='o' || command1=='p' ||
                          command1=='w' || command1=='x';
-          if ((unsigned int)command1<128 && onechar_shortcuts[(unsigned int)command1] &&
+          if ((unsigned int)command1<128 && gmic_onechar_shortcuts[(unsigned int)command1] &&
               (!is_mquvx || (!is_double_hyphen && !is_restriction)) &&
               (!is_deiopwx || !is_double_hyphen)) {
-            std::strcpy(command,onechar_shortcuts[(unsigned int)command1]);
+            std::strcpy(command,gmic_onechar_shortcuts[(unsigned int)command1]);
             if (is_mquvx) { CImg<char>::string(command).move_to(_item); *command = 0; }
             else *item = 0;
           }
@@ -9451,8 +9442,8 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
               for (char *s = arguments[l].data(); *s; ++s) {
                 const char c = *s;
                 if (c=='\"') is_dquoted = !is_dquoted;
-                if (!is_dquoted) *s = c<' '?(c==_dollar?'$':c==_lbrace?'{':c==_rbrace?'}':
-                                             c==_comma?',':c==_dquote?'\"':c):c;
+                if (!is_dquoted) *s = c<' '?(c==gmic_dollar?'$':c==gmic_lbrace?'{':c==gmic_rbrace?'}':
+                                             c==gmic_comma?',':c==gmic_dquote?'\"':c):c;
               }
               gi.commands_line_to_CImgList(arguments[l].data()).
                 move_to(_threads_data[l].commands_line);
@@ -12933,8 +12924,8 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
                 for (char *s = substituted_command.data(); *s; ++s) {
                   const char c = *s;
                   if (c=='\"') is_dquoted = !is_dquoted;
-                  if (!is_dquoted) *s = c<' '?(c==_dollar?'$':c==_lbrace?'{':c==_rbrace?'}':
-                                               c==_comma?',':c==_dquote?'\"':c):c;
+                  if (!is_dquoted) *s = c<' '?(c==gmic_dollar?'$':c==gmic_lbrace?'{':c==gmic_rbrace?'}':
+                                               c==gmic_comma?',':c==gmic_dquote?'\"':c):c;
                 }
 
                 if (is_debug) {
@@ -13829,51 +13820,6 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
             if (!(file=std::fopen(filename,"r"))) {
               if (cimg::type<T>::string()==cimg::type<float>::string() || *ext || *filename!='-') {
                 if (*filename=='-' && filename[1]) { // Check for command misspelling.
-                  const char *native_commands_names[] = {
-                    "a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s",
-                    "t","u","_u","v","w","x","y","z",
-                    "+","-","*","/","\\\\",">","<","%","^","=","sh","mv","rm","rv","<<",">>","==",">=",
-                    "<=","//","**","!=","&","|",
-                    "d3d","+3d","/3d","f3d","j3d","l3d","m3d","*3d","o3d","p3d","r3d","s3d","-3d",
-                    "t3d","db3d","md3d","rv3d","sl3d","ss3d","div3d",
-                    "append","autocrop","add","add3d","abs","and","atan2","acos","asin","atan",
-                    "axes",
-                    "blur","boxfilter","bsr","bsl","bilateral","break",
-                    "check","check3d","crop","channels","columns","command","camera","cut","cos",
-                    "convolve","correlate","color3d","col3d","cosh","continue","cumulate",
-                    "cursor",
-                    "done","do","debug","divide","distance","dilate","discard","double3d","denoise",
-                    "deriche","dijkstra","displacement","display","display3d",
-                    "endif","else","elif","endlocal","endl","echo","exec","error","endian","exp",
-                    "eq","ellipse","equalize","erode","elevation3d","eigen","eikonal",
-                    "fill","flood","files","focale3d","fft",
-                    "ge","gt","gradient","graph","guided",
-                    "histogram","hsi2rgb","hsl2rgb","hsv2rgb","hessian",
-                    "input","if","image","index","invert","isoline3d","isosurface3d","inpaint",
-                    "ifft",
-                    "keep",
-                    "local","le","lt","log","log2","log10","line","lab2rgb","label","light3d",
-                    "move","mirror","mul","mutex","mod","max","min","mmul","mode3d","moded3d",
-                    "map","median","mdiv","mse","mandelbrot","mul3d",
-                    "name","normalize","neq","noarg","noise",
-                    "output","onfail","object3d","or","opacity3d",
-                    "parallel","pass","patchmatch","permute","progress","print","pow","point","polygon",
-                    "plasma","primitives3d","plot",
-                    "quiver","quit",
-                    "remove","repeat","resize","reverse","return","rows","rotate",
-                    "round","rand","rotate3d","rgb2hsi","rgb2hsl","rgb2hsv","rgb2lab",
-                    "rgb2srgb","rol","ror","reverse3d",
-                    "status","_status","skip","set","split","shared","shift","slices","srand","sub","sqrt",
-                    "sqr","sign","sin","sort","solve","sub3d","sharpen","smooth","split3d",
-                    "svd","sphere3d","specl3d","specs3d","sinc","sinh","srgb2rgb","streamline3d",
-                    "structuretensors","select","serialize",
-                    "threshold","tan","text","texturize3d","trisolve","tanh",
-                    "unroll","uncommand","unserialize",
-                    "vanvliet","verbose",
-                    "while","warn","window","warp","watershed","wait",
-                    "xor",0
-                  };
-
                   CImg<char>::string(filename).move_to(name);
                   char *const posb = std::strchr(name,'[');
                   if (posb) *posb = 0;  // Discard selection from the command name.
@@ -13881,11 +13827,11 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
                   const char *misspelled = 0;
                   const unsigned int foff = name[1]=='-'?2U:1U;
                   int dmin = 4;
-                  for (unsigned int l = 0; native_commands_names[l]; ++l) {
+                  for (unsigned int l = 0; gmic_native_command_names[l]; ++l) {
                     // Look in native commands.
-                    const char *const c = native_commands_names[l];
+                    const char *const c = gmic_native_command_names[l];
                     const int d = levenshtein(c,name.data() + foff);
-                    if (d<dmin) { dmin = d; misspelled = native_commands_names[l]; }
+                    if (d<dmin) { dmin = d; misspelled = gmic_native_command_names[l]; }
                   }
                   for (unsigned int i = 0; i<512; ++i)
                     // Look in custom commands.
