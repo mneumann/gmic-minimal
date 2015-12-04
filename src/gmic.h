@@ -160,9 +160,9 @@ static struct cimg_is_abort {
   cimg_is_abort():value(false),ptr(&value) {}
 } _cimg_is_abort;
 #ifdef cimg_use_openmp
-#define cimg_test_abort() if (*_cimg_is_abort.ptr && !omp_get_thread_num()) throw CImgAbortException("");
+#define cimg_test_abort() if (*_cimg_is_abort.ptr && !omp_get_thread_num()) throw CImgAbortException();
 #else
-#define cimg_test_abort() if (*_cimg_is_abort.ptr) throw CImgAbortException("")
+#define cimg_test_abort() if (*_cimg_is_abort.ptr) throw CImgAbortException()
 #endif // #ifdef cimg_use_openmp
 #endif // #ifdef cimg_use_abort
 #ifndef cimg_display
@@ -182,62 +182,6 @@ static struct cimg_is_abort {
 
 // Define some special character codes used for replacement in double quoted strings.
 const char gmic_dollar = 23, gmic_lbrace = 24, gmic_rbrace = 25, gmic_comma = 26, gmic_dquote = 28, gmic_newline = 29;
-
-// Define some const arrays out of gmic methods, to save stack on Windows.
-static const char* gmic_onechar_shortcuts[] = {
-  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, // 0-31
-  0,0,0,0,0,"-mod","-and",0,0,0,"-mul","-add",0,"-sub",0,"-div",0,0,0,0,0,0,0,0,0,0,0,0, // 32-59
-  "-lt","-set","-gt",0, // 60-63
-  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"-pow",0, // 64-95
-  0,"-append","-blur","-cut","-display","-echo","-fill","-gradient",0,"-input","-image","-keep", // 96-107
-  "-local","-command","-normalize","-output","-print","-quit","-resize","-split","-text","-status", // 108-117
-  "-verbose","-window","-exec","-unroll","-crop",0,"-or",0,0,0 // 118-127
-};
-
-static const char *gmic_native_command_names[] = {
-  "a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s",
-  "t","u","_u","v","w","x","y","z",
-  "+","-","*","/","\\\\",">","<","%","^","=","sh","mv","rm","rv","<<",">>","==",">=",
-  "<=","//","**","!=","&","|",
-  "d3d","+3d","/3d","f3d","j3d","l3d","m3d","*3d","o3d","p3d","r3d","s3d","-3d",
-  "t3d","db3d","md3d","rv3d","sl3d","ss3d","div3d",
-  "append","autocrop","add","add3d","abs","and","atan2","acos","asin","atan",
-  "axes",
-  "blur","boxfilter","bsr","bsl","bilateral","break",
-  "check","check3d","crop","channels","columns","command","camera","cut","cos",
-  "convolve","correlate","color3d","col3d","cosh","continue","cumulate",
-  "cursor",
-  "done","do","debug","divide","distance","dilate","discard","double3d","denoise",
-  "deriche","dijkstra","displacement","display","display3d",
-  "endif","else","elif","endlocal","endl","echo","exec","error","endian","exp",
-  "eq","ellipse","equalize","erode","elevation3d","eigen","eikonal",
-  "fill","flood","files","focale3d","fft",
-  "ge","gt","gradient","graph","guided",
-  "histogram","hsi2rgb","hsl2rgb","hsv2rgb","hessian",
-  "input","if","image","index","invert","isoline3d","isosurface3d","inpaint",
-  "ifft",
-  "keep",
-  "local","le","lt","log","log2","log10","line","lab2rgb","label","light3d",
-  "move","mirror","mul","mutex","mod","max","min","mmul","mode3d","moded3d",
-  "map","median","mdiv","mse","mandelbrot","mul3d",
-  "name","normalize","neq","noarg","noise",
-  "output","onfail","object3d","or","opacity3d",
-  "parallel","pass","patchmatch","permute","progress","print","pow","point","polygon",
-  "plasma","primitives3d","plot",
-  "quiver","quit",
-  "remove","repeat","resize","reverse","return","rows","rotate",
-  "round","rand","rotate3d","rgb2hsi","rgb2hsl","rgb2hsv","rgb2lab",
-  "rgb2srgb","rol","ror","reverse3d",
-  "status","_status","skip","set","split","shared","shift","slices","srand","sub","sqrt",
-  "sqr","sign","sin","sort","solve","sub3d","sharpen","smooth","split3d",
-  "svd","sphere3d","specl3d","specs3d","sinc","sinh","srgb2rgb","streamline3d",
-  "structuretensors","select","serialize",
-  "threshold","tan","text","texturize3d","trisolve","tanh",
-  "unroll","uncommand","unserialize",
-  "vanvliet","verbose",
-  "while","warn","window","warp","watershed","wait",
-  "xor",0
-};
 
 #endif // #ifndef gmic_build
 

@@ -4744,15 +4744,25 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
           command2 = command1?command[2]:0, command3 = command2?command[3]:0,
           command4 = command3?command[4]:0, command5 = command4?command[5]:0;
 
+        static const char* onechar_shortcuts[] = {
+          0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, // 0-31
+          0,0,0,0,0,"-mod","-and",0,0,0,"-mul","-add",0,"-sub",0,"-div",0,0,0,0,0,0,0,0,0,0,0,0, // 32-59
+          "-lt","-set","-gt",0, // 60-63
+          0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"-pow",0, // 64-95
+          0,"-append","-blur","-cut","-display","-echo","-fill","-gradient",0,"-input","-image","-keep", // 96-107
+          "-local","-command","-normalize","-output","-print","-quit","-resize","-split","-text","-status", // 108-117
+          "-verbose","-window","-exec","-unroll","-crop",0,"-or",0,0,0 // 118-127
+        };
+
         if (!command2) { // Single-char shortcut.
           const bool
             is_mquvx = command1=='m' || command1=='q' || command1=='u' || command1=='v' || command1=='x',
             is_deiopwx = command1=='d' || command1=='e' || command1=='i' || command1=='o' || command1=='p' ||
                          command1=='w' || command1=='x';
-          if ((unsigned int)command1<128 && gmic_onechar_shortcuts[(unsigned int)command1] &&
+          if ((unsigned int)command1<128 && onechar_shortcuts[(unsigned int)command1] &&
               (!is_mquvx || (!is_double_hyphen && !is_restriction)) &&
               (!is_deiopwx || !is_double_hyphen)) {
-            std::strcpy(command,gmic_onechar_shortcuts[(unsigned int)command1]);
+            std::strcpy(command,onechar_shortcuts[(unsigned int)command1]);
             if (is_mquvx) { CImg<char>::string(command).move_to(_item); *command = 0; }
             else *item = 0;
           }
@@ -13824,14 +13834,59 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
                   char *const posb = std::strchr(name,'[');
                   if (posb) *posb = 0;  // Discard selection from the command name.
 
+                  static const char *native_command_names[] = {
+                    "a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s",
+                    "t","u","_u","v","w","x","y","z",
+                    "+","-","*","/","\\\\",">","<","%","^","=","sh","mv","rm","rv","<<",">>","==",">=",
+                    "<=","//","**","!=","&","|",
+                    "d3d","+3d","/3d","f3d","j3d","l3d","m3d","*3d","o3d","p3d","r3d","s3d","-3d",
+                    "t3d","db3d","md3d","rv3d","sl3d","ss3d","div3d",
+                    "append","autocrop","add","add3d","abs","and","atan2","acos","asin","atan",
+                    "axes",
+                    "blur","boxfilter","bsr","bsl","bilateral","break",
+                    "check","check3d","crop","channels","columns","command","camera","cut","cos",
+                    "convolve","correlate","color3d","col3d","cosh","continue","cumulate",
+                    "cursor",
+                    "done","do","debug","divide","distance","dilate","discard","double3d","denoise",
+                    "deriche","dijkstra","displacement","display","display3d",
+                    "endif","else","elif","endlocal","endl","echo","exec","error","endian","exp",
+                    "eq","ellipse","equalize","erode","elevation3d","eigen","eikonal",
+                    "fill","flood","files","focale3d","fft",
+                    "ge","gt","gradient","graph","guided",
+                    "histogram","hsi2rgb","hsl2rgb","hsv2rgb","hessian",
+                    "input","if","image","index","invert","isoline3d","isosurface3d","inpaint",
+                    "ifft",
+                    "keep",
+                    "local","le","lt","log","log2","log10","line","lab2rgb","label","light3d",
+                    "move","mirror","mul","mutex","mod","max","min","mmul","mode3d","moded3d",
+                    "map","median","mdiv","mse","mandelbrot","mul3d",
+                    "name","normalize","neq","noarg","noise",
+                    "output","onfail","object3d","or","opacity3d",
+                    "parallel","pass","patchmatch","permute","progress","print","pow","point","polygon",
+                    "plasma","primitives3d","plot",
+                    "quiver","quit",
+                    "remove","repeat","resize","reverse","return","rows","rotate",
+                    "round","rand","rotate3d","rgb2hsi","rgb2hsl","rgb2hsv","rgb2lab",
+                    "rgb2srgb","rol","ror","reverse3d",
+                    "status","_status","skip","set","split","shared","shift","slices","srand","sub","sqrt",
+                    "sqr","sign","sin","sort","solve","sub3d","sharpen","smooth","split3d",
+                    "svd","sphere3d","specl3d","specs3d","sinc","sinh","srgb2rgb","streamline3d",
+                    "structuretensors","select","serialize",
+                    "threshold","tan","text","texturize3d","trisolve","tanh",
+                    "unroll","uncommand","unserialize",
+                    "vanvliet","verbose",
+                    "while","warn","window","warp","watershed","wait",
+                    "xor",0
+                  };
+
                   const char *misspelled = 0;
                   const unsigned int foff = name[1]=='-'?2U:1U;
                   int dmin = 4;
-                  for (unsigned int l = 0; gmic_native_command_names[l]; ++l) {
+                  for (unsigned int l = 0; native_command_names[l]; ++l) {
                     // Look in native commands.
-                    const char *const c = gmic_native_command_names[l];
+                    const char *const c = native_command_names[l];
                     const int d = levenshtein(c,name.data() + foff);
-                    if (d<dmin) { dmin = d; misspelled = gmic_native_command_names[l]; }
+                    if (d<dmin) { dmin = d; misspelled = native_command_names[l]; }
                   }
                   for (unsigned int i = 0; i<512; ++i)
                     // Look in custom commands.
