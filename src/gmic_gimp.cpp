@@ -2409,7 +2409,8 @@ void on_dialog_add_fave_clicked(GtkWidget *const tree_view) {
         CImg<char> param = get_filter_parameter(filter,n);
         set_filter_parameter(gmic_entries.size(),n,param);
         for (char *p = std::strchr(param,'}'); p; p = std::strchr(p,'}')) *p = gmic_rbrace; // Convert '}' if necessary.
-        for (char *p = std::strchr(param,'\n'); p; p = std::strchr(p,'\n')) *p = gmic_newline; // Convert '\n' if necessary.
+        for (char *p = std::strchr(param,'\n'); p; p = std::strchr(p,'\n')) // Convert '\n' if necessary.
+          *p = gmic_newline;
         std::fprintf(file,"{%s}",param.data());
       }
       std::fputc('\n',file);
@@ -2555,7 +2556,8 @@ void _on_filter_doubleclicked(GtkWidget *const entry) {
         cimglist_for(gmic_faves,l) if (l!=(int)_filter) std::fprintf(file,"%s\n",gmic_faves[l].data());
         else {
           CImg<char> _label = CImg<char>::string(label);
-          for (char *p = std::strchr(_label,'}'); p; p = std::strchr(p,'}')) *p = gmic_rbrace; // Convert '}' if necessary.
+          for (char *p = std::strchr(_label,'}'); p; p = std::strchr(p,'}')) // Convert '}' if necessary.
+            *p = gmic_rbrace;
           std::fprintf(file,"{%s%s\n",_label.data(),std::strchr(gmic_faves[l].data(),'}'));
         }
         std::fclose(file);
