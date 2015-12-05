@@ -5568,7 +5568,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
                     int omx = -1, omy = -1;
                     g_img_uc.assign();
                     for (disp.show().flush(); !stopflag; ) {
-                      const unsigned char white[] = { 255,255,255 }, black[] = { 0,0,0 };
+                      static const unsigned char white[] = { 255,255,255 }, black[] = { 0,0,0 };
                       const unsigned int key = disp.key();
                       if (!g_img_uc) {
                         value0 = vmin + percent0*(vmax - vmin)/100;
@@ -11669,7 +11669,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
                     g_img_uc.assign();
                     vmax = (double)img.max_min(vmin);
                     for (disp.show().flush(); !stopflag; ) {
-                      const unsigned char white[] = { 255,255,255 }, black[] = { 0,0,0 };
+                      static const unsigned char white[] = { 255,255,255 }, black[] = { 0,0,0 };
                       const unsigned int key = disp.key();
                       if (!g_img_uc) {
                         value = vmin + percent*(vmax - vmin)/100;
