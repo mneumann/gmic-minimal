@@ -3834,8 +3834,8 @@ gmic& gmic::display_objects3d(const CImgList<T>& images, const CImgList<char>& i
     CImgList<unsigned int> primitives;
     CImgList<unsigned char> colors;
     CImgList<float> opacities;
-    CImg<float> vertices(img,false);
-    float pose3d[16] = { 1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1 };
+    CImg<float> vertices(img,false), pose3d(4,4,1,1,0);
+    pose3d(0,0) = pose3d(1,1) = pose3d(2,2) = pose3d(3,3) = 1;
     vertices.CImg3dtoobject3d(primitives,colors,opacities,false);
     print(images,0,"Display 3d object [%u] = '%s' (%d vertices, %u primitives).",
           uind,images_names[uind].data(),
@@ -5119,10 +5119,11 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
                     is_gaussian?"gaussian":"quasi-gaussian");
               if (sep=='%') sigma = -sigma;
               if (*argx) {
-                float sigmas[4] = { 0 };
-                for (const char *s = argx; *s; ++s) sigmas[*s>='x'?*s - 'x':3]+=sigma;
-                cimg_forY(selection,l) gmic_apply(gmic_blur(sigmas[0],sigmas[1],sigmas[2],sigmas[3],
+                g_img.assign(4,1,1,1,0);
+                for (const char *s = argx; *s; ++s) g_img[*s>='x'?*s - 'x':3]+=sigma;
+                cimg_forY(selection,l) gmic_apply(gmic_blur(g_img[0],g_img[1],g_img[2],g_img[3],
                                                             (bool)boundary,(bool)is_gaussian));
+                g_img.assign();
               } else cimg_forY(selection,l) gmic_apply(blur(sigma,(bool)boundary,(bool)is_gaussian));
             } else arg_error("blur");
             is_released = false; ++position; continue;
@@ -5163,10 +5164,11 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
                     boundary?"neumann":"dirichlet");
               if (sep=='%') sigma = -sigma;
               if (*argx) {
-                float sigmas[4] = { 0 };
-                for (const char *s = argx; *s; ++s) sigmas[*s>='x'?*s - 'x':3]+=sigma;
-                cimg_forY(selection,l) gmic_apply(gmic_blur_box(sigmas[0],sigmas[1],sigmas[2],sigmas[3],
+                g_img.assign(4,1,1,1,0);
+                for (const char *s = argx; *s; ++s) g_img[*s>='x'?*s - 'x':3]+=sigma;
+                cimg_forY(selection,l) gmic_apply(gmic_blur_box(g_img[0],g_img[1],g_img[2],g_img[3],
                                                                 order,(bool)boundary));
+                g_img.assign();
               } else cimg_forY(selection,l) gmic_apply(gmic_blur_box(sigma,order,(bool)boundary));
             } else arg_error("boxfilter");
             is_released = false; ++position; continue;
@@ -9234,11 +9236,11 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
                        !cimg::strcasecmp(ext,"xvid") ||
                        !cimg::strcasecmp(ext,"mpeg")) {
               float fps = 0, keep_open = 0;
-              char codec[8] = { 0 };
-              cimg_sscanf(options,"%f,%7[a-zA-Z0-9],%f",&fps,codec,&keep_open);
+              name.assign(8); *name = 0; // codec
+              cimg_sscanf(options,"%f,%7[a-zA-Z0-9],%f",&fps,name.data(),&keep_open);
               fps = cimg::round(fps);
               if (!fps) fps = 25;
-              if (*codec=='0' && !codec[1]) *codec = 0;
+              if (*name=='0' && !name[1]) *name = 0;
               g_list.assign(selection.height());
               cimg_forY(selection,l) if (!gmic_check(images[selection(l)]))
                 CImg<unsigned int>::vector(selection(l)).move_to(empty_indices);
@@ -9253,9 +9255,9 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
               print(images,0,"Output image%s as %s file '%s', with %g fps and %s codec.",
                     gmic_selection.data(),
                     uext.data(),_filename.data(),
-                    fps,*codec?codec:"(default)");
+                    fps,*name?name.data():"(default)");
               try {
-                g_list.save_video(filename,(unsigned int)fps,codec,(bool)keep_open);
+                g_list.save_video(filename,(unsigned int)fps,name,(bool)keep_open);
               } catch (CImgException&) {
                 warn(images,0,false,
                      "Command '-output': Cannot encode file '%s' natively. Trying fallback function.",
