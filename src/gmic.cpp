@@ -2394,10 +2394,8 @@ bool gmic::check_filename(const char *const filename) {
   const unsigned int attr = (unsigned int)GetFileAttributesA(filename);
   res = (attr!=~0U);
 #else // #if cimg_OS==2
-  try {
-    std::FILE *file = cimg::fopen(filename,"r");
-    if (file) { res = true; cimg::fclose(file); }
-  } catch (CImgException&) {}
+  std::FILE *const file = std::fopen(filename,"r");
+  if (file) { res = true; std::fclose(file); }
 #endif // #if cimg_OS==2
   return res;
 }
