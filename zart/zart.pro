@@ -111,6 +111,8 @@ PRE_TARGETDEPS +=
 
 debug {
     DEFINES += _ZART_DEBUG_
+    QMAKE_CXXFLAGS_DEBUG += -fsanitize=address -Dcimg_verbosity=3
+    QMAKE_LFLAGS_DEBUG +=  -fsanitize=address
 }
 release {
     QMAKE_CXXFLAGS += -ffast-math

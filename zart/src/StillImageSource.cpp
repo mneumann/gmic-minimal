@@ -69,8 +69,12 @@ bool StillImageSource::loadImage(QString filename)
 {
   QImage qimage;
   QFileInfo info(filename);
-  if ( ! info.isReadable() ) return false;
-  if ( ! qimage.load(filename) ) return false;
+  if ( ! info.isReadable() ) {
+    return false;
+  }
+  if ( ! qimage.load(filename) ) {
+    return false;
+  }
   QImage rgb = qimage.convertToFormat(QImage::Format_RGB888);
   _filename = info.fileName();
   _filePath = info.absolutePath();
