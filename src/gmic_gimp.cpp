@@ -1358,7 +1358,7 @@ CImgList<char> update_filters(const bool try_net_update, const bool is_silent=fa
 
   // Parse filters descriptions for GIMP, and create corresponding sorted treeview_store.
   CImg<char> line(256*1024), preview_command(256), arguments(65536), entry(256), locale = get_locale();
-  *line = *preview_command = *arguments = *entry = *locale = 0;
+  *line = *preview_command = *arguments = *entry = 0;
   int level = 0, err = 0;
   bool is_testing = false;
   nb_available_filters = 0;
