@@ -3560,7 +3560,7 @@ void gmic::_gmic(const char *const commands_line,
     _run(items,images,images_names,p_progress,p_is_abort);
   } catch (gmic_exception &e) {
     print(images,0,"Abort G'MIC interpreter.\n");
-    throw e;
+    throw;
   }
 }
 
@@ -4960,7 +4960,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
                     error(images,0,0,
                           "Command '-add3d': Invalid 3d object [%d], in selected image%s (%s).",
                           uind,gmic_selection_err.data(),message.data());
-                  else throw e;
+                  else throw;
                 }
               }
               ++position;
@@ -4989,7 +4989,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
                     error(images,0,0,
                           "Command '-add3d': Invalid 3d object [%d], in selected image%s (%s).",
                           _ind,gmic_selection_err.data(),message.data());
-                  else throw e;
+                  else throw;
                 }
                 if (is_double_hyphen) {
                   res.move_to(images);
@@ -5014,7 +5014,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
                             "Command '-add3d': Invalid 3d object [%d], in selected image%s (%s).",
                             uind,gmic_selection_err.data(),message.data());
                   }
-                  throw e;
+                  throw;
                 }
                 name = images_names[selection[0]];
                 if (is_double_hyphen) {
@@ -5931,7 +5931,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
                           "Command '-color3d': Invalid 3d object [%d], "
                           "in selected image%s (%s).",
                           uind,gmic_selection_err.data(),message.data());
-                  else throw e;
+                  else throw;
                 }
               }
             } else arg_error("color3d");
@@ -8666,7 +8666,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
                         "Command '-object3d': Invalid 3d object [%u], specified "
                         "in argument '%s' (%s).",
                         *ind,gmic_argument_text(),message.data());
-                else throw e;
+                else throw;
               }
 
               cimglist_for(opacities,o) if (!opacities[o].is_shared()) opacities[o]*=opacity;
@@ -8730,7 +8730,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
                         "Command '-opacity3d': Invalid 3d object [%d], "
                         "in selected image%s (%s).",
                         uind,gmic_selection.data(),message.data());
-                else throw e;
+                else throw;
               }
             }
             is_released = false; continue;
@@ -8808,7 +8808,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
                           "Command '-output': 3d object file '%s', invalid 3d object [%u] "
                           "in selected image%s (%s).",
                           formula,uind,gmic_selection.data(),message.data());
-                  else throw e;
+                  else throw;
                 }
               }
               vertices.assign();
@@ -9722,7 +9722,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
                           "Command '-primitives3d': Invalid 3d object [%d], "
                           "in selected image%s (%s).",
                           uind,gmic_selection_err.data(),message.data());
-                  else throw e;
+                  else throw;
                 }
               }
             } else arg_error("primitives3d");
@@ -10397,7 +10397,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
                           "Command '-rotate3d': Invalid 3d object [%d], "
                           "in selected image%s (%s).",
                           uind,gmic_selection_err.data(),message.data());
-                  else throw e;
+                  else throw;
                 }
               }
             } else arg_error("rotate3d");
@@ -10450,7 +10450,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
                         "Command '-reverse3d': Invalid 3d object [%d], "
                         "in selected image%s (%s).",
                         uind,gmic_selection_err.data(),message.data());
-                else throw e;
+                else throw;
               }
             }
             is_released = false; continue;
@@ -11028,7 +11028,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
                     error(images,0,0,
                           "Command '-sub3d': Invalid 3d object [%d], in selected image%s (%s).",
                           uind,gmic_selection_err.data(),message.data());
-                  else throw e;
+                  else throw;
                 }
               }
             } else arg_error("sub3d");
@@ -11223,7 +11223,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
                   error(images,0,0,
                         "Command '-split3d': Invalid 3d object [%d], in selected image%s (%s).",
                         uind - off,gmic_selection_err.data(),message.data());
-                else throw e;
+                else throw;
               }
               if (is_double_hyphen) {
                 images_names.insert(g_list.size(),name.copymark());
@@ -11817,7 +11817,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
                           "Command '-texturize3d': Invalid 3d object [%d], "
                           "in selected image%s (%s).",
                           uind,gmic_selection_err.data(),message.data());
-                  else throw e;
+                  else throw;
                 }
               }
             } else arg_error("texturize3d");
@@ -12657,7 +12657,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
                   error(images,0,0,
                         "Command '-%s3d': Invalid 3d object [%d], in selected image%s (%s).",
                         divide3d?"div":"mul",uind,gmic_selection_err.data(),message.data());
-                else throw e;
+                else throw;
               }
             }
           } else { if (divide3d) arg_error("div3d"); else arg_error("mul3d"); }
