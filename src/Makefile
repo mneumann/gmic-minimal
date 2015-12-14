@@ -49,7 +49,7 @@
 # Set correct variables and paths.
 #----------------------------------
 OS := $(shell uname)
-CC = g++
+CC = $(CXX)
 ifeq ($(OS),Linux)
 OS = Unix
 endif
@@ -74,6 +74,10 @@ WGET = wget --quiet -O
 endif
 ifeq ($(OSTYPE),msys)
 EXE = .exe
+endif
+ifeq ($(OS),FreeBSD)
+OS = Unix
+USR = /usr/local
 endif
 LIB=lib
 BIN=bin
