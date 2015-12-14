@@ -49,7 +49,6 @@
 # Set correct variables and paths.
 #----------------------------------
 OS := $(shell uname)
-CC = $(CXX)
 ifeq ($(OS),Linux)
 OS = Unix
 endif
@@ -102,7 +101,7 @@ ifndef NO_SRIPDLIB
 MANDATORY_CFLAGS += -std=c++11
 endif
 MANDATORY_LIBS += -L$(USR)/$(LIB)
-ifeq ($(notdir $(CC)),g++)
+ifeq ($(notdir $(CXX)),g++)
 MANDATORY_CFLAGS += -Wall -W
 MANDATORY_LIBS += -lm
 endif
@@ -122,10 +121,10 @@ endif
 DEBUG_CFLAGS = -ansi -pedantic -Dcimg_verbosity=3 -g -fsanitize=address # -fsanitize=thread # -fsanitize=undefined #
 
 # Flags to enable optimizations.
-ifeq ($(notdir $(CC)),g++)
+ifeq ($(notdir $(CXX)),g++)
 OPT_CFLAGS = -O2 -mtune=generic
 else
-ifeq ($(notdir $(CC)),icpc)
+ifeq ($(notdir $(CXX)),icpc)
 OPT_CFLAGS = -fast
 else
 OPT_CFLAGS = -O2
@@ -352,26 +351,26 @@ endif
 
 # Internal rules to build compilation modules.
 libgmic.o: gmic.cpp gmic.h gmic_stdlib.h CImg.h
-	$(CC) -o libgmic.o -c gmic.cpp -fPIC $(CFLAGS)
+	$(CXX) -o libgmic.o -c gmic.cpp -fPIC $(CFLAGS)
 
 libgmic: libgmic.o gmic_use_lib.cpp
 	ar rcs libgmic.a libgmic.o
 ifeq ($(OS),Darwin)
-	$(CC) -shared -o libgmic.so libgmic.o $(LIBS)
+	$(CXX) -shared -o libgmic.so libgmic.o $(LIBS)
 else
-	$(CC) -shared -Wl,-soname,libgmic.so.1 -o libgmic.so libgmic.o $(LIBS)
-	$(CC) -o gmic_use_lib gmic_use_lib.cpp -L. -lgmic
+	$(CXX) -shared -Wl,-soname,libgmic.so.1 -o libgmic.so libgmic.o $(LIBS)
+	$(CXX) -o gmic_use_lib gmic_use_lib.cpp -L. -lgmic
 endif
 
 gmic_gimp.o: gmic.cpp gmic.h gmic_stdlib.h CImg.h
-	$(CC) -o gmic_gimp.o -c gmic.cpp -Dgmic_gimp $(CFLAGS)
+	$(CXX) -o gmic_gimp.o -c gmic.cpp -Dgmic_gimp $(CFLAGS)
 
 gmic_gimp: gmic_gimp.o gmic_gimp.cpp
-	$(CC) -o gmic_gimp gmic_gimp.cpp gmic_gimp.o -Dgmic_gimp `gimptool-2.0$(EXE) --cflags` $(CFLAGS) `gimptool-2.0$(EXE) --libs` $(LIBS)
+	$(CXX) -o gmic_gimp gmic_gimp.cpp gmic_gimp.o -Dgmic_gimp `gimptool-2.0$(EXE) --cflags` $(CFLAGS) `gimptool-2.0$(EXE) --libs` $(LIBS)
 	$(STRIP) gmic_gimp$(EXE)
 
 gmic: gmic.cpp gmic.h gmic_stdlib.h CImg.h
-	$(CC) -o gmic gmic.cpp -Dgmic_main $(CFLAGS) $(LIBS)
+	$(CXX) -o gmic gmic.cpp -Dgmic_main $(CFLAGS) $(LIBS)
 
 gmic_stdlib.h:
 	@echo -n "> Retrieve G'MIC Standard Library..."
