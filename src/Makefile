@@ -98,8 +98,8 @@ endif
 PRERELEASE_CFLAGS = -Dgmic_prerelease="\\\"`date +%m%d%y`\\\""
 
 # Flags that are mandatory to compile 'gmic'.
-MANDATORY_CFLAGS = -Dgmic_build -Dcimg_use_zlib `pkg-config --cflags zlib` $(PRERELEASE_CFLAGS)
-MANDATORY_LIBS = `pkg-config --libs zlib`
+MANDATORY_CFLAGS = -Dgmic_build -Dcimg_use_zlib `pkg-config --cflags zlib || echo -I$(USR)/$(INCLUDE)` $(PRERELEASE_CFLAGS)
+MANDATORY_LIBS = `pkg-config --libs zlib || echo -lz`
 ifndef NO_SRIPDLIB
 MANDATORY_CFLAGS += -std=c++11
 endif
@@ -156,13 +156,13 @@ OPENMP_LIBS = -lgomp
 # Flags to enable image display, using X11
 # (keep /usr/ dirname here since X11 is located in /usr/ on Mac too).
 # This requires the presence of the X11 include and library files.
-X11_CFLAGS = -Dcimg_display=1 -Dcimg_appname=\\\"gmic\\\" `pkg-config --cflags x11` #-Dcimg_use_xrandr
-X11_LIBS = `pkg-config --libs x11` -lpthread #`pkg-config --libs xrandr`
+X11_CFLAGS = -Dcimg_display=1 -Dcimg_appname=\\\"gmic\\\" `pkg-config --cflags x11 || echo -I/usr/X11R6/include` #-Dcimg_use_xrandr
+X11_LIBS = `pkg-config --libs x11 || echo -L/usr/X11R6/lib -lX11` -lpthread #`pkg-config --libs xrandr || echo -lXrandr`
 
 # Flags to enable fast display, using XShm.
 # This requires the presence of the X11 extension include and library files.
 XSHM_CFLAGS = -Dcimg_use_xshm `pkg-config --cflags xcb-shm`
-XSHM_LIBS = `pkg-config --libs xcb-shm`
+XSHM_LIBS = `pkg-config --libs xcb-shm || echo -L$(USR)/X11R6/lib -lXext`
 
 # Flags to enable image display, using GDI32.
 # This requires the presence of the GDI32 include and library files.
@@ -172,7 +172,7 @@ GDI32_LIBS = -lgdi32
 # Flags to enable native support for PNG image files, using the PNG library.
 # This requires the presence of the libpng include and library files.
 PNG_CFLAGS = -Dcimg_use_png `pkg-config --cflags libpng`
-PNG_LIBS = `pkg-config --libs libpng`
+PNG_LIBS = `pkg-config --libs libpng || echo -lpng -lz`
 
 # Flags to enable native support for JPEG image files, using the JPEG library.
 # This requires the presence of the libjpeg include and library files.
@@ -182,7 +182,7 @@ JPEG_LIBS = -ljpeg
 # Flags to enable native support for TIFF image files, using the TIFF library.
 # This requires the presence of the libtiff include and library files.
 TIFF_CFLAGS = -Dcimg_use_tiff `pkg-config --cflags libtiff-4`
-TIFF_LIBS = `pkg-config --libs libtiff-4`
+TIFF_LIBS = `pkg-config --libs libtiff-4 || echo -ltiff`
 
 # Flags to enable native support for MINC2 image files, using the MINC2 library.
 # ( http://en.wikibooks.org/wiki/MINC/Reference/MINC2.0_Users_Guide )
@@ -192,17 +192,17 @@ MINC2_LIBS = -lminc_io -lvolume_io2 -lminc2 -lnetcdf -lhdf5 -lz -L${HOME}/local/
 # Flags to enable native support for downloading files from the network.
 # ( http://curl.haxx.se/libcurl/ )
 CURL_CFLAGS = -Dcimg_use_curl `pkg-config --cflags libcurl`
-CURL_LIBS = `pkg-config --libs libcurl`
+CURL_LIBS = `pkg-config --libs libcurl || echo -lcurl`
 
 # Flags to enable native support of webcams and video streaming, using the OpenCV library.
 # This requires the presence of the OpenCV include and library files.
-OPENCV_CFLAGS = -Dcimg_use_opencv  `pkg-config opencv --cflags`
-OPENCV_LIBS = `pkg-config opencv --libs`
+OPENCV_CFLAGS = -Dcimg_use_opencv  `pkg-config opencv --cflags || echo -I/usr/include/opencv`
+OPENCV_LIBS = `pkg-config opencv --libs || echo -lopencv_core -lopencv_highgui`
 
 # Flags to enable native support of most classical image file formats, using the GraphicsMagick++ library.
 # This requires the presence of the GraphicsMagick++ include and library files.
-MAGICK_CFLAGS = -Dcimg_use_magick `pkg-config --cflags GraphicsMagick++`
-MAGICK_LIBS = `pkg-config --libs GraphicsMagick++`
+MAGICK_CFLAGS = -Dcimg_use_magick `pkg-config --cflags GraphicsMagick++ || echo -I$(USR)/$(INCLUDE)/GraphicsMagick`
+MAGICK_LIBS = `pkg-config --libs GraphicsMagick++ || echo -lGraphicsMagick++`
 
 # Flags to enable native support of EXR file format, using the OpenEXR library/
 # This requires the presence of the OpenEXR include and library files.
@@ -212,7 +212,7 @@ EXR_LIBS = -lIlmImf -lHalf
 # Flags to enable the use of the FFTW3 library.
 # This requires the presence of the FFTW3 include and library files.
 FFTW_CFLAGS = -Dcimg_use_fftw3 `pkg-config --cflags fftw3`
-FFTW_LIBS = `pkg-config --libs fftw3`
+FFTW_LIBS = `pkg-config --libs fftw3 || echo -lfftw3`
 ifneq ($(OSTYPE),msys)
 FFTW_LIBS += -lfftw3_threads
 endif
