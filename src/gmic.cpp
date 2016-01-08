@@ -1776,7 +1776,6 @@ CImg<T>& inpaint_patch(const CImg<t>& mask, const unsigned int patch_size=11,
                         CImg<ucharT>::vector(255,0,0).data(),0.5f);
     static int foo = 0;
     if (!(foo%1)) {
-      //      visu.save("video.ppm",foo);
       static CImgDisplay disp_debug;
       disp_debug.display(visu).set_title("DEBUG");
     }
