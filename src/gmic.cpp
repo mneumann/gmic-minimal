@@ -4214,7 +4214,7 @@ CImg<char> gmic::substitute_item(const char *const source,
               break;
             case '^' : { // Sequence of all pixel values.
               CImg<char> vs = img.value_string(',');
-              if (vs && *vs) vs.resize(vs.width() - 1,1,1,1,0).append_string_to(substituted_items);
+              if (vs && *vs) { --vs._width; vs.append_string_to(substituted_items); }
               *substr = 0; is_substituted = true;
             } break;
             }
@@ -4258,10 +4258,16 @@ CImg<char> gmic::substitute_item(const char *const source,
             const bool is_rounded = *feature=='_';
             if (is_rounded) ++feature;
             try {
-              const double res = img.eval(feature,0,0,0,0,&images,&images);
-              if (is_rounded) cimg_snprintf(substr,substr.width(),"%g",res);
-              else cimg_snprintf(substr,substr.width(),"%.16g",res);
-              is_substituted = true;
+              CImg<double> vector_output;
+              const double res = img.eval(feature,vector_output,0,0,0,0,&images,&images);
+              if (vector_output) {
+                CImg<char> vs = vector_output.value_string(',');
+                if (vs && *vs) { --vs._width; vs.append_string_to(substituted_items); }
+              } else {
+                if (is_rounded) cimg_snprintf(substr,substr.width(),"%g",res);
+                else cimg_snprintf(substr,substr.width(),"%.16g",res);
+                is_substituted = true;
+              }
             } catch (CImgException& e) {
               const char *const e_ptr = std::strstr(e.what(),": ");
               error(images,0,0,
