@@ -83,43 +83,7 @@ CImg<T>& operator_eq(const t val) {
 }
 
 CImg<T>& operator_eq(const char *const expression) {
-  const unsigned int omode = cimg::exception_mode();
-  cimg::exception_mode(0);
-  try {
-    bool is_parallelizable = true;
-    const CImg<T>
-      _base = _cimg_math_parser::needs_input_copy(expression,is_parallelizable)?+*this:CImg<T>(),
-      &base = _base?_base:*this;
-    _cimg_math_parser mp(expression + (*expression=='>' || *expression=='<'?1:0),
-                         "operator_eq",base,this);
-    T *ptrd = *expression=='<'?end() - 1:_data;
-    if (*expression=='<')
-      cimg_rofXYZC(*this,x,y,z,c) { *ptrd = (T)(*ptrd == (T)mp(x,y,z,c)); --ptrd; }
-    else if (*expression=='>')
-      cimg_forXYZC(*this,x,y,z,c) { *ptrd = (T)(*ptrd == (T)mp(x,y,z,c)); ++ptrd; }
-    else {
-#ifdef cimg_use_openmp
-      cimg_openmp_if (*expression=='*' ||
-          (is_parallelizable && _width>=512 && _height*_depth*_spectrum>=2 && std::strlen(expression)>=6))
-#pragma omp parallel
-        {
-          _cimg_math_parser _mp = omp_get_thread_num()?mp:_cimg_math_parser(), &lmp = omp_get_thread_num()?_mp:mp;
-#pragma omp for collapse(3)
-          cimg_forYZC(*this,y,z,c) {
-            T *ptrd = data(0,y,z,c);
-            cimg_forX(*this,x) { *ptrd = (T)(*ptrd == (T)lmp(x,y,z,c)); ++ptrd; }
-          }
-        }
-      else
-#endif
-        cimg_forXYZC(*this,x,y,z,c) { *ptrd = (T)(*ptrd == (T)mp(x,y,z,c)); ++ptrd; }
-    }
-  } catch (CImgException&) {
-    cimg::exception_mode(omode);
-    operator_eq(CImg<T>(_width,_height,_depth,_spectrum,expression,true));
-  }
-  cimg::exception_mode(omode);
-  return *this;
+  return operator_eq(CImg<T>(_width,_height,_depth,_spectrum)._fill(expression,true,true,0,0,"operator_eq"));
 }
 
 template<typename t>
@@ -147,43 +111,7 @@ CImg<T>& operator_neq(const t val) {
 }
 
 CImg<T>& operator_neq(const char *const expression) {
-  const unsigned int omode = cimg::exception_mode();
-  cimg::exception_mode(0);
-  try {
-    bool is_parallelizable = true;
-    const CImg<T>
-      _base = _cimg_math_parser::needs_input_copy(expression,is_parallelizable)?+*this:CImg<T>(),
-      &base = _base?_base:*this;
-    _cimg_math_parser mp(expression + (*expression=='>' || *expression=='<'?1:0),
-                         "operator_neq",base,this);
-    T *ptrd = *expression=='<'?end() - 1:_data;
-    if (*expression=='<')
-      cimg_rofXYZC(*this,x,y,z,c) { *ptrd = (T)(*ptrd != (T)mp(x,y,z,c)); --ptrd; }
-    else if (*expression=='>')
-      cimg_forXYZC(*this,x,y,z,c) { *ptrd = (T)(*ptrd != (T)mp(x,y,z,c)); ++ptrd; }
-    else {
-#ifdef cimg_use_openmp
-      cimg_openmp_if (*expression=='*' ||
-          (is_parallelizable && _width>=512 && _height*_depth*_spectrum>=2 && std::strlen(expression)>=6))
-#pragma omp parallel
-        {
-          _cimg_math_parser _mp = omp_get_thread_num()?mp:_cimg_math_parser(), &lmp = omp_get_thread_num()?_mp:mp;
-#pragma omp for collapse(3)
-          cimg_forYZC(*this,y,z,c) {
-            T *ptrd = data(0,y,z,c);
-            cimg_forX(*this,x) { *ptrd = (T)(*ptrd != (T)lmp(x,y,z,c)); ++ptrd; }
-          }
-        }
-      else
-#endif
-        cimg_forXYZC(*this,x,y,z,c) { *ptrd = (T)(*ptrd != (T)mp(x,y,z,c)); ++ptrd; }
-    }
-  } catch (CImgException&) {
-    cimg::exception_mode(omode);
-    operator_neq(CImg<T>(_width,_height,_depth,_spectrum,expression,true));
-  }
-  cimg::exception_mode(omode);
-  return *this;
+  return operator_neq(CImg<T>(_width,_height,_depth,_spectrum)._fill(expression,true,true,0,0,"operator_neq"));
 }
 
 template<typename t>
@@ -211,43 +139,7 @@ CImg<T>& operator_gt(const t val) {
 }
 
 CImg<T>& operator_gt(const char *const expression) {
-  const unsigned int omode = cimg::exception_mode();
-  cimg::exception_mode(0);
-  try {
-    bool is_parallelizable = true;
-    const CImg<T>
-      _base = _cimg_math_parser::needs_input_copy(expression,is_parallelizable)?+*this:CImg<T>(),
-      &base = _base?_base:*this;
-    _cimg_math_parser mp(expression + (*expression=='>' || *expression=='<'?1:0),
-                         "operator_gt",base,this);
-    T *ptrd = *expression=='<'?end() - 1:_data;
-    if (*expression=='<')
-      cimg_rofXYZC(*this,x,y,z,c) { *ptrd = (T)(*ptrd > (T)mp(x,y,z,c)); --ptrd; }
-    else if (*expression=='>')
-      cimg_forXYZC(*this,x,y,z,c) { *ptrd = (T)(*ptrd > (T)mp(x,y,z,c)); ++ptrd; }
-    else {
-#ifdef cimg_use_openmp
-      cimg_openmp_if (*expression=='*' ||
-          (is_parallelizable && _width>=512 && _height*_depth*_spectrum>=2 && std::strlen(expression)>=6))
-#pragma omp parallel
-        {
-          _cimg_math_parser _mp = omp_get_thread_num()?mp:_cimg_math_parser(), &lmp = omp_get_thread_num()?_mp:mp;
-#pragma omp for collapse(3)
-          cimg_forYZC(*this,y,z,c) {
-            T *ptrd = data(0,y,z,c);
-            cimg_forX(*this,x) { *ptrd = (T)(*ptrd > (T)lmp(x,y,z,c)); ++ptrd; }
-          }
-        }
-      else
-#endif
-        cimg_forXYZC(*this,x,y,z,c) { *ptrd = (T)(*ptrd > (T)mp(x,y,z,c)); ++ptrd; }
-    }
-  } catch (CImgException&) {
-    cimg::exception_mode(omode);
-    operator_gt(CImg<T>(_width,_height,_depth,_spectrum,expression,true));
-  }
-  cimg::exception_mode(omode);
-  return *this;
+  return operator_gt(CImg<T>(_width,_height,_depth,_spectrum)._fill(expression,true,true,0,0,"operator_gt"));
 }
 
 template<typename t>
@@ -275,43 +167,7 @@ CImg<T>& operator_ge(const t val) {
 }
 
 CImg<T>& operator_ge(const char *const expression) {
-  const unsigned int omode = cimg::exception_mode();
-  cimg::exception_mode(0);
-  try {
-    bool is_parallelizable = true;
-    const CImg<T>
-      _base = _cimg_math_parser::needs_input_copy(expression,is_parallelizable)?+*this:CImg<T>(),
-      &base = _base?_base:*this;
-    _cimg_math_parser mp(expression + (*expression=='>' || *expression=='<'?1:0),
-                         "operator_ge",base,this);
-    T *ptrd = *expression=='<'?end() - 1:_data;
-    if (*expression=='<')
-      cimg_rofXYZC(*this,x,y,z,c) { *ptrd = (T)(*ptrd >= (T)mp(x,y,z,c)); --ptrd; }
-    else if (*expression=='>')
-      cimg_forXYZC(*this,x,y,z,c) { *ptrd = (T)(*ptrd >= (T)mp(x,y,z,c)); ++ptrd; }
-    else {
-#ifdef cimg_use_openmp
-      cimg_openmp_if (*expression=='*' ||
-          (is_parallelizable && _width>=512 && _height*_depth*_spectrum>=2 && std::strlen(expression)>=6))
-#pragma omp parallel
-        {
-          _cimg_math_parser _mp = omp_get_thread_num()?mp:_cimg_math_parser(), &lmp = omp_get_thread_num()?_mp:mp;
-#pragma omp for collapse(3)
-          cimg_forYZC(*this,y,z,c) {
-            T *ptrd = data(0,y,z,c);
-            cimg_forX(*this,x) { *ptrd = (T)(*ptrd >= (T)lmp(x,y,z,c)); ++ptrd; }
-          }
-        }
-      else
-#endif
-        cimg_forXYZC(*this,x,y,z,c) { *ptrd = (T)(*ptrd >= (T)mp(x,y,z,c)); ++ptrd; }
-    }
-  } catch (CImgException&) {
-    cimg::exception_mode(omode);
-    operator_ge(CImg<T>(_width,_height,_depth,_spectrum,expression,true));
-  }
-  cimg::exception_mode(omode);
-  return *this;
+  return operator_ge(CImg<T>(_width,_height,_depth,_spectrum)._fill(expression,true,true,0,0,"operator_ge"));
 }
 
 template<typename t>
@@ -339,43 +195,7 @@ CImg<T>& operator_lt(const t val) {
 }
 
 CImg<T>& operator_lt(const char *const expression) {
-  const unsigned int omode = cimg::exception_mode();
-  cimg::exception_mode(0);
-  try {
-    bool is_parallelizable = true;
-    const CImg<T>
-      _base = _cimg_math_parser::needs_input_copy(expression,is_parallelizable)?+*this:CImg<T>(),
-      &base = _base?_base:*this;
-    _cimg_math_parser mp(expression + (*expression=='>' || *expression=='<'?1:0),
-                         "operator_lt",base,this);
-    T *ptrd = *expression=='<'?end() - 1:_data;
-    if (*expression=='<')
-      cimg_rofXYZC(*this,x,y,z,c) { *ptrd = (T)(*ptrd < (T)mp(x,y,z,c)); --ptrd; }
-    else if (*expression=='>')
-      cimg_forXYZC(*this,x,y,z,c) { *ptrd = (T)(*ptrd < (T)mp(x,y,z,c)); ++ptrd; }
-    else {
-#ifdef cimg_use_openmp
-      cimg_openmp_if (*expression=='*' ||
-          (is_parallelizable && _width>=512 && _height*_depth*_spectrum>=2 && std::strlen(expression)>=6))
-#pragma omp parallel
-        {
-          _cimg_math_parser _mp = omp_get_thread_num()?mp:_cimg_math_parser(), &lmp = omp_get_thread_num()?_mp:mp;
-#pragma omp for collapse(3)
-          cimg_forYZC(*this,y,z,c) {
-            T *ptrd = data(0,y,z,c);
-            cimg_forX(*this,x) { *ptrd = (T)(*ptrd < (T)lmp(x,y,z,c)); ++ptrd; }
-          }
-        }
-      else
-#endif
-        cimg_forXYZC(*this,x,y,z,c) { *ptrd = (T)(*ptrd < (T)mp(x,y,z,c)); ++ptrd; }
-    }
-  } catch (CImgException&) {
-    cimg::exception_mode(omode);
-    operator_lt(CImg<T>(_width,_height,_depth,_spectrum,expression,true));
-  }
-  cimg::exception_mode(omode);
-  return *this;
+  return operator_lt(CImg<T>(_width,_height,_depth,_spectrum)._fill(expression,true,true,0,0,"operator_lt"));
 }
 
 template<typename t>
@@ -403,43 +223,7 @@ CImg<T>& operator_le(const t val) {
 }
 
 CImg<T>& operator_le(const char *const expression) {
-  const unsigned int omode = cimg::exception_mode();
-  cimg::exception_mode(0);
-  try {
-    bool is_parallelizable = true;
-    const CImg<T>
-      _base = _cimg_math_parser::needs_input_copy(expression,is_parallelizable)?+*this:CImg<T>(),
-      &base = _base?_base:*this;
-    _cimg_math_parser mp(expression + (*expression=='>' || *expression=='<'?1:0),
-                         "operator_le",base,this);
-    T *ptrd = *expression=='<'?end() - 1:_data;
-    if (*expression=='<')
-      cimg_rofXYZC(*this,x,y,z,c) { *ptrd = (T)(*ptrd <= (T)mp(x,y,z,c)); --ptrd; }
-    else if (*expression=='>')
-      cimg_forXYZC(*this,x,y,z,c) { *ptrd = (T)(*ptrd <= (T)mp(x,y,z,c)); ++ptrd; }
-    else {
-#ifdef cimg_use_openmp
-      cimg_openmp_if (*expression=='*' ||
-          (is_parallelizable && _width>=512 && _height*_depth*_spectrum>=2 && std::strlen(expression)>=6))
-#pragma omp parallel
-        {
-          _cimg_math_parser _mp = omp_get_thread_num()?mp:_cimg_math_parser(), &lmp = omp_get_thread_num()?_mp:mp;
-#pragma omp for collapse(3)
-          cimg_forYZC(*this,y,z,c) {
-            T *ptrd = data(0,y,z,c);
-            cimg_forX(*this,x) { *ptrd = (T)(*ptrd <= (T)lmp(x,y,z,c)); ++ptrd; }
-          }
-        }
-      else
-#endif
-        cimg_forXYZC(*this,x,y,z,c) { *ptrd = (T)(*ptrd <= (T)mp(x,y,z,c)); ++ptrd; }
-    }
-  } catch (CImgException&) {
-    cimg::exception_mode(omode);
-    operator_le(CImg<T>(_width,_height,_depth,_spectrum,expression,true));
-  }
-  cimg::exception_mode(omode);
-  return *this;
+  return operator_le(CImg<T>(_width,_height,_depth,_spectrum)._fill(expression,true,true,0,0,"operator_le"));
 }
 
 template<typename t>
