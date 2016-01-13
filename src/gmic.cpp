@@ -4041,14 +4041,14 @@ CImg<char> gmic::substitute_item(const char *const source,
             const bool is_rounded = *feature=='_';
             if (is_rounded) ++feature;
             try {
-              CImg<double> vector_output;
-              const double res = img.eval(feature,vector_output,0,0,0,0,&images,&images);
-              if (vector_output) {
-                CImg<char> vs = vector_output.value_string(',');
+              CImg<double> output;
+              img.eval(output,feature,0,0,0,0,&images,&images);
+              if (output._height>1) { // Vector-valued result
+                CImg<char> vs = output.value_string(',',0,is_rounded?"%g":"%.16g");
                 if (vs && *vs) { --vs._width; vs.append_string_to(substituted_items); }
-              } else {
-                if (is_rounded) cimg_snprintf(substr,substr.width(),"%g",res);
-                else cimg_snprintf(substr,substr.width(),"%.16g",res);
+              } else { // Scalar result
+                if (is_rounded) cimg_snprintf(substr,substr.width(),"%g",*output);
+                else cimg_snprintf(substr,substr.width(),"%.16g",*output);
                 is_substituted = true;
               }
             } catch (CImgException& e) {
