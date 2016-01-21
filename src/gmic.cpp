@@ -83,7 +83,7 @@ CImg<T>& operator_eq(const t val) {
 }
 
 CImg<T>& operator_eq(const char *const expression) {
-  return operator_eq(CImg<T>(_width,_height,_depth,_spectrum)._fill(expression,true,true,0,0,"operator_eq"));
+  return operator_eq((+*this)._fill(expression,true,true,0,0,"operator_eq"));
 }
 
 template<typename t>
@@ -111,7 +111,7 @@ CImg<T>& operator_neq(const t val) {
 }
 
 CImg<T>& operator_neq(const char *const expression) {
-  return operator_neq(CImg<T>(_width,_height,_depth,_spectrum)._fill(expression,true,true,0,0,"operator_neq"));
+  return operator_neq((+*this)._fill(expression,true,true,0,0,"operator_neq"));
 }
 
 template<typename t>
@@ -139,7 +139,7 @@ CImg<T>& operator_gt(const t val) {
 }
 
 CImg<T>& operator_gt(const char *const expression) {
-  return operator_gt(CImg<T>(_width,_height,_depth,_spectrum)._fill(expression,true,true,0,0,"operator_gt"));
+  return operator_gt((+*this)._fill(expression,true,true,0,0,"operator_gt"));
 }
 
 template<typename t>
@@ -167,7 +167,7 @@ CImg<T>& operator_ge(const t val) {
 }
 
 CImg<T>& operator_ge(const char *const expression) {
-  return operator_ge(CImg<T>(_width,_height,_depth,_spectrum)._fill(expression,true,true,0,0,"operator_ge"));
+  return operator_ge((+*this)._fill(expression,true,true,0,0,"operator_ge"));
 }
 
 template<typename t>
@@ -195,7 +195,7 @@ CImg<T>& operator_lt(const t val) {
 }
 
 CImg<T>& operator_lt(const char *const expression) {
-  return operator_lt(CImg<T>(_width,_height,_depth,_spectrum)._fill(expression,true,true,0,0,"operator_lt"));
+  return operator_lt((+*this)._fill(expression,true,true,0,0,"operator_lt"));
 }
 
 template<typename t>
@@ -223,7 +223,7 @@ CImg<T>& operator_le(const t val) {
 }
 
 CImg<T>& operator_le(const char *const expression) {
-  return operator_le(CImg<T>(_width,_height,_depth,_spectrum)._fill(expression,true,true,0,0,"operator_le"));
+  return operator_le((+*this)._fill(expression,true,true,0,0,"operator_le"));
 }
 
 template<typename t>
