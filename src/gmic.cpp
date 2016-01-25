@@ -11221,14 +11221,14 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
           // Compute structure tensor field.
           if (!std::strcmp("-structuretensors",command)) {
             gmic_substitute_args();
-            unsigned int is_centered_scheme = 0;
-            if (cimg_sscanf(argument,"%u%c",&is_centered_scheme,&end)==1 &&
-                is_centered_scheme<=1) ++position;
-            else is_centered_scheme = 0;
+            unsigned int is_fwbw_scheme = 0;
+            if (cimg_sscanf(argument,"%u%c",&is_fwbw_scheme,&end)==1 &&
+                is_fwbw_scheme<=1) ++position;
+            else is_fwbw_scheme = 0;
             print(images,0,"Compute structure tensor field of image%s, with %s scheme.",
                   gmic_selection.data(),
-                  is_centered_scheme==1?"centered":"forward-backward");
-            cimg_forY(selection,l) gmic_apply(structure_tensors((bool)is_centered_scheme));
+                  is_fwbw_scheme==1?"forward-backward":"centered");
+            cimg_forY(selection,l) gmic_apply(structure_tensors((bool)is_fwbw_scheme));
             is_released = false; continue;
           }
 
