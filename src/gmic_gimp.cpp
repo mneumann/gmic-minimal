@@ -62,13 +62,8 @@
 #define s_gmic_pixel_type _s_gmic_pixel_type(gmic_pixel_type)
 
 // Manage different versions of the GIMP API.
-#if GIMP_MINOR_VERSION<=6
-#define _gimp_item_is_valid gimp_drawable_is_valid
-#define _gimp_image_get_item_position gimp_image_get_layer_position
-#else
 #define _gimp_item_is_valid gimp_item_is_valid
 #define _gimp_image_get_item_position gimp_image_get_item_position
-#endif
 #if GIMP_MINOR_VERSION<=8
 #define _gimp_item_get_visible gimp_drawable_get_visible
 #else
@@ -2876,11 +2871,7 @@ void process_image(const char *const command_line, const bool is_apply) {
             gimp_layer_set_offsets(layer_id,layer_posx,layer_posy);
             if (verbosity_mode==1) gimp_item_set_name(layer_id,new_label);
             else if (layer_name) gimp_item_set_name(layer_id,layer_name);
-#if GIMP_MINOR_VERSION<=6
-            gimp_image_add_layer(image_id,layer_id,layer_pos + p);
-#else
             gimp_image_insert_layer(image_id,layer_id,-1,layer_pos + p);
-#endif
 
 #if GIMP_MINOR_VERSION<=8
             GimpDrawable *drawable = gimp_drawable_get(layer_id);
@@ -2944,11 +2935,7 @@ void process_image(const char *const command_line, const bool is_apply) {
         gimp_layer_set_offsets(layer_id,layer_posx,layer_posy);
         if (verbosity_mode==1) gimp_item_set_name(layer_id,new_label);
         else if (layer_name) gimp_item_set_name(layer_id,layer_name);
-#if GIMP_MINOR_VERSION<=6
-        gimp_image_add_layer(image_id,layer_id,p);
-#else
         gimp_image_insert_layer(image_id,layer_id,-1,p);
-#endif
 
 #if GIMP_MINOR_VERSION<=8
         GimpDrawable *drawable = gimp_drawable_get(layer_id);
@@ -3016,11 +3003,7 @@ void process_image(const char *const command_line, const bool is_apply) {
           gimp_layer_set_offsets(layer_id,layer_posx,layer_posy);
           if (verbosity_mode==1) gimp_item_set_name(layer_id,new_label);
           else if (layer_name) gimp_item_set_name(layer_id,layer_name);
-#if GIMP_MINOR_VERSION<=6
-          gimp_image_add_layer(nimage_id,layer_id,p);
-#else
           gimp_image_insert_layer(nimage_id,layer_id,-1,p);
-#endif
 
 #if GIMP_MINOR_VERSION<=8
           GimpDrawable *drawable = gimp_drawable_get(layer_id);
