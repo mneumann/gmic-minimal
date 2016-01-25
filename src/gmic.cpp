@@ -11224,7 +11224,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
             unsigned int is_fwbw_scheme = 0;
             if (cimg_sscanf(argument,"%u%c",&is_fwbw_scheme,&end)==1 &&
                 is_fwbw_scheme<=1) ++position;
-            else is_fwbw_scheme = 0;
+            else is_fwbw_scheme = 1;
             print(images,0,"Compute structure tensor field of image%s, with %s scheme.",
                   gmic_selection.data(),
                   is_fwbw_scheme==1?"forward-backward":"centered");
