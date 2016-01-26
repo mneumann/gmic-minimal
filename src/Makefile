@@ -156,9 +156,18 @@ OPENMP_LIBS = -lgomp
 # Flags to enable image display, using X11
 # (keep /usr/ dirname here since X11 is located in /usr/ on Mac too).
 # This requires the presence of the X11 include and library files.
+ifneq ($(OS),Darwin)
 X11_CFLAGS = -Dcimg_display=1 -Dcimg_appname=\\\"gmic\\\" `pkg-config --cflags x11 || echo -I/usr/X11R6/include` #-Dcimg_use_xrandr
 X11_LIBS = `pkg-config --libs x11 || echo -L/usr/X11R6/lib -lX11` -lpthread #`pkg-config --libs xrandr || echo -lXrandr`
-
+else
+ifeq (,$(wildcard /usr/X11R6))
+X11_CFLAGS = -Dcimg_display=0 -Dcimg_appname=\\\"gmic\\\" #-Dcimg_use_xrandr
+X11_LIBS = -lpthread #`pkg-config --libs xrandr || echo -lXrandr`
+else
+X11_CFLAGS = -Dcimg_display=1 -Dcimg_appname=\\\"gmic\\\" `pkg-config --cflags x11 || echo -I/usr/X11R6/include` #-Dcimg_use_xrandr
+X11_LIBS = -L/usr/X11R6/lib -lX11 -lpthread #`pkg-config --libs xrandr || echo -lXrandr`
+endif
+endif
 # Flags to enable fast display, using XShm.
 # This requires the presence of the X11 extension include and library files.
 XSHM_CFLAGS = -Dcimg_use_xshm `pkg-config --cflags xcb-shm`
@@ -171,8 +180,18 @@ GDI32_LIBS = -lgdi32
 
 # Flags to enable native support for PNG image files, using the PNG library.
 # This requires the presence of the libpng include and library files.
+ifneq ($(OS),Darwin)
 PNG_CFLAGS = -Dcimg_use_png `pkg-config --cflags libpng`
 PNG_LIBS = `pkg-config --libs libpng || echo -lpng -lz`
+else
+ifeq (,$(wildcard /tmp/skl))
+PNG_CFLAGS = -Dcimg_use_png `pkg-config --cflags libpng`
+PNG_LIBS = `pkg-config --libs libpng || echo -lpng -lz`
+else
+PNG_CFLAGS = -Dcimg_use_png
+PNG_LIBS = -lpng -lz
+endif
+endif
 
 # Flags to enable native support for JPEG image files, using the JPEG library.
 # This requires the presence of the libjpeg include and library files.
@@ -323,8 +342,14 @@ cli:
 	$(MAKE) "CFLAGS+=$(STD_CLI_CFLAGS) $(OPT_CFLAGS)" "LIBS+=$(STD_CLI_LIBS)" gmic
 	$(STRIP) gmic$(EXE)
 
+cli_s:
+ifeq ($(OS),Darwin)
+	c++ -o gmic gmic.cpp -Dgmic_main -Dgmic_build -Dcimg_use_zlib -I/opt/local/include  -Dgmic_prerelease=\"011316\" -std=c++11 -stdlib=libc++ -Dcimg_use_abort -Dcimg_use_png -Dcimg_use_jpeg -Dcimg_use_tiff -I/opt/local/include  -Dcimg_use_curl -I/opt/local/include  -Dcimg_use_fftw3 -I/opt/local/include  -Dgmic_is_parallel -Dcimg_display=1 -Dcimg_appname=\"gmic\" -I/opt/local/include -O2 -mmacosx-version-min=10.7 -L/tmp/skl/Gimp.app/Contents/Resources/lib -lpng -lz -ljpeg  -ltiff -lcurl -lfftw3  -lfftw3_threads -lpthread -lHalf -L/usr/X11R6/lib -lX11 -lpthread
+	$(STRIP) gmic
+endif
+
 gimp:
-	$(MAKE) "CFLAGS+=$(STD_GIMP_CFLAGS) $(OPT_CFLAGS)" "LIBS+=$(STD_GIMP_LIBS)" gmic_gimp
+	$(MAKE) -f Makefile2 "CFLAGS+=$(STD_GIMP_CFLAGS) $(OPT_CFLAGS)" "LIBS+=$(STD_GIMP_LIBS)" gmic_gimp
 
 lib:
 	$(MAKE) "CFLAGS+=$(STD_LIB_CFLAGS) $(OPT_CFLAGS)" "LIBS+=$(STD_LIB_LIBS)" libgmic
@@ -364,7 +389,15 @@ gmic_gimp.o: gmic.cpp gmic.h gmic_stdlib.h CImg.h
 	$(CXX) -o gmic_gimp.o -c gmic.cpp -Dgmic_gimp $(CFLAGS)
 
 gmic_gimp: gmic_gimp.o gmic_gimp.cpp
+ifeq ($(OS),Darwin)
+ifeq (,$(wildcard /tmp/skl))
 	$(CXX) -o gmic_gimp gmic_gimp.cpp gmic_gimp.o -Dgmic_gimp `gimptool-2.0$(EXE) --cflags` $(CFLAGS) `gimptool-2.0$(EXE) --libs` $(LIBS)
+else
+	$(CXX) -o gmic_gimp gmic_gimp.cpp gmic_gimp.o -Dgmic_gimp `gimptool-2.0$(EXE) --cflags` $(CFLAGS) $(subst /opt/local,/tmp/skl/Gimp.app/Contents/Resources,$(shell gimptool-2.0$(EXE) --libs) $(LIBS))
+endif
+else
+	$(CXX) -o gmic_gimp gmic_gimp.cpp gmic_gimp.o -Dgmic_gimp `gimptool-2.0$(EXE) --cflags` $(CFLAGS) `gimptool-2.0$(EXE) --libs` $(LIBS)
+endif
 	$(STRIP) gmic_gimp$(EXE)
 
 gmic: gmic.cpp gmic.h gmic_stdlib.h CImg.h
