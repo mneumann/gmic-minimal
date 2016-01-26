@@ -300,7 +300,7 @@ FilterThread::run()
         *_outputImageA = QImage( size, QImage::Format_RGB888 );
         _imageMutexA->unlock();
       }
-      if ( _outputImageB->size() != size ) {
+      if ( _outputImageB && _outputImageB->size() != size ) {
         _imageMutexB->lock();
         *_outputImageB = QImage( size, QImage::Format_RGB888 );
         _imageMutexB->unlock();
