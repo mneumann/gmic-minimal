@@ -287,6 +287,7 @@ FilterThread::run()
                                3, _imageSource.width(), _imageSource.height(), 1, true );
       _gmic_images = src.get_permute_axes("yzcx");
       QString errorCommand = QString("-gimp_error_preview \"%1\"").arg(e.what());
+
       try {
         _gmic->run(errorCommand.toLatin1().constData(),_gmic_images,_gmic_images_names);
       } catch (gmic_exception &e) {

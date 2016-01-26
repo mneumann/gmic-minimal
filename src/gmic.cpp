@@ -2586,6 +2586,7 @@ gmic& gmic::error(const char *const format, ...) {
                      s_callstack.data(),message.data());
   CImg<char>::string(full_message).move_to(status);
   message.assign();
+  is_running = false;
   throw gmic_exception(0,status);
 }
 
@@ -3152,6 +3153,7 @@ gmic& gmic::error(const CImgList<T>& list, const CImg<unsigned int> *const calls
                      s_callstack.data(),message.data());
   CImg<char>::string(full_message).move_to(status);
   message.assign();
+  is_running = false;
   throw gmic_exception(command,status);
 }
 
