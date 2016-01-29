@@ -516,7 +516,7 @@ const char *t(const char *const s) {
     _t("Normal","Normale");
     _t("Large","Groot");
     _t(" Available filters (%u)"," Beschikbare filters (%u)");
-    _t("Update","Actualitzaci\303\263");
+    _t("Update","Update");
     _t("Rename","Hernoemen");
     _t("Add filter to faves","Filter toevoegen aan favorieten");
     _t("Remove filter from faves","Verwijder filter uit favorieten");
