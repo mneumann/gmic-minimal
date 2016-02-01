@@ -114,6 +114,7 @@ GtkWidget *fave_add_button = 0;                // Fave button.
 GtkWidget *fave_delete_button = 0;             // Fave delete button.
 GtkWidget *right_frame = 0;                    // The right frame containing the filter parameters.
 GtkWidget *right_pane = 0;                     // The right scrolled window, containing the right frame.
+GtkWidget *preview_size_combobox = 0;          // The preview size combobox.
 GtkWidget *markup2ascii = 0;                   // Used to convert markup to ascii strings.
 GimpPDBStatusType status = GIMP_PDB_SUCCESS;   // The plug-in return status.
 const char *s_blendmode[] = { "alpha","dissolve","behind","multiply","screen","overlay","difference",
@@ -3919,7 +3920,6 @@ void create_parameters_gui(const bool reset_params) {
   GtkRequisition requisition;
   gtk_widget_size_request(table,&requisition);
   gtk_widget_set_size_request(right_pane,cimg::max(450,requisition.width),-1);
-  gtk_widget_show(dialog_window);
   set_preview_factor();
 
   // Set correct icon for fave button.
@@ -4087,7 +4087,7 @@ bool create_dialog_gui() {
   gtk_table_attach_defaults(GTK_TABLE(left_table),preview_mode_combobox,0,1,3,4);
   g_signal_connect(preview_mode_combobox,"changed",G_CALLBACK(on_dialog_preview_mode_changed),0);
 
-  GtkWidget *const preview_size_combobox = gtk_combo_box_new_text();
+  preview_size_combobox = gtk_combo_box_new_text();
   gtk_widget_show(preview_size_combobox);
   gtk_combo_box_append_text(GTK_COMBO_BOX(preview_size_combobox),t("Preview size..."));
   gtk_combo_box_append_text(GTK_COMBO_BOX(preview_size_combobox),"-");
@@ -4202,9 +4202,23 @@ bool create_dialog_gui() {
   gtk_widget_set_tooltip_text(internet_checkbutton,t("Enable Internet updates"));
   gtk_widget_set_tooltip_text(tree_mode_button,t("Expand/collapse"));
 
-  // Show dialog window and wait for user response.
+  // Finalize dialog window.
   create_parameters_gui(false);
   gtk_widget_grab_focus(tree_view);
+
+  // Make sure the dialog window is entirely visible on screen.
+  unsigned int preview_size = get_preview_size(false);
+  for (bool is_entirely_visible = false; !is_entirely_visible && preview_size>2; ) {
+    GdkScreen *const screen = gtk_window_get_screen(GTK_WINDOW(dialog_window));
+    int
+      window_width, window_height,
+      screen_width = gdk_screen_get_width(screen),
+      screen_height = gdk_screen_get_height(screen);
+    gtk_window_get_size(GTK_WINDOW(dialog_window),&window_width,&window_height);
+    if (window_width>screen_width || window_height>screen_height) resize_preview(--preview_size - 2);
+    else is_entirely_visible = true;
+  }
+  gtk_widget_show(dialog_window);
   gtk_main();
 
   // Destroy dialog box widget and free resources.
