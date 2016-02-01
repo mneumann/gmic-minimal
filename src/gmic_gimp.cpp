@@ -114,7 +114,6 @@ GtkWidget *fave_add_button = 0;                // Fave button.
 GtkWidget *fave_delete_button = 0;             // Fave delete button.
 GtkWidget *right_frame = 0;                    // The right frame containing the filter parameters.
 GtkWidget *right_pane = 0;                     // The right scrolled window, containing the right frame.
-GtkWidget *preview_size_combobox = 0;          // The preview size combobox.
 GtkWidget *markup2ascii = 0;                   // Used to convert markup to ascii strings.
 GimpPDBStatusType status = GIMP_PDB_SUCCESS;   // The plug-in return status.
 const char *s_blendmode[] = { "alpha","dissolve","behind","multiply","screen","overlay","difference",
@@ -4087,7 +4086,7 @@ bool create_dialog_gui() {
   gtk_table_attach_defaults(GTK_TABLE(left_table),preview_mode_combobox,0,1,3,4);
   g_signal_connect(preview_mode_combobox,"changed",G_CALLBACK(on_dialog_preview_mode_changed),0);
 
-  preview_size_combobox = gtk_combo_box_new_text();
+  GtkWidget *preview_size_combobox = gtk_combo_box_new_text();
   gtk_widget_show(preview_size_combobox);
   gtk_combo_box_append_text(GTK_COMBO_BOX(preview_size_combobox),t("Preview size..."));
   gtk_combo_box_append_text(GTK_COMBO_BOX(preview_size_combobox),"-");
