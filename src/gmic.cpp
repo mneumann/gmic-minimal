@@ -9047,10 +9047,10 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
                     fps,*name?name.data():"(default)");
               try {
                 g_list.save_video(filename,(unsigned int)fps,name,(bool)keep_open);
-              } catch (CImgException&) {
+              } catch (CImgException &e) {
                 warn(images,0,false,
-                     "Command '-output': Cannot encode file '%s' natively. Trying fallback function.",
-                     filename);
+                     "Command '-output': Cannot encode file '%s' natively (%s). Trying fallback function.",
+                     filename,e.what());
                 g_list.save_ffmpeg_external(filename,(unsigned int)fps);
               }
             } else {
