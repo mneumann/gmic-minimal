@@ -76,7 +76,7 @@ CImg<T> get_gmic_invert_endianness(const char *const stype) const {
 template<typename t>
 CImg<T>& operator_eq(const t val) {
 #ifdef cimg_use_openmp
-#pragma omp parallel for cimg_openmp_if (size()>=131072)
+#pragma omp parallel for cimg_openmp_if(size()>=131072)
 #endif
   cimg_rof(*this,ptrd,T) *ptrd = (T)(*ptrd == (T)val);
   return *this;
@@ -104,7 +104,7 @@ CImg<T>& operator_eq(const CImg<t>& img) {
 template<typename t>
 CImg<T>& operator_neq(const t val) {
 #ifdef cimg_use_openmp
-#pragma omp parallel for cimg_openmp_if (size()>=131072)
+#pragma omp parallel for cimg_openmp_if(size()>=131072)
 #endif
   cimg_rof(*this,ptrd,T) *ptrd = (T)(*ptrd != (T)val);
   return *this;
@@ -132,7 +132,7 @@ CImg<T>& operator_neq(const CImg<t>& img) {
 template<typename t>
 CImg<T>& operator_gt(const t val) {
 #ifdef cimg_use_openmp
-#pragma omp parallel for cimg_openmp_if (size()>=131072)
+#pragma omp parallel for cimg_openmp_if(size()>=131072)
 #endif
   cimg_rof(*this,ptrd,T) *ptrd = (T)(*ptrd > (T)val);
   return *this;
@@ -160,7 +160,7 @@ CImg<T>& operator_gt(const CImg<t>& img) {
 template<typename t>
 CImg<T>& operator_ge(const t val) {
 #ifdef cimg_use_openmp
-#pragma omp parallel for cimg_openmp_if (size()>=131072)
+#pragma omp parallel for cimg_openmp_if(size()>=131072)
 #endif
   cimg_rof(*this,ptrd,T) *ptrd = (T)(*ptrd >= (T)val);
   return *this;
@@ -188,7 +188,7 @@ CImg<T>& operator_ge(const CImg<t>& img) {
 template<typename t>
 CImg<T>& operator_lt(const t val) {
 #ifdef cimg_use_openmp
-#pragma omp parallel for cimg_openmp_if (size()>=131072)
+#pragma omp parallel for cimg_openmp_if(size()>=131072)
 #endif
   cimg_rof(*this,ptrd,T) *ptrd = (T)(*ptrd < (T)val);
   return *this;
@@ -216,7 +216,7 @@ CImg<T>& operator_lt(const CImg<t>& img) {
 template<typename t>
 CImg<T>& operator_le(const t val) {
 #ifdef cimg_use_openmp
-#pragma omp parallel for cimg_openmp_if (size()>=131072)
+#pragma omp parallel for cimg_openmp_if(size()>=131072)
 #endif
   cimg_rof(*this,ptrd,T) *ptrd = (T)(*ptrd <= (T)val);
   return *this;
