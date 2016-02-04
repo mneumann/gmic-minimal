@@ -1797,7 +1797,7 @@ CImg<int> get_input_layers(CImgList<T>& images) {
   gint rgn_x, rgn_y, rgn_width, rgn_height;
   cimglist_for(images,l) {
     if (!_gimp_item_is_valid(input_layers[l])) continue;
-    gimp_drawable_mask_intersect(input_layers[l],&rgn_x,&rgn_y,&rgn_width,&rgn_height);
+    if (!gimp_drawable_mask_intersect(input_layers[l],&rgn_x,&rgn_y,&rgn_width,&rgn_height)) continue;
     const int spectrum = (gimp_drawable_is_rgb(input_layers[l])?3:1) +
       (gimp_drawable_has_alpha(input_layers[l])?1:0);
 #if GIMP_MINOR_VERSION<=8
