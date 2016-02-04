@@ -1750,7 +1750,7 @@ CImg<int> get_input_layers(CImgList<T>& images) {
   int
     nb_layers = 0,
     *layers = gimp_image_get_layers(image_id,&nb_layers),
-    active_layer = gimp_image_get_active_layer(image_id);
+    active_layer_id = gimp_image_get_active_layer(image_id);
 
   CImg<int> input_layers;
   const unsigned int input_mode = get_input_mode();
@@ -1758,22 +1758,24 @@ CImg<int> get_input_layers(CImgList<T>& images) {
   case 0 : // Input none
     break;
   case 1 : // Input active layer
-    input_layers = CImg<int>::vector(active_layer);
+    if (active_layer_id>=0) input_layers = CImg<int>::vector(active_layer_id);
     break;
   case 2 : case 9 : // Input all image layers
     input_layers = CImg<int>(layers,1,nb_layers);
     if (input_mode==9) input_layers.mirror('y');
     break;
-  case 3 : { // Input active & below layers
-    int i = 0; for (i = 0; i<nb_layers; ++i) if (layers[i]==active_layer) break;
-    if (i<nb_layers - 1) input_layers = CImg<int>::vector(active_layer,layers[i + 1]);
-    else input_layers = CImg<int>::vector(active_layer);
-  } break;
-  case 4 : { // Input active & above layers
-    int i = 0; for (i = 0; i<nb_layers; ++i) if (layers[i]==active_layer) break;
-    if (i>0) input_layers = CImg<int>::vector(active_layer,layers[i - 1]);
-    else input_layers = CImg<int>::vector(active_layer);
-  } break;
+  case 3 : // Input active & below layers
+    if (active_layer_id>=0) {
+      int i = 0; for (i = 0; i<nb_layers; ++i) if (layers[i]==active_layer_id) break;
+      if (i<nb_layers - 1) input_layers = CImg<int>::vector(active_layer_id,layers[i + 1]);
+      else input_layers = CImg<int>::vector(active_layer_id);
+    } break;
+  case 4 : // Input active & above layers
+    if (active_layer_id>=0) {
+      int i = 0; for (i = 0; i<nb_layers; ++i) if (layers[i]==active_layer_id) break;
+      if (i>0) input_layers = CImg<int>::vector(active_layer_id,layers[i - 1]);
+      else input_layers = CImg<int>::vector(active_layer_id);
+    } break;
   case 5 : case 7 : { // Input all visible image layers
     CImgList<int> visible_layers;
     for (int i = 0; i<nb_layers; ++i)
@@ -2023,7 +2025,7 @@ void _gimp_preview_invalidate() {
   if (p_spt) { st_process_thread &spt = *(st_process_thread*)p_spt; spt.is_abort = true; }
   cimg::mutex(25,0);
   const int active_layer_id = gimp_image_get_active_layer(image_id);
-  if (gimp_layer_get_edit_mask(active_layer_id))
+  if (active_layer_id>=0 && gimp_layer_get_edit_mask(active_layer_id))
     gimp_layer_set_edit_mask(active_layer_id,(gboolean)0);
 
   computed_preview.assign();
@@ -2905,83 +2907,11 @@ void process_image(const char *const command_line, const bool is_apply) {
     } break;
 
     case 1 : case 2 : { // Output in 'New [active] layer(s)' mode.
-      gimp_image_undo_group_start(image_id);
       const gint active_layer_id = gimp_image_get_active_layer(image_id);
-      gint top_layer_id = 0, layer_id = 0;
-      max_width = max_height = 0;
-      cimglist_for(spt.images,p) {
-        layer_blendmode = GIMP_NORMAL_MODE;
-        layer_opacity = 100;
-        layer_posx = layer_posy = 0;
-        if (layers.height()==1) {
-          if (!is_selection) gimp_drawable_offsets(active_layer_id,&layer_posx,&layer_posy);
-          CImg<char>::string(gimp_item_get_name(active_layer_id)).move_to(layer_name);
-        } else layer_name.assign();
-        get_output_layer_props(spt.images_names[p],layer_blendmode,layer_opacity,layer_posx,layer_posy,layer_name);
-        if (layer_posx + spt.images[p]._width>max_width) max_width = layer_posx + spt.images[p]._width;
-        if (layer_posy + spt.images[p]._height>max_height) max_height = layer_posy + spt.images[p]._height;
-
-        CImg<gmic_pixel_type> &img = spt.images[p];
-        if (gimp_image_base_type(image_id)==GIMP_GRAY)
-          calibrate_image(img,!is_selection && (img.spectrum()==1 || img.spectrum()==3)?1:2,false);
-        else
-          calibrate_image(img,!is_selection && (img.spectrum()==1 || img.spectrum()==3)?3:4,false);
-        layer_id = gimp_layer_new(image_id,new_label,img.width(),img.height(),
-                                  img.spectrum()==1?GIMP_GRAY_IMAGE:
-                                  img.spectrum()==2?GIMP_GRAYA_IMAGE:
-                                  img.spectrum()==3?GIMP_RGB_IMAGE:GIMP_RGBA_IMAGE,
-                                  layer_opacity,layer_blendmode);
-        if (!p) top_layer_id = layer_id;
-        gimp_layer_set_offsets(layer_id,layer_posx,layer_posy);
-        if (verbosity_mode==1) gimp_item_set_name(layer_id,new_label);
-        else if (layer_name) gimp_item_set_name(layer_id,layer_name);
-        gimp_image_insert_layer(image_id,layer_id,-1,p);
-
-#if GIMP_MINOR_VERSION<=8
-        GimpDrawable *drawable = gimp_drawable_get(layer_id);
-        GimpPixelRgn region;
-        gimp_pixel_rgn_init(&region,drawable,0,0,drawable->width,drawable->height,true,true);
-        convert_image2uchar(img);
-        gimp_pixel_rgn_set_rect(&region,(guchar*)img.data(),0,0,img.width(),img.height());
-        gimp_drawable_flush(drawable);
-        gimp_drawable_merge_shadow(layer_id,true);
-        gimp_drawable_update(layer_id,0,0,drawable->width,drawable->height);
-        gimp_drawable_detach(drawable);
-#else
-        GeglBuffer *buffer = gimp_drawable_get_shadow_buffer(layer_id);
-        const char *const format = img.spectrum()==1?"Y' float":img.spectrum()==2?"Y'A float":
-          img.spectrum()==3?"R'G'B' float":"R'G'B'A float";
-        (img/=255).permute_axes("cxyz");
-        gegl_buffer_set(buffer,NULL,0,babl_format(format),img.data(),0);
-        g_object_unref(buffer);
-        gimp_drawable_merge_shadow(layer_id,true);
-        gimp_drawable_update(layer_id,0,0,img.width(),img.height());
-#endif
-        img.assign();
-      }
-      gimp_image_resize(image_id,cimg::max(image_width,max_width),cimg::max(image_height,max_height),0,0);
-      if (output_mode==1) gimp_image_set_active_layer(image_id,active_layer_id);
-      else { // Destroy preview widget will force the preview to get the new active layer as base image.
-        gimp_image_set_active_layer(image_id,top_layer_id);
-        if (is_apply) {
-          if (gui_preview && GTK_IS_WIDGET(gui_preview)) gtk_widget_destroy(gui_preview);
-          gui_preview = 0;
-        }
-      }
-      gimp_image_undo_group_end(image_id);
-    } break;
-
-    default : { // Output in 'New image' mode.
-      if (spt.images.size()) {
-
-#if GIMP_MINOR_VERSION<=8
-        const int nimage_id = gimp_image_new(max_width,max_height,max_spectrum<=2?GIMP_GRAY:GIMP_RGB);
-#else
-        const int nimage_id = gimp_image_new_with_precision(max_width,max_height,max_spectrum<=2?GIMP_GRAY:GIMP_RGB,
-          gimp_image_get_precision(image_id));
-#endif
-        const gint active_layer_id = gimp_image_get_active_layer(image_id);
-        gimp_image_undo_group_start(nimage_id);
+      if (active_layer_id>=0) {
+        gimp_image_undo_group_start(image_id);
+        gint top_layer_id = 0, layer_id = 0;
+        max_width = max_height = 0;
         cimglist_for(spt.images,p) {
           layer_blendmode = GIMP_NORMAL_MODE;
           layer_opacity = 100;
@@ -2991,19 +2921,24 @@ void process_image(const char *const command_line, const bool is_apply) {
             CImg<char>::string(gimp_item_get_name(active_layer_id)).move_to(layer_name);
           } else layer_name.assign();
           get_output_layer_props(spt.images_names[p],layer_blendmode,layer_opacity,layer_posx,layer_posy,layer_name);
+          if (layer_posx + spt.images[p]._width>max_width) max_width = layer_posx + spt.images[p]._width;
+          if (layer_posy + spt.images[p]._height>max_height) max_height = layer_posy + spt.images[p]._height;
 
           CImg<gmic_pixel_type> &img = spt.images[p];
-          if (gimp_image_base_type(nimage_id)!=GIMP_GRAY)
-            calibrate_image(img,(img.spectrum()==1 || img.spectrum()==3)?3:4,false);
-          gint layer_id = gimp_layer_new(nimage_id,new_label,img.width(),img.height(),
-                                         img.spectrum()==1?GIMP_GRAY_IMAGE:
-                                         img.spectrum()==2?GIMP_GRAYA_IMAGE:
-                                         img.spectrum()==3?GIMP_RGB_IMAGE:GIMP_RGBA_IMAGE,
-                                         layer_opacity,layer_blendmode);
+          if (gimp_image_base_type(image_id)==GIMP_GRAY)
+            calibrate_image(img,!is_selection && (img.spectrum()==1 || img.spectrum()==3)?1:2,false);
+          else
+            calibrate_image(img,!is_selection && (img.spectrum()==1 || img.spectrum()==3)?3:4,false);
+          layer_id = gimp_layer_new(image_id,new_label,img.width(),img.height(),
+                                    img.spectrum()==1?GIMP_GRAY_IMAGE:
+                                    img.spectrum()==2?GIMP_GRAYA_IMAGE:
+                                    img.spectrum()==3?GIMP_RGB_IMAGE:GIMP_RGBA_IMAGE,
+                                    layer_opacity,layer_blendmode);
+          if (!p) top_layer_id = layer_id;
           gimp_layer_set_offsets(layer_id,layer_posx,layer_posy);
           if (verbosity_mode==1) gimp_item_set_name(layer_id,new_label);
           else if (layer_name) gimp_item_set_name(layer_id,layer_name);
-          gimp_image_insert_layer(nimage_id,layer_id,-1,p);
+          gimp_image_insert_layer(image_id,layer_id,-1,p);
 
 #if GIMP_MINOR_VERSION<=8
           GimpDrawable *drawable = gimp_drawable_get(layer_id);
@@ -3027,8 +2962,78 @@ void process_image(const char *const command_line, const bool is_apply) {
 #endif
           img.assign();
         }
-        gimp_display_new(nimage_id);
-        gimp_image_undo_group_end(nimage_id);
+        gimp_image_resize(image_id,cimg::max(image_width,max_width),cimg::max(image_height,max_height),0,0);
+        if (output_mode==1) gimp_image_set_active_layer(image_id,active_layer_id);
+        else { // Destroy preview widget will force the preview to get the new active layer as base image.
+          gimp_image_set_active_layer(image_id,top_layer_id);
+          if (is_apply) {
+            if (gui_preview && GTK_IS_WIDGET(gui_preview)) gtk_widget_destroy(gui_preview);
+            gui_preview = 0;
+          }
+        }
+        gimp_image_undo_group_end(image_id);
+      }
+    } break;
+
+    default : { // Output in 'New image' mode.
+      if (spt.images.size()) {
+        const gint active_layer_id = gimp_image_get_active_layer(image_id);
+        if (active_layer_id>=0) {
+#if GIMP_MINOR_VERSION<=8
+          const int nimage_id = gimp_image_new(max_width,max_height,max_spectrum<=2?GIMP_GRAY:GIMP_RGB);
+#else
+          const int nimage_id = gimp_image_new_with_precision(max_width,max_height,max_spectrum<=2?GIMP_GRAY:GIMP_RGB,
+                                                              gimp_image_get_precision(image_id));
+#endif
+          gimp_image_undo_group_start(nimage_id);
+          cimglist_for(spt.images,p) {
+            layer_blendmode = GIMP_NORMAL_MODE;
+            layer_opacity = 100;
+            layer_posx = layer_posy = 0;
+            if (layers.height()==1) {
+              if (!is_selection) gimp_drawable_offsets(active_layer_id,&layer_posx,&layer_posy);
+              CImg<char>::string(gimp_item_get_name(active_layer_id)).move_to(layer_name);
+            } else layer_name.assign();
+            get_output_layer_props(spt.images_names[p],layer_blendmode,layer_opacity,layer_posx,layer_posy,layer_name);
+
+            CImg<gmic_pixel_type> &img = spt.images[p];
+            if (gimp_image_base_type(nimage_id)!=GIMP_GRAY)
+              calibrate_image(img,(img.spectrum()==1 || img.spectrum()==3)?3:4,false);
+            gint layer_id = gimp_layer_new(nimage_id,new_label,img.width(),img.height(),
+                                           img.spectrum()==1?GIMP_GRAY_IMAGE:
+                                           img.spectrum()==2?GIMP_GRAYA_IMAGE:
+                                           img.spectrum()==3?GIMP_RGB_IMAGE:GIMP_RGBA_IMAGE,
+                                           layer_opacity,layer_blendmode);
+            gimp_layer_set_offsets(layer_id,layer_posx,layer_posy);
+            if (verbosity_mode==1) gimp_item_set_name(layer_id,new_label);
+            else if (layer_name) gimp_item_set_name(layer_id,layer_name);
+            gimp_image_insert_layer(nimage_id,layer_id,-1,p);
+
+#if GIMP_MINOR_VERSION<=8
+            GimpDrawable *drawable = gimp_drawable_get(layer_id);
+            GimpPixelRgn region;
+            gimp_pixel_rgn_init(&region,drawable,0,0,drawable->width,drawable->height,true,true);
+            convert_image2uchar(img);
+            gimp_pixel_rgn_set_rect(&region,(guchar*)img.data(),0,0,img.width(),img.height());
+            gimp_drawable_flush(drawable);
+            gimp_drawable_merge_shadow(layer_id,true);
+            gimp_drawable_update(layer_id,0,0,drawable->width,drawable->height);
+            gimp_drawable_detach(drawable);
+#else
+            GeglBuffer *buffer = gimp_drawable_get_shadow_buffer(layer_id);
+            const char *const format = img.spectrum()==1?"Y' float":img.spectrum()==2?"Y'A float":
+              img.spectrum()==3?"R'G'B' float":"R'G'B'A float";
+            (img/=255).permute_axes("cxyz");
+            gegl_buffer_set(buffer,NULL,0,babl_format(format),img.data(),0);
+            g_object_unref(buffer);
+            gimp_drawable_merge_shadow(layer_id,true);
+            gimp_drawable_update(layer_id,0,0,img.width(),img.height());
+#endif
+            img.assign();
+          }
+          gimp_display_new(nimage_id);
+          gimp_image_undo_group_end(nimage_id);
+        }
       }
     }
     }
