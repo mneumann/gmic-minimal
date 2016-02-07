@@ -71,7 +71,8 @@ PLUGINDIR = `gimptool-2.0 --gimpplugindir`/plug-ins
 USR = /usr
 WGET = wget --quiet -O
 endif
-ifeq ($(OSTYPE),msys)
+SYS := $(shell gcc -dumpmachine)
+ifneq (, $(findstring mingw, $(SYS)))
 EXE = .exe
 endif
 ifeq ($(OS),FreeBSD)
@@ -117,7 +118,7 @@ MANDATORY_CFLAGS += -stdlib=libc++
 endif
 endif
 ifeq ($(OSTYPE),msys)
-MANDATORY_LIBS = -Wl,--stack,16777216
+MANDATORY_LIBS += -Wl,--stack,16777216
 endif
 
 # Flags to enable debugging.
