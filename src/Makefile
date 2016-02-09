@@ -7,7 +7,7 @@
 #                 . the G'MIC command line tool (type 'make cli').
 #                 . the G'MIC plug-in for GIMP (type 'make gimp').
 #                 . the G'MIC interpreter, as a C++ library (type 'make lib').
-#                 . the G'MIC bridge library (type 'make bridge').
+#                 . the G'MIC bridge library (type 'make bridge' or 'make staticbridge').
 #                 . the ZArt software (type 'make zart').
 #                 . To compile all of them, just type 'make', or 'make all').
 #
@@ -373,13 +373,13 @@ ifeq ($(OS),Unix)
 	@echo "**"
 	@echo "** Start building G'MIC with default Unix configuration."
 	@echo "**"
-	$(MAKE) cli gimp lib zart
+	$(MAKE) cli gimp lib bridge zart
 else
 ifeq ($(OS),Darwin)
 	@echo "**"
 	@echo "** Start building G'MIC with default MacOSX configuration."
 	@echo "**"
-	$(MAKE) cli gimp lib zart
+	$(MAKE) cli gimp lib bridge zart
 else
 	@echo "**"
 	@echo "** Start building G'MIC with default Windows configuration."
@@ -581,12 +581,12 @@ install:
 ifneq ($(OS),Darwin)
 	mkdir -p $(DESTDIR)$(USR)/share
 	mkdir -p $(DESTDIR)$(USR)/$(LIB)
-	cp -f libgmic.so $(DESTDIR)$(USR)/$(LIB)/libgmic.so.1.6.9
-	ln -fs libgmic.so.1.6.9 $(DESTDIR)$(USR)/$(LIB)/libgmic.so.1
-	ln -fs libgmic.so.1 $(DESTDIR)$(USR)/$(LIB)/libgmic.so
-	cp -f libgmicbridge.so $(DESTDIR)$(USR)/$(LIB)/libgmicbridge.so.1.6.9
-	ln -fs libgmicbridge.so.1.6.9 $(DESTDIR)$(USR)/$(LIB)/libgmicbridge.so
-	ln -fs libgmicbridge.so.1 $(DESTDIR)$(USR)/$(LIB)/libgmicbridge.so
+	cp -f libgmic.so $(DESTDIR)$(USR)/$(LIB)/libgmic.so._gmic_versio3
+	ln -fs libgmic.so._gmic_versio3 $(DESTDIR)$(USR)/$(LIB)/libgmic.so._gmic_versio1
+	ln -fs libgmic.so._gmic_versio1 $(DESTDIR)$(USR)/$(LIB)/libgmic.so
+	cp -f libgmicbridge.so $(DESTDIR)$(USR)/$(LIB)/libgmicbridge.so._gmic_versio3
+	ln -fs libgmicbridge.so._gmic_versio3 $(DESTDIR)$(USR)/$(LIB)/libgmicbridge.so._gmic_versio1
+	ln -fs libgmicbridge.so._gmic_versio1 $(DESTDIR)$(USR)/$(LIB)/libgmicbridge.so
 	cp -f ../zart/zart $(DESTDIR)$(USR)/$(BIN)/
 endif
 	mkdir -p $(DESTDIR)$(USR)/share/man/
@@ -601,11 +601,11 @@ uninstall:
 	rm -f $(DESTDIR)$(USR)/$(BIN)/gmic
 	rm -f $(DESTDIR)$(USR)/$(BIN)/zart
 	rm -f $(DESTDIR)$(USR)/$(INCLUDE)/gmic.h
-	rm -f $(DESTDIR)$(USR)/$(LIB)/libgmic.so.1.6.9
-	rm -f $(DESTDIR)$(USR)/$(LIB)/libgmic.so.1
+	rm -f $(DESTDIR)$(USR)/$(LIB)/libgmic.so._gmic_versio3
+	rm -f $(DESTDIR)$(USR)/$(LIB)/libgmic.so._gmic_versio1
 	rm -f $(DESTDIR)$(USR)/$(LIB)/libgmic.so
-	rm -f $(DESTDIR)$(USR)/$(LIB)/libgmicbridge.so.1.6.9
-	rm -f $(DESTDIR)$(USR)/$(LIB)/libgmicbridge.so.1
+	rm -f $(DESTDIR)$(USR)/$(LIB)/libgmicbridge.so._gmic_versio3
+	rm -f $(DESTDIR)$(USR)/$(LIB)/libgmicbridge.so._gmic_versio1
 	rm -f $(DESTDIR)$(USR)/$(LIB)/libgmicbridge$(SO)
 	rm -rf $(DESTDIR)$(USR)/share/doc/gmic/
 	rm -f $(DESTDIR)$(USR)/share/man/man1/gmic.1.gz
