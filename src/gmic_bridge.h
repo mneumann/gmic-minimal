@@ -49,13 +49,17 @@
 
 #if defined(WIN32) || defined(_WIN32)
 #ifdef gmic_build
-#define GMIC_DLLINTERFACE __declspec(dllexport)
+#define GMIC_DLLINTERFACE extern "C" __declspec(dllexport)
 #else // #ifdef gmic_build
 #define GMIC_DLLINTERFACE __declspec(dllimport)
 #endif // #ifdef gmic_build
 #define GMIC_CALLCONV __stdcall
 #else // #if defined(WIN32) || defined(_WIN32)
+#ifdef gmic_build
+#define GMIC_DLLINTERFACE extern "C"
+#else // #ifdef gmic_build
 #define GMIC_DLLINTERFACE
+#endif // #ifdef gmic_build
 #define GMIC_CALLCONV
 #endif // #if defined(WIN32) || defined(_WIN32)
 
