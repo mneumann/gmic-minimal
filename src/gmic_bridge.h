@@ -89,6 +89,7 @@ typedef struct {
 } gmic_bridge_options;
 
 GMIC_DLLINTERFACE int GMIC_CALLCONV gmic_delete_external(float* p);
-GMIC_DLLINTERFACE int GMIC_CALLCONV gmic_call(const char* _cmd, unsigned int* _nofImages, gmic_bridge_image* _images, gmic_bridge_options* _options);
+GMIC_DLLINTERFACE int GMIC_CALLCONV gmic_call(const char* _cmd, unsigned int* _nofImages, gmic_bridge_image* _images,
+                                              gmic_bridge_options* _options);
 
 #endif // #ifndef _GMIC_BRIDGE_H

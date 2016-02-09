@@ -454,7 +454,7 @@ else
 	$(CXX) -shared -Wl,-soname,libgmicbridge.so.1 -o libgmicbridge$(SO) libgmicbridge.o libgmic.o $(LIBS)
 endif
 endif
-	$(CC) -std=c99 -o gmic_use_bridge gmic_use_bridge.c -L. -lgmicbridge
+	$(CC) -o gmic_use_bridge gmic_use_bridge.c -L. -lgmicbridge
 
 libgmicbridge_s.o: gmic.cpp gmic.h gmic_stdlib.h CImg.h
 	$(CXX) -o libgmicbridge_s.o -c gmic_bridge.cpp $(PIC) $(CFLAGS)
@@ -469,7 +469,7 @@ else
 	$(CXX) -shared -Wl,-soname,libgmicbridge.so.1 -o libgmicbridge$(SO) libgmicbridge_s.o libgmic.o $(LIBS)
 endif
 endif
-	$(CC) -std=c99 -o gmic_use_bridge gmic_use_bridge.c -L. -lgmicbridge
+	$(CC) -o gmic_use_bridge gmic_use_bridge.c -L. -lgmicbridge
 
 gmic_gimp.o: gmic.cpp gmic.h gmic_stdlib.h CImg.h
 	$(CXX) -o gmic_gimp.o -c gmic.cpp -Dgmic_gimp $(CFLAGS)

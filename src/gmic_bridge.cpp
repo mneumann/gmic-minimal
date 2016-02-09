@@ -47,7 +47,8 @@ GMIC_DLLINTERFACE int GMIC_CALLCONV gmic_delete_external(float* p) {
   return 0;
 }
 
-GMIC_DLLINTERFACE int GMIC_CALLCONV gmic_call(const char* _cmd, unsigned int* _nofImages, gmic_bridge_image* _images, gmic_bridge_options* _options) {
+GMIC_DLLINTERFACE int GMIC_CALLCONV gmic_call(const char* _cmd, unsigned int* _nofImages, gmic_bridge_image* _images,
+                                              gmic_bridge_options* _options) {
   int err = 0;
   bool no_inplace = _options?_options->no_inplace_processing:false;
   int nofImages = 0;
@@ -62,28 +63,34 @@ GMIC_DLLINTERFACE int GMIC_CALLCONV gmic_call(const char* _cmd, unsigned int* _n
     if (_images[i].format == E_FORMAT_BYTE) {
       gmic_image<unsigned char> img_tmp;
       if (_images[i].is_interleaved) {
-        img_tmp.assign((unsigned char*)_images[i].data, _images[i].spectrum, _images[i].width, _images[i].height, _images[i].depth, true);
+        img_tmp.assign((unsigned char*)_images[i].data, _images[i].spectrum, _images[i].width,
+                       _images[i].height, _images[i].depth, true);
         img_tmp.permute_axes("YZCX");
       } else {
-        img_tmp.assign((unsigned char*)_images[i].data, _images[i].width, _images[i].height, _images[i].depth, _images[i].spectrum, true);
+        img_tmp.assign((unsigned char*)_images[i].data, _images[i].width, _images[i].height,
+                       _images[i].depth, _images[i].spectrum, true);
       }
       img = img_tmp;
     } else {
       if (no_inplace) {
         gmic_image<float> img_tmp;
         if (_images[i].is_interleaved) {
-          img_tmp.assign((float*)_images[i].data, _images[i].spectrum, _images[i].width, _images[i].height, _images[i].depth, true);
+          img_tmp.assign((float*)_images[i].data, _images[i].spectrum, _images[i].width,
+                         _images[i].height, _images[i].depth, true);
           img_tmp.permute_axes("YZCX");
         } else {
-          img_tmp.assign((float*)_images[i].data, _images[i].width, _images[i].height, _images[i].depth, _images[i].spectrum, true);
+          img_tmp.assign((float*)_images[i].data, _images[i].width, _images[i].height,
+                         _images[i].depth, _images[i].spectrum, true);
         }
         img = img_tmp;
       } else {
         if (_images[i].is_interleaved) {
-          img.assign((float*)_images[i].data, _images[i].spectrum, _images[i].width, _images[i].height, _images[i].depth, true);
+          img.assign((float*)_images[i].data, _images[i].spectrum, _images[i].width,
+                     _images[i].height, _images[i].depth, true);
           img.permute_axes("YZCX");
         } else {
-          img.assign((float*)_images[i].data, _images[i].width, _images[i].height, _images[i].depth, _images[i].spectrum, true);
+          img.assign((float*)_images[i].data, _images[i].width, _images[i].height,
+                     _images[i].depth, _images[i].spectrum, true);
         }
       }
     }
@@ -93,7 +100,8 @@ GMIC_DLLINTERFACE int GMIC_CALLCONV gmic_call(const char* _cmd, unsigned int* _n
 
   try {
     if (_options)
-      gmic(_cmd, images, images_names, _options->custom_commands, !_options->ignore_stdlib, _options->p_progress, _options->p_is_abort);
+      gmic(_cmd, images, images_names, _options->custom_commands, !_options->ignore_stdlib,
+           _options->p_progress, _options->p_is_abort);
     else
       gmic(_cmd, images, images_names);
 
