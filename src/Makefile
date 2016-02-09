@@ -138,12 +138,12 @@ DEBUG_CFLAGS = -ansi -pedantic -Dcimg_verbosity=3 -g -fsanitize=address # -fsani
 
 # Flags to enable optimizations.
 ifeq ($(notdir $(CXX)),g++)
-OPT_CFLAGS = -O2 -mtune=generic
+OPT_CFLAGS = -O3 -mtune=generic
 else
 ifeq ($(notdir $(CXX)),icpc)
 OPT_CFLAGS = -fast
 else
-OPT_CFLAGS = -O2
+OPT_CFLAGS = -O3
 endif
 endif
 
@@ -260,8 +260,8 @@ BOARD_LIBS = -lboard
 
 # CLI interface: Standard build.
 #-------------------------------
-STD_CLI_CFLAGS = $(MANDATORY_CFLAGS) $(CIMG_ABORT_CFLAGS) $(PARALLEL_CFLAGS) $(FFTW_CFLAGS) $(PNG_CFLAGS) $(JPEG_CFLAGS) $(TIFF_CFLAGS) $(CURL_CFLAGS)
-STD_CLI_LIBS = $(MANDATORY_LIBS) $(PARALLEL_LIBS) $(FFTW_LIBS) $(PNG_LIBS) $(JPEG_LIBS) $(TIFF_LIBS) $(CURL_LIBS)
+STD_CLI_CFLAGS = $(MANDATORY_CFLAGS) $(CIMG_ABORT_CFLAGS) $(PARALLEL_CFLAGS) $(FFTW_CFLAGS) $(CURL_CFLAGS) $(PNG_CFLAGS) $(JPEG_CFLAGS) $(TIFF_CFLAGS)
+STD_CLI_LIBS = $(MANDATORY_LIBS) $(PARALLEL_LIBS) $(FFTW_LIBS) $(CURL_LIBS) $(PNG_LIBS) $(JPEG_LIBS) $(TIFF_LIBS)
 ifeq ($(OS),Unix) # Unix.
 STD_CLI_CFLAGS += $(OPENMP_CFLAGS) $(X11_CFLAGS) $(EXR_CFLAGS) $(OPENCV_CFLAGS) # $(XSHM_CFLAGS) $(MAGICK_CFLAGS)
 STD_CLI_LIBS += $(OPENMP_LIBS) $(X11_LIBS) $(EXR_LIBS) $(OPENCV_LIBS) # $(XSHM_LIBS) # $(MAGICK_LIBS)
@@ -289,8 +289,8 @@ STATIC_CLI_LIBS = $(PARALLEL_LIBS) \
 
 # GIMP interface: Standard build.
 #--------------------------------
-STD_GIMP_CFLAGS = $(MANDATORY_CFLAGS) $(CIMG_ABORT_CFLAGS) $(PARALLEL_CFLAGS) $(FFTW_CFLAGS) $(PNG_CFLAGS) $(CURL_CFLAGS) -Dcimg_use_rng
-STD_GIMP_LIBS = $(MANDATORY_LIBS) $(PARALLEL_LIBS) $(FFTW_LIBS) $(PNG_LIBS) $(CURL_LIBS)
+STD_GIMP_CFLAGS = $(MANDATORY_CFLAGS) $(CIMG_ABORT_CFLAGS) $(PARALLEL_CFLAGS) $(FFTW_CFLAGS) $(CURL_CFLAGS) $(PNG_CFLAGS) -Dcimg_use_rng
+STD_GIMP_LIBS = $(MANDATORY_LIBS) $(PARALLEL_LIBS) $(FFTW_LIBS) $(CURL_LIBS) $(PNG_LIBS)
 ifeq ($(OS),Unix) # Unix.
 STD_GIMP_CFLAGS += $(OPENMP_CFLAGS) $(X11_CFLAGS)
 STD_GIMP_LIBS += $(OPENMP_LIBS) $(X11_LIBS)
@@ -306,8 +306,8 @@ endif
 
 # Libgmic interface: Standard build.
 #-----------------------------------
-STD_LIB_CFLAGS = $(MANDATORY_CFLAGS) $(CIMG_ABORT_CFLAGS) $(PARALLEL_CFLAGS) $(FFTW_CFLAGS) $(PNG_CFLAGS) $(JPEG_CFLAGS) $(TIFF_CFLAGS) $(CURL_CFLAGS)
-STD_LIB_LIBS = $(MANDATORY_LIBS) $(PARALLEL_LIBS) $(FFTW_LIBS) $(PNG_LIBS) $(JPEG_LIBS) $(TIFF_LIBS) $(CURL_LIBS)
+STD_LIB_CFLAGS = $(MANDATORY_CFLAGS) $(CIMG_ABORT_CFLAGS) $(PARALLEL_CFLAGS) $(FFTW_CFLAGS) $(CURL_CFLAGS) $(PNG_CFLAGS) $(JPEG_CFLAGS) $(TIFF_CFLAGS)
+STD_LIB_LIBS = $(MANDATORY_LIBS) $(PARALLEL_LIBS) $(FFTW_LIBS) $(CURL_LIBS) $(PNG_LIBS) $(JPEG_LIBS) $(TIFF_LIBS)
 ifeq ($(OS),Unix) # Unix.
 STD_LIB_CFLAGS += $(OPENMP_CFLAGS) $(X11_CFLAGS)
 STD_LIB_LIBS += $(OPENMP_LIBS) $(X11_LIBS)
@@ -323,8 +323,8 @@ endif
 
 # Bridge interface: Standard build.
 #-----------------------------------
-STD_BRIDGE_CFLAGS = $(MANDATORY_CFLAGS) $(CIMG_ABORT_CFLAGS) $(PARALLEL_CFLAGS) $(FFTW_CFLAGS) $(PNG_CFLAGS) $(JPEG_CFLAGS) $(TIFF_CFLAGS) $(CURL_CFLAGS)
-STD_BRIDGE_LIBS = $(MANDATORY_LIBS) $(PARALLEL_LIBS) $(FFTW_LIBS) $(PNG_LIBS) $(JPEG_LIBS) $(TIFF_LIBS) $(CURL_LIBS)
+STD_BRIDGE_CFLAGS = $(MANDATORY_CFLAGS) $(CIMG_ABORT_CFLAGS) $(PARALLEL_CFLAGS) $(FFTW_CFLAGS) $(CURL_CFLAGS) $(PNG_CFLAGS) $(JPEG_CFLAGS) $(TIFF_CFLAGS)
+STD_BRIDGE_LIBS = $(MANDATORY_LIBS) $(PARALLEL_LIBS) $(FFTW_LIBS) $(CURL_LIBS) $(PNG_LIBS) $(JPEG_LIBS) $(TIFF_LIBS)
 ifeq ($(OS),Unix) # Unix.
 STD_BRIDGE_CFLAGS += $(OPENMP_CFLAGS) $(X11_CFLAGS)
 STD_BRIDGE_LIBS += $(OPENMP_LIBS) $(X11_LIBS)
@@ -340,11 +340,11 @@ endif
 
 # Bridge interface: Static build.
 #---------------------------------
-STATIC_BRIDGE_CFLAGS = $(MANDATORY_CFLAGS) $(CIMG_ABORT_CFLAGS) $(PARALLEL_CFLAGS) $(FFTW_CFLAGS) $(PNG_CFLAGS) $(JPEG_CFLAGS) $(TIFF_CFLAGS) $(CURL_CFLAGS)
+STATIC_BRIDGE_CFLAGS = $(MANDATORY_CFLAGS) $(CIMG_ABORT_CFLAGS) $(PARALLEL_CFLAGS) $(FFTW_CFLAGS) $(PNG_CFLAGS) $(JPEG_CFLAGS) # $(CURL_CFLAGS) $(TIFF_CFLAGS)
 ifeq ($(OS),Window)
 STATIC_BRIDGE_LIBS = -static -lpthread
 endif
-STATIC_BRIDGE_LIBS += $(MANDATORY_LIBS) $(PARALLEL_LIBS) $(FFTW_LIBS) $(PNG_LIBS) $(JPEG_LIBS) $(TIFF_LIBS) $(CURL_LIBS)
+STATIC_BRIDGE_LIBS += $(MANDATORY_LIBS) $(PARALLEL_LIBS) $(FFTW_LIBS) $(PNG_LIBS) $(JPEG_LIBS) # $(CURL_LIBS) $(TIFF_LIBS)
 ifeq ($(OS),Unix) # Unix.
 STATIC_BRIDGE_CFLAGS += $(OPENMP_CFLAGS) $(X11_CFLAGS)
 STATIC_BRIDGE_LIBS += $(OPENMP_LIBS) $(X11_LIBS)
@@ -477,12 +477,12 @@ gmic_gimp.o: gmic.cpp gmic.h gmic_stdlib.h CImg.h
 gmic_gimp: gmic_gimp.o gmic_gimp.cpp
 ifeq ($(OS),Darwin)
 ifeq (,$(wildcard /tmp/skl))
-	$(CXX) -o gmic_gimp gmic_gimp.cpp gmic_gimp.o -Dgmic_gimp `gimptool-2.0$(EXE) --cflags` $(CFLAGS) `gimptool-2.0$(EXE) --libs` $(LIBS)
+	$(CXX) -o gmic_gimp gmic_gimp.cpp gmic_gimp.o -Dgmic_gimp `gimptool-2.0$(EXE) --cflags` `gimptool-2.0$(EXE) --libs` $(CFLAGS) $(LIBS)
 else
-	$(CXX) -o gmic_gimp gmic_gimp.cpp gmic_gimp.o -Dgmic_gimp `gimptool-2.0$(EXE) --cflags` $(CFLAGS) $(subst /opt/local,/tmp/skl/Gimp.app/Contents/Resources,$(shell gimptool-2.0$(EXE) --libs) $(LIBS))
+	$(CXX) -o gmic_gimp gmic_gimp.cpp gmic_gimp.o -Dgmic_gimp `gimptool-2.0$(EXE) --cflags` $(subst /opt/local,/tmp/skl/Gimp.app/Contents/Resources,$(shell gimptool-2.0$(EXE) --libs) $(CFLAGS) $(LIBS))
 endif
 else
-	$(CXX) -o gmic_gimp gmic_gimp.cpp gmic_gimp.o -Dgmic_gimp `gimptool-2.0$(EXE) --cflags` $(CFLAGS) `gimptool-2.0$(EXE) --libs` $(LIBS)
+	$(CXX) -o gmic_gimp gmic_gimp.cpp gmic_gimp.o -Dgmic_gimp `gimptool-2.0$(EXE) --cflags` `gimptool-2.0$(EXE) --libs` $(CFLAGS) $(LIBS)
 endif
 	$(STRIP) gmic_gimp$(EXE)
 
