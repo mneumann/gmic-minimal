@@ -68,11 +68,11 @@ USR = /usr/local
 else
 USR = /opt/local
 endif
-WGET = curl -L --silent -o
+WGET = curl --no-check-certificate -L --silent -o
 else
 PLUGINDIR = `gimptool-2.0 --gimpplugindir`/plug-ins
 USR = /usr
-WGET = wget --quiet -O
+WGET = wget --no-check-certificate --quiet -O
 endif
 ifeq ($(OSTYPE),msys)
 OS = Windows
@@ -614,6 +614,6 @@ uninstall:
 distclean: clean
 
 clean:
-	rm -rf gmic*.o gmic$(EXE) gmic_gimp$(EXE) gmic_use_lib$(EXE) gmic_use_bridge$(EXE) libgmic* *~
+	rm -rf CImg.h gmic_stdlib.h gmic*.o gmic$(EXE) gmic_gimp$(EXE) gmic_use_lib$(EXE) gmic_use_bridge$(EXE) libgmic* *~
 
 # End of Makefile.
