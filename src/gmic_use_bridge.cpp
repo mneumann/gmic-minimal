@@ -1,7 +1,7 @@
 /*
  #
- #  File        : gmic_use_bridge.cpp
- #                ( C++ source file )
+ #  File        : gmic_use_bridge.c
+ #                ( C source file )
  #
  #  Description : Show how to call the C bridge to the G'MIC interpreter from a C source code.
  #
@@ -41,8 +41,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include "gmic_bridge.h"
 #include <math.h>
+#include "gmic_bridge.h"
 
 int main(int argc, char **argv) {
   gmic_bridge_image images[1];
@@ -72,7 +72,7 @@ int main(int argc, char **argv) {
   images[0].format = E_FORMAT_FLOAT;
 
   // allocate memory for the input image
-  float* inp = new float[images[0].width * images[0].height * images[0].spectrum * images[0].depth];
+  float* inp = (float*)malloc(images[0].width * images[0].height * images[0].spectrum * images[0].depth * sizeof(float));
   // set pointer to this memory in the images structure
   images[0].data = inp;
 
@@ -147,7 +147,7 @@ int main(int argc, char **argv) {
   }
 
   // and finally we free the memory we allocated for our input image
-  delete[] inp;
+  free(inp);
 
   return 0;
 }

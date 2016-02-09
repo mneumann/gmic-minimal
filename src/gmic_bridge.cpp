@@ -101,7 +101,7 @@ GMIC_DLLINTERFACE int GMIC_CALLCONV gmic_call(const char* _cmd, unsigned int* _n
     std::string error_string = e.what();
     std::fprintf(stderr, "\n- Error encountered when calling G'MIC : '%s'\n", e.what());
     if (_options && _options->error_message_buffer) {
-      strcpy(_options->error_message_buffer, error_string.substr(0, 255).c_str());
+      std::strcpy(_options->error_message_buffer, error_string.substr(0, 255).c_str());
     }
     err = -1;
   }

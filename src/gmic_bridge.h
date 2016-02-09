@@ -45,6 +45,7 @@
 */
 #ifndef _GMIC_BRIDGE_H_
 #define _GMIC_BRIDGE_H_
+#include <stdbool.h>
 
 #if defined(WIN32) || defined(_WIN32)
 #ifdef gmic_build
@@ -60,12 +61,12 @@
 
 #define MAX_IMAGE_NAME_LENGTH 255
 
-enum EPixelFormat {
+typedef enum {
   E_FORMAT_FLOAT = 0,
   E_FORMAT_BYTE = 1
-};
+} EPixelFormat;
 
-struct gmic_bridge_image {
+typedef struct {
   void* data;
   unsigned int width;
   unsigned int height;
@@ -74,9 +75,9 @@ struct gmic_bridge_image {
   bool is_interleaved;
   EPixelFormat format;
   char name[MAX_IMAGE_NAME_LENGTH + 1];
-};
+} gmic_bridge_image;
 
-struct gmic_bridge_options {
+typedef struct {
   const char* custom_commands;
   bool ignore_stdlib;
   float* p_progress;
@@ -85,9 +86,9 @@ struct gmic_bridge_options {
   EPixelFormat output_format;
   bool no_inplace_processing;
   char* error_message_buffer;
-};
+} gmic_bridge_options;
 
-extern "C" GMIC_DLLINTERFACE int GMIC_CALLCONV gmic_delete_external(float* p);
-extern "C" GMIC_DLLINTERFACE int GMIC_CALLCONV gmic_call(const char* _cmd, unsigned int* _nofImages, gmic_bridge_image* _images, gmic_bridge_options* _options);
+GMIC_DLLINTERFACE int GMIC_CALLCONV gmic_delete_external(float* p);
+GMIC_DLLINTERFACE int GMIC_CALLCONV gmic_call(const char* _cmd, unsigned int* _nofImages, gmic_bridge_image* _images, gmic_bridge_options* _options);
 
 #endif // #ifndef _GMIC_BRIDGE_H
