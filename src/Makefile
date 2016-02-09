@@ -416,7 +416,7 @@ static:
 	$(STRIP) gmic$(EXE)
 
 staticbridge:
-	$(MAKE) "CFLAGS+=$(STATIC_BRIDGE_CFLAGS) $(OPT_CFLAGS)" "LIBS+=$(STATIC_BRIDGE_LIBS)" libgmicbridge_s
+	$(MAKE) "CFLAGS+=$(STATIC_BRIDGE_CFLAGS) $(OPT_CFLAGS)" "LIBS+=$(STATIC_BRIDGE_LIBS)" libgmicstaticbridge
 
 debug:
 	$(MAKE) "CFLAGS+=$(STD_CLI_CFLAGS) $(DEBUG_CFLAGS)" "LIBS+=$(STD_CLI_LIBS)" gmic
@@ -456,20 +456,20 @@ endif
 endif
 	$(CC) -o gmic_use_bridge gmic_use_bridge.c -L. -lgmicbridge
 
-libgmicbridge_s.o: gmic.cpp gmic.h gmic_stdlib.h CImg.h
-	$(CXX) -o libgmicbridge_s.o -c gmic_bridge.cpp $(PIC) $(CFLAGS)
-libgmicbridge_s: libgmicbridge_s.o libgmic.o
+libgmicstaticbridge.o: gmic.cpp gmic.h gmic_stdlib.h CImg.h
+	$(CXX) -o libgmicstaticbridge.o -c gmic_bridge.cpp $(PIC) $(CFLAGS)
+libgmicstaticbridge: libgmicstaticbridge.o libgmic.o
 ifeq ($(OS),Darwin)
-	ar rcs libgmicbridge.a libgmicbridge_s.o
-	$(CXX) -shared -static -o libgmicbridge.so libgmicbridge_s.o libgmic.o $(PIC) $(CFLAGS) $(LIBS)
+	ar rcs libgmicstaticbridge.a libgmicstaticbridge.o
+	$(CXX) -shared -static -o libgmicstaticbridge.so libgmicstaticbridge.o libgmic.o $(PIC) $(CFLAGS) $(LIBS)
 else
 ifeq ($(OS),Windows)
-	$(CXX) -shared -static -Wl,-soname,libgmicbridge.so.1 -o libgmicbridge$(SO) libgmicbridge_s.o libgmic.o $(PIC) -Wl,--output-def,libgmicbridge.def,--out-implib,libgmicbridge.a $(CFLAGS) $(LIBS)
+	$(CXX) -shared -static -Wl,-soname,libgmicstaticbridge.so.1 -o libgmicstaticbridge$(SO) libgmicstaticbridge.o libgmic.o $(PIC) -Wl,--output-def,libgmicstaticbridge.def,--out-implib,libgmicstaticbridge.a $(CFLAGS) $(LIBS)
 else
-	$(CXX) -shared -Wl,-soname,libgmicbridge.so.1 -o libgmicbridge$(SO) libgmicbridge_s.o libgmic.o $(LIBS)
+	$(CXX) -shared -Wl,-soname,libgmicstaticbridge.so.1 -o libgmicstaticbridge$(SO) libgmicstaticbridge.o libgmic.o $(LIBS)
 endif
 endif
-	$(CC) -o gmic_use_bridge gmic_use_bridge.c -L. -lgmicbridge
+	$(CC) -o gmic_use_staticbridge gmic_use_bridge.c -L. -lgmicstaticbridge
 
 gmic_gimp.o: gmic.cpp gmic.h gmic_stdlib.h CImg.h
 	$(CXX) -o gmic_gimp.o -c gmic.cpp -Dgmic_gimp $(CFLAGS)
@@ -614,6 +614,6 @@ uninstall:
 distclean: clean
 
 clean:
-	rm -rf CImg.h gmic_stdlib.h gmic*.o gmic$(EXE) gmic_gimp$(EXE) gmic_use_lib$(EXE) gmic_use_bridge$(EXE) libgmic* *~
+	rm -rf CImg.h gmic_stdlib.h gmic*.o gmic$(EXE) gmic_gimp$(EXE) gmic_use_lib$(EXE) gmic_use_bridge$(EXE) gmic_use_staticbridge$(EXE) libgmic* *~
 
 # End of Makefile.
