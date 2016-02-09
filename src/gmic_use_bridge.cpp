@@ -1,7 +1,7 @@
 /*
  #
- #  File        : gmic_use_bridge.c
- #                ( C source file )
+ #  File        : gmic_use_bridge.cpp
+ #                ( C++ source file )
  #
  #  Description : Show how to call the C bridge to the G'MIC interpreter from a C source code.
  #
