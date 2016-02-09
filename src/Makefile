@@ -466,7 +466,7 @@ else
 ifeq ($(OS),Windows)
 	$(CXX) -shared -static -Wl,-soname,libgmicstaticbridge.so.1 -o libgmicstaticbridge$(SO) libgmicstaticbridge.o libgmic.o $(PIC) -Wl,--output-def,libgmicstaticbridge.def,--out-implib,libgmicstaticbridge.a $(CFLAGS) $(LIBS)
 else
-	$(CXX) -shared -Wl,-soname,libgmicstaticbridge.so.1 -o libgmicstaticbridge$(SO) libgmicstaticbridge.o libgmic.o $(LIBS)
+	$(CXX) -shared -Wl,-soname,libgmicstaticbridge.so.1 -o libgmicstaticbridge$(SO) libgmicstaticbridge.o libgmic.o $(PIC) $(CFLAGS) $(LIBS)
 endif
 endif
 	$(CC) -o gmic_use_staticbridge gmic_use_bridge.c -L. -lgmicstaticbridge
