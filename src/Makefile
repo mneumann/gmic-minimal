@@ -7,7 +7,7 @@
 #                 . the G'MIC command line tool (type 'make cli').
 #                 . the G'MIC plug-in for GIMP (type 'make gimp').
 #                 . the G'MIC interpreter, as a C++ library (type 'make lib').
-#                 . the G'MIC bridge library (type 'make bridge' or 'make staticbridge').
+#                 . the G'MIC C library (type 'make libc' or 'make staticlibc').
 #                 . the ZArt software (type 'make zart').
 #                 . To compile all of them, just type 'make', or 'make all').
 #
@@ -321,40 +321,40 @@ STD_LIB_LIBS += $(OPENMP_LIBS) $(GDI32_LIBS)
 endif
 endif
 
-# Bridge interface: Standard build.
-#-----------------------------------
-STD_BRIDGE_CFLAGS = $(MANDATORY_CFLAGS) $(CIMG_ABORT_CFLAGS) $(PARALLEL_CFLAGS) $(FFTW_CFLAGS) $(CURL_CFLAGS) $(PNG_CFLAGS) $(JPEG_CFLAGS) $(TIFF_CFLAGS)
-STD_BRIDGE_LIBS = $(MANDATORY_LIBS) $(PARALLEL_LIBS) $(FFTW_LIBS) $(CURL_LIBS) $(PNG_LIBS) $(JPEG_LIBS) $(TIFF_LIBS)
+# LibgmicC interface: Standard build.
+#------------------------------------
+STD_LIBC_CFLAGS = $(MANDATORY_CFLAGS) $(CIMG_ABORT_CFLAGS) $(PARALLEL_CFLAGS) $(FFTW_CFLAGS) $(CURL_CFLAGS) $(PNG_CFLAGS) $(JPEG_CFLAGS) $(TIFF_CFLAGS)
+STD_LIBC_LIBS = $(MANDATORY_LIBS) $(PARALLEL_LIBS) $(FFTW_LIBS) $(CURL_LIBS) $(PNG_LIBS) $(JPEG_LIBS) $(TIFF_LIBS)
 ifeq ($(OS),Unix) # Unix.
-STD_BRIDGE_CFLAGS += $(OPENMP_CFLAGS) $(X11_CFLAGS)
-STD_BRIDGE_LIBS += $(OPENMP_LIBS) $(X11_LIBS)
+STD_LIBC_CFLAGS += $(OPENMP_CFLAGS) $(X11_CFLAGS)
+STD_LIBC_LIBS += $(OPENMP_LIBS) $(X11_LIBS)
 else
 ifeq ($(OS),Darwin) # MacOSX.
-STD_BRIDGE_CFLAGS += $(X11_CFLAGS)
-STD_BRIDGE_LIBS += $(X11_LIBS) $(OPT_LIBS)
+STD_LIBC_CFLAGS += $(X11_CFLAGS)
+STD_LIBC_LIBS += $(X11_LIBS) $(OPT_LIBS)
 else # Windows.
-STD_BRIDGE_CFLAGS += $(OPENMP_CFLAGS) $(GDI32_CFLAGS)
-STD_BRIDGE_LIBS += $(OPENMP_LIBS) $(GDI32_LIBS)
+STD_LIBC_CFLAGS += $(OPENMP_CFLAGS) $(GDI32_CFLAGS)
+STD_LIBC_LIBS += $(OPENMP_LIBS) $(GDI32_LIBS)
 endif
 endif
 
-# Bridge interface: Static build.
+# LibgmicC interface: Static build.
 #---------------------------------
-STATIC_BRIDGE_CFLAGS = $(MANDATORY_CFLAGS) $(CIMG_ABORT_CFLAGS) $(PARALLEL_CFLAGS) $(FFTW_CFLAGS) $(PNG_CFLAGS) $(JPEG_CFLAGS) # $(CURL_CFLAGS) $(TIFF_CFLAGS)
+STATIC_LIBC_CFLAGS = $(MANDATORY_CFLAGS) $(CIMG_ABORT_CFLAGS) $(PARALLEL_CFLAGS) $(FFTW_CFLAGS) $(PNG_CFLAGS) $(JPEG_CFLAGS) # $(CURL_CFLAGS) $(TIFF_CFLAGS)
 ifeq ($(OS),Window)
-STATIC_BRIDGE_LIBS = -static -lpthread
+STATIC_LIBC_LIBS = -static -lpthread
 endif
-STATIC_BRIDGE_LIBS += $(MANDATORY_LIBS) $(PARALLEL_LIBS) $(FFTW_LIBS) $(PNG_LIBS) $(JPEG_LIBS) # $(CURL_LIBS) $(TIFF_LIBS)
+STATIC_LIBC_LIBS += $(MANDATORY_LIBS) $(PARALLEL_LIBS) $(FFTW_LIBS) $(PNG_LIBS) $(JPEG_LIBS) # $(CURL_LIBS) $(TIFF_LIBS)
 ifeq ($(OS),Unix) # Unix.
-STATIC_BRIDGE_CFLAGS += $(OPENMP_CFLAGS) $(X11_CFLAGS)
-STATIC_BRIDGE_LIBS += $(OPENMP_LIBS) $(X11_LIBS)
+STATIC_LIBC_CFLAGS += $(OPENMP_CFLAGS) $(X11_CFLAGS)
+STATIC_LIBC_LIBS += $(OPENMP_LIBS) $(X11_LIBS)
 else
 ifeq ($(OS),Darwin) # MacOSX.
-STATIC_BRIDGE_CFLAGS += $(X11_CFLAGS)
-STATIC_BRIDGE_LIBS += $(X11_LIBS) $(OPT_LIBS)
+STATIC_LIBC_CFLAGS += $(X11_CFLAGS)
+STATIC_LIBC_LIBS += $(X11_LIBS) $(OPT_LIBS)
 else # Windows.
-STATIC_BRIDGE_CFLAGS += $(OPENMP_CFLAGS) $(GDI32_CFLAGS)
-STATIC_BRIDGE_LIBS += $(OPENMP_LIBS) $(GDI32_LIBS)
+STATIC_LIBC_CFLAGS += $(OPENMP_CFLAGS) $(GDI32_CFLAGS)
+STATIC_LIBC_LIBS += $(OPENMP_LIBS) $(GDI32_LIBS)
 endif
 endif
 
@@ -373,13 +373,13 @@ ifeq ($(OS),Unix)
 	@echo "**"
 	@echo "** Start building G'MIC with default Unix configuration."
 	@echo "**"
-	$(MAKE) cli gimp lib bridge zart
+	$(MAKE) cli gimp lib libc zart
 else
 ifeq ($(OS),Darwin)
 	@echo "**"
 	@echo "** Start building G'MIC with default MacOSX configuration."
 	@echo "**"
-	$(MAKE) cli gimp lib bridge zart
+	$(MAKE) cli gimp lib libc zart
 else
 	@echo "**"
 	@echo "** Start building G'MIC with default Windows configuration."
@@ -404,8 +404,8 @@ gimp:
 lib:
 	$(MAKE) "CFLAGS+=$(STD_LIB_CFLAGS) $(OPT_CFLAGS)" "LIBS+=$(STD_LIB_LIBS)" libgmic
 
-bridge:
-	$(MAKE) "CFLAGS+=$(STD_BRIDGE_CFLAGS) $(OPT_CFLAGS)" "LIBS+=$(STD_BRIDGE_LIBS)" libgmicbridge
+libc:
+	$(MAKE) "CFLAGS+=$(STD_LIBC_CFLAGS) $(OPT_CFLAGS)" "LIBS+=$(STD_LIBC_LIBS)" libcgmic
 
 gmicol:
 	$(MAKE) "CFLAGS+=$(STD_GMICOL_CFLAGS) $(OPT_CFLAGS)" "LIBS+=$(STD_GMICOL_LIBS)" gmic
@@ -415,8 +415,8 @@ static:
 	$(MAKE) "CFLAGS+=$(STATIC_CLI_CFLAGS) $(OPT_CFLAGS)" "LIBS+=$(STATIC_CLI_LIBS)" gmic
 	$(STRIP) gmic$(EXE)
 
-staticbridge:
-	$(MAKE) "CFLAGS+=$(STATIC_BRIDGE_CFLAGS) $(OPT_CFLAGS)" "LIBS+=$(STATIC_BRIDGE_LIBS)" libgmicstaticbridge
+staticlibc:
+	$(MAKE) "CFLAGS+=$(STATIC_LIBC_CFLAGS) $(OPT_CFLAGS)" "LIBS+=$(STATIC_LIBC_LIBS)" libcgmicstatic
 
 debug:
 	$(MAKE) "CFLAGS+=$(STD_CLI_CFLAGS) $(DEBUG_CFLAGS)" "LIBS+=$(STD_CLI_LIBS)" gmic
@@ -441,35 +441,35 @@ else
 	$(CXX) -o gmic_use_lib gmic_use_lib.cpp -L. -lgmic $(LIBS)
 endif
 
-libgmicbridge.o: gmic.cpp gmic.h gmic_stdlib.h CImg.h
-	$(CXX) -o libgmicbridge.o -c gmic_bridge.cpp $(PIC) $(CFLAGS)
-libgmicbridge: libgmicbridge.o libgmic.o
+libcgmic.o: gmic.cpp gmic.h gmic_stdlib.h CImg.h
+	$(CXX) -o libcgmic.o -c gmic_libc.cpp $(PIC) $(CFLAGS)
+libcgmic: libcgmic.o libgmic.o
 ifeq ($(OS),Darwin)
-	ar rcs libgmicbridge.a libgmicbridge.o
-	$(CXX) -shared -o libgmicbridge.so libgmicbridge.o libgmic.o $(LIBS)
+	ar rcs libcgmic.a libcgmic.o
+	$(CXX) -shared -o libcgmic.so libcgmic.o libgmic.o $(LIBS)
 else
 ifeq ($(OS),Windows)
-	$(CXX) -shared -Wl,-soname,libgmicbridge.so.1 -o libgmicbridge$(SO) libgmicbridge.o libgmic.o -Wl,--output-def,libgmicbridge.def,--out-implib,libgmicbridge.a $(LIBS)
+	$(CXX) -shared -Wl,-soname,libcgmic.so.1 -o libcgmic$(SO) libcgmic.o libgmic.o -Wl,--output-def,libcgmic.def,--out-implib,libcgmic.a $(LIBS)
 else
-	$(CXX) -shared -Wl,-soname,libgmicbridge.so.1 -o libgmicbridge$(SO) libgmicbridge.o libgmic.o $(LIBS)
+	$(CXX) -shared -Wl,-soname,libcgmic.so.1 -o libcgmic$(SO) libcgmic.o libgmic.o $(LIBS)
 endif
 endif
-	$(CC) -std=c99 -o gmic_use_bridge gmic_use_bridge.c -L. -lgmicbridge
+	$(CC) -std=c99 -o gmic_use_libc gmic_use_libc.c -L. -lcgmic
 
-libgmicstaticbridge.o: gmic.cpp gmic.h gmic_stdlib.h CImg.h
-	$(CXX) -o libgmicstaticbridge.o -c gmic_bridge.cpp $(PIC) $(CFLAGS)
-libgmicstaticbridge: libgmicstaticbridge.o libgmic.o
+libcgmicstatic.o: gmic.cpp gmic.h gmic_stdlib.h CImg.h
+	$(CXX) -o libcgmicstatic.o -c gmic_libc.cpp $(PIC) $(CFLAGS)
+libcgmicstatic: libcgmicstatic.o libgmic.o
 ifeq ($(OS),Darwin)
-	ar rcs libgmicstaticbridge.a libgmicstaticbridge.o
-	$(CXX) -shared -static -o libgmicstaticbridge.so libgmicstaticbridge.o libgmic.o $(PIC) $(CFLAGS) $(LIBS)
+	ar rcs libcgmicstatic.a libcgmicstatic.o
+	$(CXX) -shared -static -o libcgmicstatic.so libcgmicstatic.o libgmic.o $(PIC) $(CFLAGS) $(LIBS)
 else
 ifeq ($(OS),Windows)
-	$(CXX) -shared -static -Wl,-soname,libgmicstaticbridge.so.1 -o libgmicstaticbridge$(SO) libgmicstaticbridge.o libgmic.o $(PIC) -Wl,--output-def,libgmicstaticbridge.def,--out-implib,libgmicstaticbridge.a $(CFLAGS) $(LIBS)
+	$(CXX) -shared -static -Wl,-soname,libcgmicstatic.so.1 -o libcgmicstatic$(SO) libcgmicstatic.o libgmic.o $(PIC) -Wl,--output-def,libcgmicstatic.def,--out-implib,libcgmicstatic.a $(CFLAGS) $(LIBS)
 else
-	$(CXX) -shared -Wl,-soname,libgmicstaticbridge.so.1 -o libgmicstaticbridge$(SO) libgmicstaticbridge.o libgmic.o $(PIC) $(CFLAGS) $(LIBS)
+	$(CXX) -shared -Wl,-soname,libcgmicstatic.so.1 -o libcgmicstatic$(SO) libcgmicstatic.o libgmic.o $(PIC) $(CFLAGS) $(LIBS)
 endif
 endif
-	$(CC) -std=c99 -o gmic_use_staticbridge gmic_use_bridge.c -L. -lgmicstaticbridge
+	$(CC) -std=c99 -o gmic_use_libcstatic gmic_use_libc.c -L. -lcgmicstatic
 
 gmic_gimp.o: gmic.cpp gmic.h gmic_stdlib.h CImg.h
 	$(CXX) -o gmic_gimp.o -c gmic.cpp -Dgmic_gimp $(CFLAGS)
@@ -576,7 +576,7 @@ install:
 	cp -f gmic $(DESTDIR)$(USR)/$(BIN)/
 	mkdir -p $(DESTDIR)$(USR)/$(INCLUDE)/
 	cp -f gmic.h $(DESTDIR)$(USR)/$(INCLUDE)/
-	cp -f gmic_bridge.h $(DESTDIR)$(USR)/$(INCLUDE)/
+	cp -f gmic_libc.h $(DESTDIR)$(USR)/$(INCLUDE)/
 
 ifneq ($(OS),Darwin)
 	mkdir -p $(DESTDIR)$(USR)/share
@@ -584,9 +584,9 @@ ifneq ($(OS),Darwin)
 	cp -f libgmic.so $(DESTDIR)$(USR)/$(LIB)/libgmic.so._gmic_versio3
 	ln -fs libgmic.so._gmic_versio3 $(DESTDIR)$(USR)/$(LIB)/libgmic.so._gmic_versio1
 	ln -fs libgmic.so._gmic_versio1 $(DESTDIR)$(USR)/$(LIB)/libgmic.so
-	cp -f libgmicbridge.so $(DESTDIR)$(USR)/$(LIB)/libgmicbridge.so._gmic_versio3
-	ln -fs libgmicbridge.so._gmic_versio3 $(DESTDIR)$(USR)/$(LIB)/libgmicbridge.so._gmic_versio1
-	ln -fs libgmicbridge.so._gmic_versio1 $(DESTDIR)$(USR)/$(LIB)/libgmicbridge.so
+	cp -f libcgmic.so $(DESTDIR)$(USR)/$(LIB)/libcgmic.so._gmic_versio3
+	ln -fs libcgmic.so._gmic_versio3 $(DESTDIR)$(USR)/$(LIB)/libcgmic.so._gmic_versio1
+	ln -fs libcgmic.so._gmic_versio1 $(DESTDIR)$(USR)/$(LIB)/libcgmic.so
 	cp -f ../zart/zart $(DESTDIR)$(USR)/$(BIN)/
 endif
 	mkdir -p $(DESTDIR)$(USR)/share/man/
@@ -604,9 +604,9 @@ uninstall:
 	rm -f $(DESTDIR)$(USR)/$(LIB)/libgmic.so._gmic_versio3
 	rm -f $(DESTDIR)$(USR)/$(LIB)/libgmic.so._gmic_versio1
 	rm -f $(DESTDIR)$(USR)/$(LIB)/libgmic.so
-	rm -f $(DESTDIR)$(USR)/$(LIB)/libgmicbridge.so._gmic_versio3
-	rm -f $(DESTDIR)$(USR)/$(LIB)/libgmicbridge.so._gmic_versio1
-	rm -f $(DESTDIR)$(USR)/$(LIB)/libgmicbridge$(SO)
+	rm -f $(DESTDIR)$(USR)/$(LIB)/libcgmic.so._gmic_versio3
+	rm -f $(DESTDIR)$(USR)/$(LIB)/libcgmic.so._gmic_versio1
+	rm -f $(DESTDIR)$(USR)/$(LIB)/libcgmic$(SO)
 	rm -rf $(DESTDIR)$(USR)/share/doc/gmic/
 	rm -f $(DESTDIR)$(USR)/share/man/man1/gmic.1.gz
 	rm -f $(DESTDIR)$(USR)/share/man/fr/man1/gmic.1.gz
@@ -614,6 +614,6 @@ uninstall:
 distclean: clean
 
 clean:
-	rm -rf CImg.h gmic_stdlib.h gmic*.o gmic$(EXE) gmic_gimp$(EXE) gmic_use_lib$(EXE) gmic_use_bridge$(EXE) gmic_use_staticbridge$(EXE) libgmic* *~
+	rm -rf CImg.h gmic_stdlib.h gmic*.o gmic$(EXE) gmic_gimp$(EXE) gmic_use_lib$(EXE) gmic_use_libc(EXE) gmic_use_libcstatic(EXE) libgmic* *~
 
 # End of Makefile.
