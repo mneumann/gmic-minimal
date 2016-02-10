@@ -1,6 +1,6 @@
 /*
  #
- #  File        : gmic_bridge.cpp
+ #  File        : gmic_libc.cpp
  #                ( C++ source file )
  #
  #  Description : GREYC's Magic for Image Computing - C bridge to the libgmic
@@ -39,7 +39,7 @@
  #  knowledge of the CeCILL license and that you accept its terms.
  #
 */
-#include "gmic_bridge.h"
+#include "gmic_libc.h"
 #include "gmic.h"
 
 GMIC_DLLINTERFACE int GMIC_CALLCONV gmic_delete_external(float* p) {

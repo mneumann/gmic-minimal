@@ -1,14 +1,14 @@
 /*
  #
- #  File        : gmic_bridge.h
- #                ( C header file )
+ #  File        : gmic_libc.h
+ #                ( C++ header file )
  #
  #  Description : GREYC's Magic for Image Computing
  #                ( http://gmic.eu )
  #
  #  Note        : Include this file in your C source code, if you
  #                want to use the G'MIC interpreter in your own program,
- #                through the C bridge to the libgmic.
+ #                through the C bridge to the G'MIC library.
  #
  #  Copyright   : Tobias Fleischer
  #                ( https://plus.google.com/u/0/b/117441237982283011318/+TobiasFleischer )
@@ -43,8 +43,8 @@
  #  knowledge of the CeCILL license and that you accept its terms.
  #
 */
-#ifndef _GMIC_BRIDGE_H_
-#define _GMIC_BRIDGE_H_
+#ifndef _GMIC_LIBC_H_
+#define _GMIC_LIBC_H_
 #include <stdbool.h>
 
 #if defined(WIN32) || defined(_WIN32)
@@ -96,4 +96,4 @@ GMIC_DLLINTERFACE int GMIC_CALLCONV gmic_delete_external(float* p);
 GMIC_DLLINTERFACE int GMIC_CALLCONV gmic_call(const char* _cmd, unsigned int* _nofImages, gmic_bridge_image* _images,
                                               gmic_bridge_options* _options);
 
-#endif // #ifndef _GMIC_BRIDGE_H
+#endif // #ifndef _GMIC_LIBC_H
