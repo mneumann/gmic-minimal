@@ -432,13 +432,13 @@ endif
 
 libgmic.o: gmic.cpp gmic.h gmic_stdlib.h CImg.h
 	$(CXX) -o libgmic.o -c gmic.cpp $(PIC) $(CFLAGS)
-libgmic: libgmic.o gmic_use_lib.cpp
+libgmic: libgmic.o use_libgmic.cpp
 	ar rcs libgmic.a libgmic.o
 ifeq ($(OS),Darwin)
 	$(CXX) -shared -o libgmic.so libgmic.o $(LIBS)
 else
 	$(CXX) -shared -Wl,-soname,libgmic.so.1 -o libgmic.so libgmic.o $(LIBS)
-	$(CXX) -o gmic_use_lib gmic_use_lib.cpp -L. -lgmic $(LIBS)
+	$(CXX) -o use_libgmic use_libgmic.cpp -L. -lgmic $(LIBS)
 endif
 
 libcgmic.o: gmic.cpp gmic.h gmic_stdlib.h CImg.h
@@ -454,7 +454,7 @@ else
 	$(CXX) -shared -Wl,-soname,libcgmic.so.1 -o libcgmic$(SO) libcgmic.o libgmic.o $(LIBS)
 endif
 endif
-	$(CC) -std=c99 -o gmic_use_libc gmic_use_libc.c -L. -lcgmic
+	$(CC) -std=c99 -o use_libcgmic use_libcgmic.c -L. -lcgmic
 
 libcgmicstatic.o: gmic.cpp gmic.h gmic_stdlib.h CImg.h
 	$(CXX) -o libcgmicstatic.o -c gmic_libc.cpp $(PIC) $(CFLAGS)
@@ -469,7 +469,7 @@ else
 	$(CXX) -shared -Wl,-soname,libcgmicstatic.so.1 -o libcgmicstatic$(SO) libcgmicstatic.o libgmic.o $(PIC) $(CFLAGS) $(LIBS)
 endif
 endif
-	$(CC) -std=c99 -o gmic_use_libcstatic gmic_use_libc.c -L. -lcgmicstatic
+	$(CC) -std=c99 -o use_libcgmic_static use_libcgmic.c -L. -lcgmicstatic
 
 gmic_gimp.o: gmic.cpp gmic.h gmic_stdlib.h CImg.h
 	$(CXX) -o gmic_gimp.o -c gmic.cpp -Dgmic_gimp $(CFLAGS)
@@ -614,6 +614,6 @@ uninstall:
 distclean: clean
 
 clean:
-	rm -rf CImg.h gmic_stdlib.h gmic*.o gmic$(EXE) gmic_gimp$(EXE) gmic_use_lib$(EXE) gmic_use_libc$(EXE) gmic_use_libcstatic$(EXE) libgmic* libcgmic* *~
+	rm -rf CImg.h gmic_stdlib.h gmic*.o gmic$(EXE) gmic_gimp$(EXE) use_libgmic$(EXE) use_libcgmic$(EXE) use_libcgmic_static$(EXE) libgmic* libcgmic* *~
 
 # End of Makefile.
