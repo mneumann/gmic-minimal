@@ -1,9 +1,10 @@
 /*
  #
- #  File        : gmic_use_lib.cpp
+ #  File        : use_libgmic.cpp
  #                ( C++ source file )
  #
- #  Description : Show how to call the G'MIC interpreter from a C++ source code.
+ #  Description : Show how to call the C++ version of the G'MIC library from a C++ source code.
+ #                (for a C API, see 'use_libcgmic.c' instead)
  #
  #  Copyright   : David Tschumperle
  #                ( http://tschumperle.users.greyc.fr/ )
@@ -42,7 +43,7 @@
 /*
     Note : To compile this example, using g++, use :
 
-    g++ -o gmic_use_lib gmic_use_lib.cpp -lgmic -lfftw3
+    g++ -o use_libgmic use_libgmic.cpp -lgmic -lfftw3
 */
 
 /*
