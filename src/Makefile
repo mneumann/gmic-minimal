@@ -614,6 +614,6 @@ uninstall:
 distclean: clean
 
 clean:
-	rm -rf CImg.h gmic_stdlib.h gmic*.o gmic$(EXE) gmic_gimp$(EXE) gmic_use_lib$(EXE) gmic_use_libc$(EXE) gmic_use_libcstatic$(EXE) libgmic* *~
+	rm -rf CImg.h gmic_stdlib.h gmic*.o gmic$(EXE) gmic_gimp$(EXE) gmic_use_lib$(EXE) gmic_use_libc$(EXE) gmic_use_libcstatic$(EXE) libgmic* libcgmic* *~
 
 # End of Makefile.
