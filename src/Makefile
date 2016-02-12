@@ -477,7 +477,7 @@ gmic_gimp.o: gmic.cpp gmic.h gmic_stdlib.h CImg.h
 gmic_gimp: gmic_gimp.o gmic_gimp.cpp
 ifeq ($(OS),Darwin)
 ifeq (,$(wildcard /tmp/skl))
-	$(CXX) -o gmic_gimp gmic_gimp.cpp gmic_gimp.o -Dgmic_gimp `gimptool-2.0$(EXE) --cflags` `gimptool-2.0$(EXE) --libs` $(CFLAGS) $(LIBS)
+	$(CXX) -o gmic_gimp gmic_gimp.cpp gmic_gimp.o -Dgmic_gimp `gimptool-2.0$(EXE) --cflags` $(subst -L/opt/local,-L/tmp/skl/Gimp.app/Contents/Resources,$(shell gimptool-2.0$(EXE) --libs) $(CFLAGS) $(LIBS))
 else
 	$(CXX) -o gmic_gimp gmic_gimp.cpp gmic_gimp.o -Dgmic_gimp `gimptool-2.0$(EXE) --cflags` $(subst /opt/local,/tmp/skl/Gimp.app/Contents/Resources,$(shell gimptool-2.0$(EXE) --libs) $(CFLAGS) $(LIBS))
 endif
