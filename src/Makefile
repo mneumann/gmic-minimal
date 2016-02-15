@@ -366,8 +366,9 @@ endif
 
 # G'MIC Online interface: Standard build.
 #----------------------------------------
+GMICOL_LIB_PATH = /usr/lib/x86_64-linux-gnu/
 GMICOL_CFLAGS = $(MANDATORY_CFLAGS) $(PARALLEL_CFLAGS) $(FFTW_CFLAGS) $(PNG_CFLAGS) $(JPEG_CFLAGS) $(ZLIB_CFLAGS) -Dcimg_display=0
-GMICOL_LIBS = $(MANDATORY_LIBS) $(PARALLEL_LIBS) $(PNG_LIBS) $(JPEG_LIBS) $(ZLIB_LIBS) /usr/lib/x86_64-linux-gnu/libfftw3.a /usr/lib/x86_64-linux-gnu/libfftw3_threads.a
+GMICOL_LIBS = $(MANDATORY_LIBS) $(PARALLEL_LIBS) $(PNG_LIBS) $(JPEG_LIBS) $(ZLIB_LIBS) $(GMICOL_LIB_PATH)/libfftw3.a $(GMICOL_LIB_PATH)/libfftw3_threads.a
 
 #--------------------------
 # Define Makefile entries.
