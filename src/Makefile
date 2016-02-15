@@ -144,7 +144,7 @@ DEBUG_CFLAGS = -ansi -pedantic -Dcimg_verbosity=3 -g -fsanitize=address # -fsani
 
 # Flags to enable optimizations.
 ifeq ($(notdir $(CXX)),g++)
-OPT_CFLAGS = -O3 -mtune=generic
+OPT_CFLAGS = -O3 -mtune=generic # -Ofast -march=native
 else
 ifeq ($(notdir $(CXX)),icpc)
 OPT_CFLAGS = -fast
@@ -405,8 +405,15 @@ ifeq ($(OS),Darwin)
 	$(STRIP) gmic
 endif
 
+debug:
+	$(MAKE) "CFLAGS+=$(GMIC_CLI_CFLAGS) $(DEBUG_CFLAGS)" "LIBS+=$(GMIC_CLI_LIBS)" gmic
+
 gimp:
 	$(MAKE) "CFLAGS+=$(GMIC_GIMP_CFLAGS) $(OPT_CFLAGS)" "LIBS+=$(GMIC_GIMP_LIBS)" gmic_gimp
+
+gmicol:
+	$(MAKE) "CFLAGS+=$(GMICOL_CFLAGS) $(OPT_CFLAGS)" "LIBS+=$(GMICOL_LIBS)" gmic
+	$(STRIP) gmic$(EXE)
 
 lib:
 	$(MAKE) "CFLAGS+=$(GMIC_LIB_CFLAGS) $(OPT_CFLAGS)" "LIBS+=$(GMIC_LIB_LIBS)" libgmic
@@ -414,8 +421,8 @@ lib:
 libc:
 	$(MAKE) "CFLAGS+=$(GMIC_LIBC_CFLAGS) $(OPT_CFLAGS)" "LIBS+=$(GMIC_LIBC_LIBS)" libcgmic
 
-gmicol:
-	$(MAKE) "CFLAGS+=$(GMICOL_CFLAGS) $(OPT_CFLAGS)" "LIBS+=$(GMICOL_LIBS)" gmic
+native:
+	$(MAKE) "CFLAGS+=$(GMIC_CLI_CFLAGS) -Ofast -march=native" "LIBS+=$(GMIC_CLI_LIBS)" cli gimp
 	$(STRIP) gmic$(EXE)
 
 static:
@@ -424,9 +431,6 @@ static:
 
 staticlibc:
 	$(MAKE) "CFLAGS+=$(GMIC_STATIC_LIBC_CFLAGS) $(OPT_CFLAGS)" "LIBS+=$(GMIC_STATIC_LIBC_LIBS)" libcgmicstatic
-
-debug:
-	$(MAKE) "CFLAGS+=$(GMIC_CLI_CFLAGS) $(DEBUG_CFLAGS)" "LIBS+=$(GMIC_CLI_LIBS)" gmic
 
 zart:
 ifeq ($(OS),Darwin)
