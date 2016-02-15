@@ -46,21 +46,47 @@
 #  knowledge of the CeCILL license and that you accept its terms.
 #
 
-#----------------------------------
-# Set correct variables and paths.
-#----------------------------------
+#---------------------------
+# Set OS-specific variables.
+#---------------------------
+
+# Try to auto-detect target OS.
 OS := $(shell uname)
+USR = /usr
+LIB = lib
+BIN = bin
+INCLUDE = include
 SO = .so
 PIC = -fPIC
+EXE =
+WGET = wget --no-check-certificate --quiet -O
+PLUGINDIR = `gimptool-2.0 --gimpplugindir`/plug-ins
+
 ifeq ($(OS),Linux)
 OS = Unix
 endif
+
 ifeq ($(OS),GNU/kFreeBSD)
 OS = Unix
 endif
+
 ifeq ($(OS),GNU)
 OS = Unix
 endif
+
+ifeq ($(OS),FreeBSD)
+OS = Unix
+USR = /usr/local
+endif
+
+ifeq ($(OS),NetBSD)
+OS = Unix
+endif
+
+ifneq (, $(findstring MINGW, $(OS)))
+OS = Windows
+endif
+
 ifeq ($(OS),Darwin)
 PLUGINDIR = ~/Library/Application\ Support/Gimp/plug-ins
 ifeq (,$(wildcard /opt/local))
@@ -69,48 +95,28 @@ else
 USR = /opt/local
 endif
 WGET = curl -k -L --silent -o
-else
-PLUGINDIR = `gimptool-2.0 --gimpplugindir`/plug-ins
-USR = /usr
-WGET = wget --no-check-certificate --quiet -O
 endif
-ifeq ($(OSTYPE),msys)
-OS = Windows
+
+ifeq ($(OS),Windows)
 EXE = .exe
 SO = .dll
 PIC =
 endif
-SYS := $(shell gcc -dumpmachine)
-ifneq (, $(findstring mingw, $(SYS)))
-OS = Windows
-EXE = .exe
-SO = .dll
-PIC =
-endif
-ifeq ($(OS),FreeBSD)
-OS = Unix
-USR = /usr/local
-endif
-ifeq ($(OS),NetBSD)
-OS = Unix
-endif
-LIB=lib
-BIN=bin
-INCLUDE=include
+
 ifdef NOSTRIP
-STRIP=echo skip strip
+STRIP = echo skip strip
 else
-STRIP=strip
+STRIP = strip
 endif
 
-#----------------------------------
-# Define flags to customize builds.
-#----------------------------------
+#-------------------------------------------------
+# Define custom flags for each different features.
+#-------------------------------------------------
 
-# Flags to describe a 'prerelease' version.
+# Flags set to describe a 'prerelease' version.
 PRERELEASE_CFLAGS = -Dgmic_prerelease="\\\"`date +%m%d%y`\\\""
 
-# Flags that are mandatory to compile 'gmic'.
+# Minimal set of flags that is mandatory to compile G'MIC.
 MANDATORY_CFLAGS = -Dgmic_build -Dcimg_use_zlib `pkg-config --cflags zlib || echo -I$(USR)/$(INCLUDE)` $(PRERELEASE_CFLAGS)
 MANDATORY_LIBS = `pkg-config --libs zlib || echo -lz`
 ifndef NO_SRIPDLIB
@@ -133,7 +139,7 @@ ifeq ($(OS),Windows)
 MANDATORY_LIBS += -Wl,--stack,16777216
 endif
 
-# Flags to enable debugging.
+# Flags to enable software debugging (slow down the code!).
 DEBUG_CFLAGS = -ansi -pedantic -Dcimg_verbosity=3 -g -fsanitize=address # -fsanitize=thread # -fsanitize=undefined #
 
 # Flags to enable optimizations.
@@ -155,14 +161,14 @@ endif
 
 # Flags to enable extra checking of image buffer pointers.
 ifneq ($(OS),Darwin)
-CHECKIMAGE_CFLAGS = -Dgmic_check_image
+CHECKIMAGE_CFLAGS = # -Dgmic_check_image
 endif
 
-# Flags to enable more cancellation points in CImg library methods.
+# Flags to enable cancellation points in CImg library methods.
 # (may slow down the code a little bit).
-CIMG_ABORT_CFLAGS = -Dcimg_use_abort
+ABORT_CFLAGS = -Dcimg_use_abort
 
-# Flags to enable parallelization using OpenMP.
+# Flags to enable parallelization of image processing algorithms, using OpenMP.
 OPENMP_CFLAGS = -fopenmp -Dcimg_use_openmp
 OPENMP_LIBS = -lgomp
 
@@ -187,7 +193,7 @@ XSHM_CFLAGS = -Dcimg_use_xshm `pkg-config --cflags xcb-shm`
 XSHM_LIBS = `pkg-config --libs xcb-shm || echo -L$(USR)/X11R6/lib -lXext`
 
 # Flags to enable image display, using GDI32.
-# This requires the presence of the GDI32 include and library files.
+# This requires the presence of the GDI32 include and library files (Windows only).
 GDI32_CFLAGS = -Dcimg_display=2 -Dcimg_appname=\\\"gmic\\\"
 GDI32_LIBS = -lgdi32
 
@@ -260,108 +266,108 @@ BOARD_LIBS = -lboard
 
 # CLI interface: Standard build.
 #-------------------------------
-STD_CLI_CFLAGS = $(MANDATORY_CFLAGS) $(CIMG_ABORT_CFLAGS) $(PARALLEL_CFLAGS) $(FFTW_CFLAGS) $(CURL_CFLAGS) $(PNG_CFLAGS) $(JPEG_CFLAGS) $(TIFF_CFLAGS)
-STD_CLI_LIBS = $(MANDATORY_LIBS) $(PARALLEL_LIBS) $(FFTW_LIBS) $(CURL_LIBS) $(PNG_LIBS) $(JPEG_LIBS) $(TIFF_LIBS)
+GMIC_CLI_CFLAGS = $(MANDATORY_CFLAGS) $(ABORT_CFLAGS) $(PARALLEL_CFLAGS) $(FFTW_CFLAGS) $(CURL_CFLAGS) $(PNG_CFLAGS) $(JPEG_CFLAGS) $(TIFF_CFLAGS)
+GMIC_CLI_LIBS = $(MANDATORY_LIBS) $(PARALLEL_LIBS) $(FFTW_LIBS) $(CURL_LIBS) $(PNG_LIBS) $(JPEG_LIBS) $(TIFF_LIBS)
 ifeq ($(OS),Unix) # Unix.
-STD_CLI_CFLAGS += $(OPENMP_CFLAGS) $(X11_CFLAGS) $(EXR_CFLAGS) $(OPENCV_CFLAGS) # $(XSHM_CFLAGS) $(MAGICK_CFLAGS)
-STD_CLI_LIBS += $(OPENMP_LIBS) $(X11_LIBS) $(EXR_LIBS) $(OPENCV_LIBS) # $(XSHM_LIBS) # $(MAGICK_LIBS)
+GMIC_CLI_CFLAGS += $(OPENMP_CFLAGS) $(X11_CFLAGS) $(EXR_CFLAGS) $(OPENCV_CFLAGS) # $(XSHM_CFLAGS) $(MAGICK_CFLAGS)
+GMIC_CLI_LIBS += $(OPENMP_LIBS) $(X11_LIBS) $(EXR_LIBS) $(OPENCV_LIBS) # $(XSHM_LIBS) # $(MAGICK_LIBS)
 else
 ifeq ($(OS),Darwin) # MacOSX.
-STD_CLI_CFLAGS += $(X11_CFLAGS) $(EXR_CFLAGS)
-STD_CLI_LIBS += $(X11_LIBS) $(EXR_LIBS) $(OPT_LIBS)
+GMIC_CLI_CFLAGS += $(X11_CFLAGS) $(EXR_CFLAGS)
+GMIC_CLI_LIBS += $(X11_LIBS) $(EXR_LIBS) $(OPT_LIBS)
 else # Windows.
-STD_CLI_CFLAGS += $(OPENMP_CFLAGS) $(GDI32_CFLAGS) $(OPENCV_CFLAGS)
-STD_CLI_LIBS += $(OPENMP_LIBS) $(GDI32_LIBS) $(OPENCV_LIBS)
+GMIC_CLI_CFLAGS += $(OPENMP_CFLAGS) $(GDI32_CFLAGS) $(OPENCV_CFLAGS)
+GMIC_CLI_LIBS += $(OPENMP_LIBS) $(GDI32_LIBS) $(OPENCV_LIBS)
 endif
 endif
 
 # CLI interface: Static build.
 #-----------------------------
-STATIC_CLI_PATH = $(USR)/${LIB}/x86_64-linux-gnu
-STATIC_CLI_EXTRA =
-STATIC_CLI_CFLAGS = $(MANDATORY_CFLAGS) $(CIMG_ABORT_CFLAGS) $(PARALLEL_CFLAGS) $(ZLIB_CFLAGS) $(FFTW_CFLAGS) $(PNG_CFLAGS) $(JPEG_CFLAGS) -Dcimg_display=0
-STATIC_CLI_LIBS = $(PARALLEL_LIBS) \
-	          $(STATIC_CLI_PATH)/libpng.a \
-	          $(STATIC_CLI_PATH)/libjpeg.a \
-                  $(STATIC_CLI_PATH)/libz.a \
-                  $(STATIC_CLI_PATH)/libfftw3.a $(STATIC_CLI_PATH)/libfftw3_threads.a \
-	          $(STATIC_CLI_EXTRA)
+GMIC_STATIC_CLI_PATH = $(USR)/${LIB}/x86_64-linux-gnu
+GMIC_STATIC_CLI_EXTRA =
+GMIC_STATIC_CLI_CFLAGS = $(MANDATORY_CFLAGS) $(ABORT_CFLAGS) $(PARALLEL_CFLAGS) $(ZLIB_CFLAGS) $(FFTW_CFLAGS) $(PNG_CFLAGS) $(JPEG_CFLAGS) -Dcimg_display=0
+GMIC_STATIC_CLI_LIBS = $(PARALLEL_LIBS) \
+	               $(GMIC_STATIC_CLI_PATH)/libpng.a \
+	               $(GMIC_STATIC_CLI_PATH)/libjpeg.a \
+                       $(GMIC_STATIC_CLI_PATH)/libz.a \
+                       $(GMIC_STATIC_CLI_PATH)/libfftw3.a $(GMIC_STATIC_CLI_PATH)/libfftw3_threads.a \
+	               $(GMIC_STATIC_CLI_EXTRA)
 
-# GIMP interface: Standard build.
-#--------------------------------
-STD_GIMP_CFLAGS = $(MANDATORY_CFLAGS) $(CIMG_ABORT_CFLAGS) $(PARALLEL_CFLAGS) $(FFTW_CFLAGS) $(CURL_CFLAGS) $(PNG_CFLAGS) -Dcimg_use_rng
-STD_GIMP_LIBS = $(MANDATORY_LIBS) $(PARALLEL_LIBS) $(FFTW_LIBS) $(CURL_LIBS) $(PNG_LIBS)
+# GIMP plug-in interface: Standard build.
+#----------------------------------------
+GMIC_GIMP_CFLAGS = $(MANDATORY_CFLAGS) $(ABORT_CFLAGS) $(PARALLEL_CFLAGS) $(FFTW_CFLAGS) $(CURL_CFLAGS) $(PNG_CFLAGS) -Dcimg_use_rng
+GMIC_GIMP_LIBS = $(MANDATORY_LIBS) $(PARALLEL_LIBS) $(FFTW_LIBS) $(CURL_LIBS) $(PNG_LIBS)
 ifeq ($(OS),Unix) # Unix.
-STD_GIMP_CFLAGS += $(OPENMP_CFLAGS) $(X11_CFLAGS)
-STD_GIMP_LIBS += $(OPENMP_LIBS) $(X11_LIBS)
+GMIC_GIMP_CFLAGS += $(OPENMP_CFLAGS) $(X11_CFLAGS)
+GMIC_GIMP_LIBS += $(OPENMP_LIBS) $(X11_LIBS)
 else
 ifeq ($(OS),Darwin) # MaxOSX.
-STD_GIMP_CFLAGS += $(X11_CFLAGS)
-STD_GIMP_LIBS += $(X11_LIBS)
+GMIC_GIMP_CFLAGS += $(X11_CFLAGS)
+GMIC_GIMP_LIBS += $(X11_LIBS)
 else # Windows.
-STD_GIMP_CFLAGS += $(OPENMP_CFLAGS) $(GDI32_CFLAGS)
-STD_GIMP_LIBS += -mwindows $(OPENMP_LIBS) $(GDI32_LIBS) -lpthread -DPSAPI_VERSION=1 -lpsapi
+GMIC_GIMP_CFLAGS += $(OPENMP_CFLAGS) $(GDI32_CFLAGS)
+GMIC_GIMP_LIBS += -mwindows $(OPENMP_LIBS) $(GDI32_LIBS) -lpthread -DPSAPI_VERSION=1 -lpsapi
 endif
 endif
 
 # Libgmic interface: Standard build.
 #-----------------------------------
-STD_LIB_CFLAGS = $(MANDATORY_CFLAGS) $(CIMG_ABORT_CFLAGS) $(PARALLEL_CFLAGS) $(FFTW_CFLAGS) $(CURL_CFLAGS) $(PNG_CFLAGS) $(JPEG_CFLAGS) $(TIFF_CFLAGS)
-STD_LIB_LIBS = $(MANDATORY_LIBS) $(PARALLEL_LIBS) $(FFTW_LIBS) $(CURL_LIBS) $(PNG_LIBS) $(JPEG_LIBS) $(TIFF_LIBS)
+GMIC_LIB_CFLAGS = $(MANDATORY_CFLAGS) $(ABORT_CFLAGS) $(PARALLEL_CFLAGS) $(FFTW_CFLAGS) $(CURL_CFLAGS) $(PNG_CFLAGS) $(JPEG_CFLAGS) $(TIFF_CFLAGS)
+GMIC_LIB_LIBS = $(MANDATORY_LIBS) $(PARALLEL_LIBS) $(FFTW_LIBS) $(CURL_LIBS) $(PNG_LIBS) $(JPEG_LIBS) $(TIFF_LIBS)
 ifeq ($(OS),Unix) # Unix.
-STD_LIB_CFLAGS += $(OPENMP_CFLAGS) $(X11_CFLAGS)
-STD_LIB_LIBS += $(OPENMP_LIBS) $(X11_LIBS)
+GMIC_LIB_CFLAGS += $(OPENMP_CFLAGS) $(X11_CFLAGS)
+GMIC_LIB_LIBS += $(OPENMP_LIBS) $(X11_LIBS)
 else
 ifeq ($(OS),Darwin) # MacOSX.
-STD_LIB_CFLAGS += $(X11_CFLAGS)
-STD_LIB_LIBS += $(X11_LIBS) $(OPT_LIBS)
+GMIC_LIB_CFLAGS += $(X11_CFLAGS)
+GMIC_LIB_LIBS += $(X11_LIBS) $(OPT_LIBS)
 else # Windows.
-STD_LIB_CFLAGS += $(OPENMP_CFLAGS) $(GDI32_CFLAGS)
-STD_LIB_LIBS += $(OPENMP_LIBS) $(GDI32_LIBS)
+GMIC_LIB_CFLAGS += $(OPENMP_CFLAGS) $(GDI32_CFLAGS)
+GMIC_LIB_LIBS += $(OPENMP_LIBS) $(GDI32_LIBS)
 endif
 endif
 
-# LibgmicC interface: Standard build.
+# LibCgmic interface: Standard build.
 #------------------------------------
-STD_LIBC_CFLAGS = $(MANDATORY_CFLAGS) $(CIMG_ABORT_CFLAGS) $(PARALLEL_CFLAGS) $(FFTW_CFLAGS) $(CURL_CFLAGS) $(PNG_CFLAGS) $(JPEG_CFLAGS) $(TIFF_CFLAGS)
-STD_LIBC_LIBS = $(MANDATORY_LIBS) $(PARALLEL_LIBS) $(FFTW_LIBS) $(CURL_LIBS) $(PNG_LIBS) $(JPEG_LIBS) $(TIFF_LIBS)
+GMIC_LIBC_CFLAGS = $(MANDATORY_CFLAGS) $(ABORT_CFLAGS) $(PARALLEL_CFLAGS) $(FFTW_CFLAGS) $(CURL_CFLAGS) $(PNG_CFLAGS) $(JPEG_CFLAGS) $(TIFF_CFLAGS)
+GMIC_LIBC_LIBS = $(MANDATORY_LIBS) $(PARALLEL_LIBS) $(FFTW_LIBS) $(CURL_LIBS) $(PNG_LIBS) $(JPEG_LIBS) $(TIFF_LIBS)
 ifeq ($(OS),Unix) # Unix.
-STD_LIBC_CFLAGS += $(OPENMP_CFLAGS) $(X11_CFLAGS)
-STD_LIBC_LIBS += $(OPENMP_LIBS) $(X11_LIBS)
+GMIC_LIBC_CFLAGS += $(OPENMP_CFLAGS) $(X11_CFLAGS)
+GMIC_LIBC_LIBS += $(OPENMP_LIBS) $(X11_LIBS)
 else
 ifeq ($(OS),Darwin) # MacOSX.
-STD_LIBC_CFLAGS += $(X11_CFLAGS)
-STD_LIBC_LIBS += $(X11_LIBS) $(OPT_LIBS)
+GMIC_LIBC_CFLAGS += $(X11_CFLAGS)
+GMIC_LIBC_LIBS += $(X11_LIBS) $(OPT_LIBS)
 else # Windows.
-STD_LIBC_CFLAGS += $(OPENMP_CFLAGS) $(GDI32_CFLAGS)
-STD_LIBC_LIBS += $(OPENMP_LIBS) $(GDI32_LIBS)
+GMIC_LIBC_CFLAGS += $(OPENMP_CFLAGS) $(GDI32_CFLAGS)
+GMIC_LIBC_LIBS += $(OPENMP_LIBS) $(GDI32_LIBS)
 endif
 endif
 
-# LibgmicC interface: Static build.
+# LibCgmic interface: Static build.
 #---------------------------------
-STATIC_LIBC_CFLAGS = $(MANDATORY_CFLAGS) $(CIMG_ABORT_CFLAGS) $(PARALLEL_CFLAGS) $(FFTW_CFLAGS) $(PNG_CFLAGS) $(JPEG_CFLAGS) # $(CURL_CFLAGS) $(TIFF_CFLAGS)
+GMIC_STATIC_LIBC_CFLAGS = $(MANDATORY_CFLAGS) $(ABORT_CFLAGS) $(PARALLEL_CFLAGS) $(FFTW_CFLAGS) $(PNG_CFLAGS) $(JPEG_CFLAGS) # $(CURL_CFLAGS) $(TIFF_CFLAGS)
 ifeq ($(OS),Window)
-STATIC_LIBC_LIBS = -static -lpthread
+GMIC_STATIC_LIBC_LIBS = -static -lpthread
 endif
-STATIC_LIBC_LIBS += $(MANDATORY_LIBS) $(PARALLEL_LIBS) $(FFTW_LIBS) $(PNG_LIBS) $(JPEG_LIBS) # $(CURL_LIBS) $(TIFF_LIBS)
+GMIC_STATIC_LIBC_LIBS += $(MANDATORY_LIBS) $(PARALLEL_LIBS) $(FFTW_LIBS) $(PNG_LIBS) $(JPEG_LIBS) # $(CURL_LIBS) $(TIFF_LIBS)
 ifeq ($(OS),Unix) # Unix.
-STATIC_LIBC_CFLAGS += $(OPENMP_CFLAGS) $(X11_CFLAGS)
-STATIC_LIBC_LIBS += $(OPENMP_LIBS) $(X11_LIBS)
+GMIC_STATIC_LIBC_CFLAGS += $(OPENMP_CFLAGS) $(X11_CFLAGS)
+GMIC_STATIC_LIBC_LIBS += $(OPENMP_LIBS) $(X11_LIBS)
 else
 ifeq ($(OS),Darwin) # MacOSX.
-STATIC_LIBC_CFLAGS += $(X11_CFLAGS)
-STATIC_LIBC_LIBS += $(X11_LIBS) $(OPT_LIBS)
+GMIC_STATIC_LIBC_CFLAGS += $(X11_CFLAGS)
+GMIC_STATIC_LIBC_LIBS += $(X11_LIBS) $(OPT_LIBS)
 else # Windows.
-STATIC_LIBC_CFLAGS += $(OPENMP_CFLAGS) $(GDI32_CFLAGS)
-STATIC_LIBC_LIBS += $(OPENMP_LIBS) $(GDI32_LIBS)
+GMIC_STATIC_LIBC_CFLAGS += $(OPENMP_CFLAGS) $(GDI32_CFLAGS)
+GMIC_STATIC_LIBC_LIBS += $(OPENMP_LIBS) $(GDI32_LIBS)
 endif
 endif
 
 # G'MIC Online interface: Standard build.
 #----------------------------------------
-STD_GMICOL_CFLAGS = $(MANDATORY_CFLAGS) $(PARALLEL_CFLAGS) $(FFTW_CFLAGS) $(PNG_CFLAGS) $(JPEG_CFLAGS) $(ZLIB_CFLAGS) -Dcimg_display=0
-STD_GMICOL_LIBS = $(MANDATORY_LIBS) $(PARALLEL_LIBS) $(PNG_LIBS) $(JPEG_LIBS) $(ZLIB_LIBS) /usr/lib/x86_64-linux-gnu/libfftw3.a /usr/lib/x86_64-linux-gnu/libfftw3_threads.a
+GMICOL_CFLAGS = $(MANDATORY_CFLAGS) $(PARALLEL_CFLAGS) $(FFTW_CFLAGS) $(PNG_CFLAGS) $(JPEG_CFLAGS) $(ZLIB_CFLAGS) -Dcimg_display=0
+GMICOL_LIBS = $(MANDATORY_LIBS) $(PARALLEL_LIBS) $(PNG_LIBS) $(JPEG_LIBS) $(ZLIB_LIBS) /usr/lib/x86_64-linux-gnu/libfftw3.a /usr/lib/x86_64-linux-gnu/libfftw3_threads.a
 
 #--------------------------
 # Define Makefile entries.
@@ -389,7 +395,7 @@ endif
 endif
 
 cli:
-	$(MAKE) "CFLAGS+=$(STD_CLI_CFLAGS) $(OPT_CFLAGS)" "LIBS+=$(STD_CLI_LIBS)" gmic
+	$(MAKE) "CFLAGS+=$(GMIC_CLI_CFLAGS) $(OPT_CFLAGS)" "LIBS+=$(GMIC_CLI_LIBS)" gmic
 	$(STRIP) gmic$(EXE)
 
 cli_s:
@@ -399,27 +405,27 @@ ifeq ($(OS),Darwin)
 endif
 
 gimp:
-	$(MAKE) "CFLAGS+=$(STD_GIMP_CFLAGS) $(OPT_CFLAGS)" "LIBS+=$(STD_GIMP_LIBS)" gmic_gimp
+	$(MAKE) "CFLAGS+=$(GMIC_GIMP_CFLAGS) $(OPT_CFLAGS)" "LIBS+=$(GMIC_GIMP_LIBS)" gmic_gimp
 
 lib:
-	$(MAKE) "CFLAGS+=$(STD_LIB_CFLAGS) $(OPT_CFLAGS)" "LIBS+=$(STD_LIB_LIBS)" libgmic
+	$(MAKE) "CFLAGS+=$(GMIC_LIB_CFLAGS) $(OPT_CFLAGS)" "LIBS+=$(GMIC_LIB_LIBS)" libgmic
 
 libc:
-	$(MAKE) "CFLAGS+=$(STD_LIBC_CFLAGS) $(OPT_CFLAGS)" "LIBS+=$(STD_LIBC_LIBS)" libcgmic
+	$(MAKE) "CFLAGS+=$(GMIC_LIBC_CFLAGS) $(OPT_CFLAGS)" "LIBS+=$(GMIC_LIBC_LIBS)" libcgmic
 
 gmicol:
-	$(MAKE) "CFLAGS+=$(STD_GMICOL_CFLAGS) $(OPT_CFLAGS)" "LIBS+=$(STD_GMICOL_LIBS)" gmic
+	$(MAKE) "CFLAGS+=$(GMICOL_CFLAGS) $(OPT_CFLAGS)" "LIBS+=$(GMICOL_LIBS)" gmic
 	$(STRIP) gmic$(EXE)
 
 static:
-	$(MAKE) "CFLAGS+=$(STATIC_CLI_CFLAGS) $(OPT_CFLAGS)" "LIBS+=$(STATIC_CLI_LIBS)" gmic
+	$(MAKE) "CFLAGS+=$(GMIC_STATIC_CLI_CFLAGS) $(OPT_CFLAGS)" "LIBS+=$(GMIC_STATIC_CLI_LIBS)" gmic
 	$(STRIP) gmic$(EXE)
 
 staticlibc:
-	$(MAKE) "CFLAGS+=$(STATIC_LIBC_CFLAGS) $(OPT_CFLAGS)" "LIBS+=$(STATIC_LIBC_LIBS)" libcgmicstatic
+	$(MAKE) "CFLAGS+=$(GMIC_STATIC_LIBC_CFLAGS) $(OPT_CFLAGS)" "LIBS+=$(GMIC_STATIC_LIBC_LIBS)" libcgmicstatic
 
 debug:
-	$(MAKE) "CFLAGS+=$(STD_CLI_CFLAGS) $(DEBUG_CFLAGS)" "LIBS+=$(STD_CLI_LIBS)" gmic
+	$(MAKE) "CFLAGS+=$(GMIC_CLI_CFLAGS) $(DEBUG_CFLAGS)" "LIBS+=$(GMIC_CLI_LIBS)" gmic
 
 zart:
 ifeq ($(OS),Darwin)
