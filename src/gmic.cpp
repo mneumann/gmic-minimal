@@ -12076,20 +12076,15 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
           // Watershed transform.
           if (!std::strcmp("-watershed",command)) {
             gmic_substitute_args();
-            unsigned int is_filled = 1;
             sep = 0;
-            if (((cimg_sscanf(argument,"[%255[a-zA-Z0-9_.%+-]%c%c",indices,&sep,&end)==2 &&
-                  sep==']') ||
-                 cimg_sscanf(argument,"[%255[a-zA-Z0-9_.%+-]],%u%c",
-                             indices,&is_filled,&end)==2) &&
+            if ((cimg_sscanf(argument,"[%255[a-zA-Z0-9_.%+-]%c%c",indices,&sep,&end)==2 && sep==']') &&
                 (ind=selection2cimg(indices,images.size(),images_names,"-watershed",true,
                                     false,CImg<char>::empty())).height()==1 &&
                 is_filled<=1) {
-              print(images,0,"Compute watershed transform of image%s with priority map [%u] and "
-                    "%sfilling.",
-                    gmic_selection.data(),*ind,is_filled?"":"no ");
+              print(images,0,"Compute watershed transform of image%s with priority map [%u].",
+                    gmic_selection.data(),*ind);
               const CImg<T> priority = gmic_image_arg(*ind);
-              cimg_forY(selection,l) gmic_apply(watershed(priority,(bool)is_filled));
+              cimg_forY(selection,l) gmic_apply(watershed(priority));
             } else arg_error("watershed");
             is_released = false; ++position; continue;
           }
