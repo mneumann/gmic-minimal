@@ -12079,8 +12079,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
             sep = 0;
             if ((cimg_sscanf(argument,"[%255[a-zA-Z0-9_.%+-]%c%c",indices,&sep,&end)==2 && sep==']') &&
                 (ind=selection2cimg(indices,images.size(),images_names,"-watershed",true,
-                                    false,CImg<char>::empty())).height()==1 &&
-                is_filled<=1) {
+                                    false,CImg<char>::empty())).height()==1) {
               print(images,0,"Compute watershed transform of image%s with priority map [%u].",
                     gmic_selection.data(),*ind);
               const CImg<T> priority = gmic_image_arg(*ind);
