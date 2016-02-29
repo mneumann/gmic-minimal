@@ -4294,7 +4294,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
   CImg<T> g_img;
 
   unsigned int next_debug_line = ~0U, next_debug_filename = ~0U, _debug_line, _debug_filename,
-    __ind = 0, boundary = 0, pattern = 0, exit_on_anykey = 0;
+    is_high_connectivity, __ind = 0, boundary = 0, pattern = 0, exit_on_anykey = 0;
   char end, sep = 0, sep0 = 0, sep1 = 0, sepx = 0, sepy = 0, sepz = 0, sepc = 0, axis = 0;
   double vmin = 0, vmax = 0, value, value0, value1, nvalue, nvalue0, nvalue1;
   bool is_endlocal = false;
@@ -6753,8 +6753,8 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
           if (!std::strcmp("-flood",command)) {
             gmic_substitute_args();
             float x = 0, y = 0, z = 0, tolerance = 0;
-            unsigned int is_high_connectivity = 0;
             sepx = sepy = sepz = *argx = *argy = *argz = *color = 0;
+            is_high_connectivity = 0;
             opacity = 1;
             if ((cimg_sscanf(argument,"%255[0-9.eE%+-]%c",
                              argx,&end)==1 ||
@@ -7862,8 +7862,8 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
           // Label connected components.
           if (!std::strcmp("-label",command)) {
             gmic_substitute_args();
-            unsigned int is_high_connectivity = 0;
             float tolerance = 0;
+            is_high_connectivity = 0;
             if ((cimg_sscanf(argument,"%f%c",&tolerance,&end)==1 ||
                  cimg_sscanf(argument,"%f,%u%c",&tolerance,&is_high_connectivity,&end)==2) &&
                 tolerance>=0) ++position;
@@ -12076,14 +12076,20 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
           // Watershed transform.
           if (!std::strcmp("-watershed",command)) {
             gmic_substitute_args();
+            is_high_connectivity = 0;
             sep = 0;
-            if ((cimg_sscanf(argument,"[%255[a-zA-Z0-9_.%+-]%c%c",indices,&sep,&end)==2 && sep==']') &&
+            if (((cimg_sscanf(argument,"[%255[a-zA-Z0-9_.%+-]%c%c",indices,&sep,&end)==2 &&
+                  sep==']') ||
+                 cimg_sscanf(argument,"[%255[a-zA-Z0-9_.%+-]],%u%c",
+                             indices,&is_high_connectivity,&end)==2) &&
                 (ind=selection2cimg(indices,images.size(),images_names,"-watershed",true,
-                                    false,CImg<char>::empty())).height()==1) {
-              print(images,0,"Compute watershed transform of image%s with priority map [%u].",
-                    gmic_selection.data(),*ind);
+                                    false,CImg<char>::empty())).height()==1 &&
+                is_high_connectivity<=1) {
+              print(images,0,"Compute watershed transform of image%s with priority map [%u] and "
+                    "%s connectivity.",
+                    gmic_selection.data(),*ind,is_high_connectivity?"high":"low");
               const CImg<T> priority = gmic_image_arg(*ind);
-              cimg_forY(selection,l) gmic_apply(watershed(priority));
+              cimg_forY(selection,l) gmic_apply(watershed(priority,(bool)is_high_connectivity));
             } else arg_error("watershed");
             is_released = false; ++position; continue;
           }
