@@ -12076,7 +12076,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
           // Watershed transform.
           if (!std::strcmp("-watershed",command)) {
             gmic_substitute_args();
-            is_high_connectivity = 0;
+            is_high_connectivity = 1;
             sep = 0;
             if (((cimg_sscanf(argument,"[%255[a-zA-Z0-9_.%+-]%c%c",indices,&sep,&end)==2 &&
                   sep==']') ||
