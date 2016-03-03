@@ -4637,7 +4637,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
             *ptrd = 0;
             CImg<char>::string(name).move_to(status);
             _gmic_argument_text(status,name,is_verbose);
-            print(images,0,"Set status to string '%s' (escaped backslash).",name.data());
+            print(images,0,"Set status to string '%s' (escaped backslash).",name._data);
             ++position; continue;
           }
 
@@ -12859,22 +12859,25 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
             pattern = (unsigned int)std::strlen(title);
             if ((sep0=='<' || sep0=='>') && sep1==sep0 && s_eq==item + pattern + 2) {
               new_value = set_variable(title,s_eq + 1,sep0,variables_sizes);
+              _gmic_argument_text(s_eq + 1,name.assign(128),is_verbose);
               print(images,0,"Update %s variable %s%c%c='%s' -> %s='%s'.",
                     *title=='_'?"global":"local",
-                    title,sep0,sep0,s_eq + 1,title,new_value);
+                    title,sep0,sep0,name._data,title,new_value);
               continue;
             } else if ((sep0=='+' || sep0=='-' || sep0=='*' || sep0=='/' ||
                         sep0=='%' || sep0=='&' || sep0=='|' || sep0=='^') && s_eq==item + pattern + 1) {
               new_value = set_variable(title,s_eq + 1,sep0,variables_sizes);
+              _gmic_argument_text(s_eq + 1,name.assign(128),is_verbose);
               print(images,0,"Update %s variable %s%c='%s' -> %s='%s'.",
                     *title=='_'?"global":"local",
-                    title,sep0,s_eq + 1,title,new_value);
+                    title,sep0,name._data,title,new_value);
               continue;
             } else if (s_eq==item + pattern) {
               set_variable(title,s_eq + 1,'=',variables_sizes);
+              _gmic_argument_text(s_eq + 1,name.assign(128),is_verbose);
               print(images,0,"Set %s variable %s='%s'.",
                     *title=='_'?"global":"local",
-                    title,s_eq + 1);
+                    title,name._data);
               continue;
             }
           }
