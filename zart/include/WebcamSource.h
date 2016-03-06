@@ -77,6 +77,8 @@ public:
   void setCaptureSize(const QSize & size);
   static const QList<int> & getWebcamList();
   static const QList<int> & getCachedWebcamList();
+  static int getFirstUnusedWebcam();
+  static bool isWebcamUnused(int index);
   static void retrieveWebcamResolutions(const QList<int> & camList, QSplashScreen * splashScreen = 0, QStatusBar * statusBar = 0);
   static const QList<QSize> & webcamResolutions(int index);
   static void clearSavedSettings();

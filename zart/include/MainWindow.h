@@ -126,7 +126,7 @@ public slots:
   void leaveFullScreenMode();
   void onRefreshCameraResolutions();
   void onDetectCameras();
-  void initGUIFromCameraList(const QList<int> & camList);
+  void initGUIFromCameraList(const QList<int> & camList, int firstUnused);
   void onOutputWindow(bool);
   void onOutputWindowClosing();
 

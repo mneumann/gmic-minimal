@@ -85,6 +85,7 @@ int main( int argc, char *argv[] )
            << QFileInfo(argv[0]).baseName().toLatin1().constData()
           << " [options]" << endl
           << "  " << "Options: " << endl
+          << "      --clear-cams  : Clear webcam cache." << endl
           << "      --help | -h   : print this help." << endl
           << endl;
       exit(EXIT_SUCCESS);
@@ -94,6 +95,9 @@ int main( int argc, char *argv[] )
   QSplashScreen splashScreen(QPixmap(":/images/splash.png"));
   splashScreen.show();
   app.processEvents();
+  if ( QApplication::arguments().contains("--clear-cams") ) {
+    WebcamSource::clearSavedSettings();
+  }
   WebcamSource::retrieveWebcamResolutions(WebcamSource::getWebcamList(),
                                           &splashScreen);
   if ( ! gmic::init_rc() ) {

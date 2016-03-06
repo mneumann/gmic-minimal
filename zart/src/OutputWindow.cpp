@@ -121,10 +121,14 @@ void
 OutputWindow::onShowFullscreen(bool on)
 {
   if (on) {
+    QPalette p = palette();
+    p.setColor(QPalette::Window,Qt::black);
+    setPalette(p);
     _buttonsFrame->hide();
     showFullScreen();
     setFocus();
   } else {
+    setPalette(QPalette());
     _buttonsFrame->show();
     _pbClose->show();
     _tbFullScreen->setChecked(false);

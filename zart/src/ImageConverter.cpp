@@ -50,11 +50,11 @@
 #include "ImageConverter.h"
 #include <cassert>
 #include "Common.h"
-
+#include <QTime>
 IplImage * ImageConverter::_image = 0;
 
 void ImageConverter::convert( const IplImage * in, QImage * out )
-{
+{  
   if ( !in || !out ) return;
   assert(in->depth== IPL_DEPTH_8U);
   assert(in->nChannels == 3);
@@ -68,10 +68,11 @@ void ImageConverter::convert( const IplImage * in, QImage * out )
   while ( line-- ) {
     endSrc = src + w3;
     while ( src != endSrc ) {
-      *dst++ = src[2];
-      *dst++ = src[1];
-      *dst++ = src[0];
+      dst[0] = src[2];
+      dst[1] = src[1];
+      dst[2] = src[0];
       src += 3;
+      dst += 3;
     }
     dst += qiOffset;
     src += iplOffset;
@@ -93,9 +94,10 @@ void ImageConverter::convert(const QImage & in, IplImage **out)
   while ( line-- ) {
     endSrc = src + w3;
     while ( src != endSrc ) {
-      *dst++ = src[2];
-      *dst++ = src[1];
-      *dst++ = src[0];
+      dst[0] = src[2];
+      dst[1] = src[1];
+      dst[2] = src[0];
+      dst += 3;
       src += 3;
     }
     src += qiOffset;
@@ -118,9 +120,10 @@ void ImageConverter::convert( const cimg_library::CImg<float> & in, QImage * out
   while ( height-- ) {
     endSrcR += width;
     while ( srcR != endSrcR ) {
-      *dst++ = static_cast<unsigned char>( *srcR++ );
-      *dst++ = static_cast<unsigned char>( *srcG++ );
-      *dst++ = static_cast<unsigned char>( *srcB++ );
+      dst[0] = static_cast<unsigned char>( *srcR++ );
+      dst[1] = static_cast<unsigned char>( *srcG++ );
+      dst[2] = static_cast<unsigned char>( *srcB++ );
+      dst += 3;
     }
     dst += offset;
   }
@@ -189,9 +192,10 @@ void ImageConverter::mergeTop( IplImage * iplImage,
   while ( lines-- ) {
     endDst= dst + 3 * width;
     while ( dst != endDst ) {
-      *dst++ = static_cast<unsigned char>( *srcR++ );
-      *dst++ = static_cast<unsigned char>( *srcG++ );
-      *dst++ = static_cast<unsigned char>( *srcB++ );
+      dst[0] = static_cast<unsigned char>( *srcR++ );
+      dst[1] = static_cast<unsigned char>( *srcG++ );
+      dst[2] = static_cast<unsigned char>( *srcB++ );
+      dst += 3;
     }
     dst += qiOffset;
   }
@@ -203,9 +207,10 @@ void ImageConverter::mergeTop( IplImage * iplImage,
   while ( lines-- ) {
     endDst= dst + 3 * width;
     while ( dst != endDst ) {
-      *dst++ = srcIpl[2];
-      *dst++ = srcIpl[1];
-      *dst++ = srcIpl[0];
+      dst[0] = srcIpl[2];
+      dst[1] = srcIpl[1];
+      dst[2] = srcIpl[0];
+      dst += 3;
       srcIpl += 3;
     }
     dst += qiOffset;
@@ -234,9 +239,10 @@ void ImageConverter::mergeLeft( IplImage * iplImage,
   while ( height-- ) {
     endDst= dst + 3 * firstHalf;
     while ( dst != endDst ) {
-      *dst++ = static_cast<unsigned char>( *srcR++ );
-      *dst++ = static_cast<unsigned char>( *srcG++ );
-      *dst++ = static_cast<unsigned char>( *srcB++ );
+      dst[0] = static_cast<unsigned char>( *srcR++ );
+      dst[1] = static_cast<unsigned char>( *srcG++ );
+      dst[2] = static_cast<unsigned char>( *srcB++ );
+      dst += 3;
     }
     srcR += secondHalf;
     srcG += secondHalf;
@@ -245,9 +251,10 @@ void ImageConverter::mergeLeft( IplImage * iplImage,
     srcIpl += 3 * firstHalf;
     endDst= dst + 3 * secondHalf;
     while ( dst != endDst ) {
-      *dst++ = srcIpl[2];
-      *dst++ = srcIpl[1];
-      *dst++ = srcIpl[0];
+      dst[0] = srcIpl[2];
+      dst[1] = srcIpl[1];
+      dst[2] = srcIpl[0];
+      dst += 3;
       srcIpl += 3;
     }
     srcIpl += iplOffset;
@@ -273,9 +280,10 @@ void ImageConverter::mergeBottom(IplImage * iplImage,
   while ( lines-- ) {
     endDst= dst + 3 * width;
     while ( dst != endDst ) {
-      *dst++ = srcIpl[2];
-      *dst++ = srcIpl[1];
-      *dst++ = srcIpl[0];
+      dst[0] = srcIpl[2];
+      dst[1] = srcIpl[1];
+      dst[2] = srcIpl[0];
+      dst += 3;
       srcIpl += 3;
     }
     dst += qiOffset;
@@ -292,9 +300,10 @@ void ImageConverter::mergeBottom(IplImage * iplImage,
   while ( lines-- ) {
     endDst= dst + 3 * width;
     while ( dst != endDst ) {
-      *dst++ = static_cast<unsigned char>( *srcR++ );
-      *dst++ = static_cast<unsigned char>( *srcG++ );
-      *dst++ = static_cast<unsigned char>( *srcB++ );
+      dst[0] = static_cast<unsigned char>( *srcR++ );
+      dst[1] = static_cast<unsigned char>( *srcG++ );
+      dst[2] = static_cast<unsigned char>( *srcB++ );
+      dst += 3;
     }
     dst += qiOffset;
   }
@@ -327,18 +336,20 @@ void ImageConverter::mergeRight(IplImage * iplImage,
     // First half from iplImage
     endDst= dst + 3 * firstHalf;
     while ( dst != endDst ) {
-      *dst++ = srcIpl[2];             // TODO : Invalid write
-      *dst++ = srcIpl[1];             //
-      *dst++ = srcIpl[0];             //
+      dst[0] = srcIpl[2];
+      dst[1] = srcIpl[1];
+      dst[2] = srcIpl[0];
+      dst += 3;
       srcIpl += 3;
     }
     srcIpl += iplShift;
     // Second half from cimgImage
     endDst= dst + 3 * secondHalf;
     while ( dst != endDst ) {
-      *dst++ = static_cast<unsigned char>( *srcR++ );  // TODO : Invalid write
-      *dst++ = static_cast<unsigned char>( *srcG++ );  //
-      *dst++ = static_cast<unsigned char>( *srcB++ );  //
+      dst[0] = static_cast<unsigned char>( *srcR++ );
+      dst[1] = static_cast<unsigned char>( *srcG++ );
+      dst[2] = static_cast<unsigned char>( *srcB++ );
+      dst += 3;
     }
     srcR += firstHalf;
     srcG += firstHalf;
@@ -364,9 +375,10 @@ void ImageConverter::convert( const IplImage * in, cimg_library::CImg<float> & o
   while ( height-- ) {
     endSrc = src + w3;
     while ( src != endSrc ) {
-      *dstB++ = static_cast<float>(*src++);
-      *dstG++ = static_cast<float>(*src++);
-      *dstR++ = static_cast<float>(*src++);
+      *dstB++ = static_cast<float>(src[0]);
+      *dstG++ = static_cast<float>(src[1]);
+      *dstR++ = static_cast<float>(src[2]);
+      src += 3;
     }
     src += iplOffset;
   }

@@ -80,6 +80,10 @@ FullScreenWidget::FullScreenWidget(MainWindow * mainwindow)
   _rightFrame->setVisible(false);
   _splitter->setChildrenCollapsible(false);
   layout()->setContentsMargins(1,0,1,0);
+
+  QPalette p = palette();
+  p.setColor(QPalette::Window,Qt::black);
+  setPalette(p);
 }
 
 FullScreenWidget::~FullScreenWidget()

@@ -69,7 +69,7 @@ The following libraries are required to compile/run ZArt:
 # Qt5/Fedora issue
 #-----------------
 
- You should update to the latest version available of libxkbcommon. Otherwise, 
+ You should update to the latest version available of libxkbcommon. Otherwise,
  the application might exit at any time with the error below.
 
  zart: symbol lookup error: /usr/lib64/qt5/plugins/platforms/libqxcb.so: \

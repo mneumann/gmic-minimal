@@ -165,7 +165,8 @@ MainWindow::MainWindow( QWidget * parent )
 
   // Find available cameras, and setup the default one
   QList<int> cameras = WebcamSource::getWebcamList();
-  initGUIFromCameraList(cameras);
+  int firstUnused = WebcamSource::getFirstUnusedWebcam();
+  initGUIFromCameraList(cameras,firstUnused);
 
   QSize cameraSize = CURRENTDATA(_comboCamResolution).toSize();
   if ( ! cameraSize.isValid() ) {
@@ -186,6 +187,8 @@ MainWindow::MainWindow( QWidget * parent )
   action->setShortcutContext( Qt::ApplicationShortcut );
 
   _outputWindowAction = new QAction("&Secondary window",this);
+  _outputWindowAction->setShortcut(QKeySequence("Ctrl+O"));
+  _outputWindowAction->setShortcutContext( Qt::ApplicationShortcut );
   _outputWindowAction->setCheckable(true);
   connect( _outputWindowAction, SIGNAL(toggled(bool)),
            this, SLOT(onOutputWindow(bool)) );
@@ -265,12 +268,12 @@ MainWindow::MainWindow( QWidget * parent )
   _tbCamera->setIcon(QIcon::fromTheme("camera-photo",QIcon(":/images/camera.png")));
 #else
   _tbCamera->setIcon(QIcon(":images/camera.png");
-#endif
+    #endif
 
 
 
-  connect( _cbPreviewMode, SIGNAL(activated(int)),
-           this, SLOT(onPreviewModeChanged(int)));
+      connect( _cbPreviewMode, SIGNAL(activated(int)),
+               this, SLOT(onPreviewModeChanged(int)));
 
   connect( _tbZoomOriginal, SIGNAL( clicked() ),
            _imageView, SLOT( zoomOriginal() ) );
@@ -1109,28 +1112,28 @@ void
 MainWindow::onDetectCameras()
 {
   if ( _source == Webcam && _filterThread ) {
-    _webcam.stop();
     stop();
+    _webcam.stop();
   }
   centralWidget()->setEnabled(false);
   statusBar()->showMessage("Updating camera resolutions list...");
   menuBar()->setEnabled(false);
   QList<int> camList = WebcamSource::getWebcamList();
+  int firstUnused = WebcamSource::getFirstUnusedWebcam();
   WebcamSource::retrieveWebcamResolutions(camList,0,statusBar());
-  initGUIFromCameraList(camList);
+  initGUIFromCameraList(camList,firstUnused);
   statusBar()->showMessage(QString());
   centralWidget()->setEnabled(true);
   menuBar()->setEnabled(true);
 }
 
 void
-MainWindow::initGUIFromCameraList(const QList<int> & camList)
+MainWindow::initGUIFromCameraList(const QList<int> & camList, int firstUnused)
 {
   disconnect(_comboWebcam,SIGNAL(currentIndexChanged(int)),this, 0);
   disconnect( _comboSource, SIGNAL(currentIndexChanged(int)),this, 0);
 
   QSettings settings;
-
   _comboSource->clear();
   _comboWebcam->clear();
 
@@ -1146,7 +1149,6 @@ MainWindow::initGUIFromCameraList(const QList<int> & camList)
       _source = StillImage;
       _currentSource = &_stillImage;
     }
-
   } else {
     _tabParams->setCurrentIndex(0);
     _comboSource->addItem("Webcam",QVariant(Webcam));
@@ -1168,7 +1170,7 @@ MainWindow::initGUIFromCameraList(const QList<int> & camList)
         _cameraDefaultResolutionsIndexes.push_back(WebcamSource::webcamResolutions(iCam).size()-1);
       }
     }
-    _comboWebcam->setCurrentIndex(0);
+    _comboWebcam->setCurrentIndex((firstUnused == -1)?0:firstUnused);
     connect(_comboWebcam,SIGNAL(currentIndexChanged(int)),
             this, SLOT(onWebcamComboChanged(int)));
     onWebcamComboChanged(0);
@@ -1181,21 +1183,23 @@ MainWindow::initGUIFromCameraList(const QList<int> & camList)
 void
 MainWindow::onOutputWindow(bool on)
 {
-  if ( on && !_outputWindow ) {
-    _outputWindow = new OutputWindow(this);
-    connect( _outputWindow, SIGNAL(aboutToClose()),
-             this, SLOT(onOutputWindowClosing()) );
+  if ( on ) {
+    if ( !_outputWindow ) {
+      _outputWindow = new OutputWindow(this);
+      connect( _outputWindow, SIGNAL(aboutToClose()),
+               this, SLOT(onOutputWindowClosing()) );
+    }
+    if ( !_outputWindow->isVisible() ) {
+      bool running = _filterThread && _filterThread->isRunning();
+      stop();
+      _outputWindow->show();
+      if ( running ) {
+        play();
+      }
+    }
   }
   if ( !on && _outputWindow && _outputWindow->isVisible() ) {
     _outputWindow->close();
-  }
-  if ( on && !_outputWindow->isVisible() ) {
-    bool running = _filterThread && _filterThread->isRunning();
-    stop();
-    _outputWindow->show();
-    if ( running ) {
-      play();
-    }
   }
 }
 
