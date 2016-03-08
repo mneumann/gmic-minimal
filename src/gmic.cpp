@@ -8681,13 +8681,15 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
               const unsigned int l_stype = (unsigned int)std::strlen(stype);
               const char *const _options = options.data() + (stype!=argx?0:l_stype + (end==','?1:0));
               float _is_multipage = 0;
-              if (cimg_sscanf(_options,"%255[a-zA-Z]%c",argy,&end)!=1 &&
-                  cimg_sscanf(_options,"%255[a-zA-Z],%f%c",argy,&_is_multipage,&end)!=2) {
-                *argy = 0; _is_multipage = 0;
-              }
-              const unsigned int compression_type = !cimg::strcasecmp(argy,"jpeg") || !cimg::strcasecmp(argy,"jpg")?2:
+              *argy = 0; opacity = 1;
+              if (cimg_sscanf(_options,"%255[a-zA-Z],%f,%f",argy,&_is_multipage,&opacity)<1)
+                cimg_sscanf(_options,"%f,%f",&_is_multipage,&opacity);
+              const unsigned int compression_type =
+                !cimg::strcasecmp(argy,"jpeg") ||
+                !cimg::strcasecmp(argy,"jpg")?2:
                 !cimg::strcasecmp(argy,"lzw")?1U:0U;
               const bool is_multipage = (bool)cimg::round(_is_multipage);
+              const bool use_bigtiff = (bool)cimg::round(opacity);
 
               g_list.assign(selection.height());
               cimg_forY(selection,l) if (!gmic_check(images[selection(l)]))
@@ -8701,19 +8703,21 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
               cimg_forY(selection,l)
                 g_list[l].assign(images[selection[l]],g_list[l]?true:false);
               if (g_list.size()==1)
-                print(images,0,"Output image%s as %s file '%s', with pixel type '%s' and %s compression "
-                      "(1 image %dx%dx%dx%d).",
+                print(images,0,"Output image%s as %s file '%s', with pixel type '%s', %s compression "
+                      "and %sbigtiff support (1 image %dx%dx%dx%d).",
                       gmic_selection.data(),
                       uext.data(),_filename.data(),stype,
                       compression_type==2?"JPEG":compression_type==1?"LZW":"no",
+                      use_bigtiff?"":"no ",
                       g_list[0].width(),g_list[0].height(),
                       g_list[0].depth(),g_list[0].spectrum());
               else print(images,0,"Output image%s as %s file '%s', with pixel type '%s', "
-                         "%s compression and %s-page mode.",
+                         "%s compression, %s-page mode and %s bigtiff support.",
                          gmic_selection.data(),
                          uext.data(),_filename.data(),stype,
                          compression_type==2?"JPEG":compression_type==1?"LZW":"no",
-                         is_multipage?"multi":"single");
+                         is_multipage?"multi":"single",
+                         use_bigtiff?"":"no ");
               if (!g_list)
                 error(images,0,0,
                       "Command '-output': File '%s', instance list (%u,%p) is empty.",
@@ -8724,13 +8728,13 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
                 if (g_list.size()==1 || is_multipage) \
                   CImgList<value_type>(g_list, \
                                    cimg::type<T>::string()==cimg::type<value_type>::string()). \
-                    save_tiff(filename,compression_type); \
+                    save_tiff(filename,compression_type,0,0,use_bigtiff); \
                 else { \
                   cimglist_for(g_list,l) { \
                     cimg::number_filename(filename,l,6,formula); \
                     CImg<value_type>(g_list[l], \
                                    cimg::type<T>::string()==cimg::type<value_type>::string()). \
-                      save_tiff(formula,compression_type); \
+                      save_tiff(formula,compression_type,0,0,use_bigtiff); \
                   } \
                 } \
               }
