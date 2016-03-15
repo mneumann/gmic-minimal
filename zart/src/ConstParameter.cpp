@@ -76,6 +76,12 @@ ConstParameter::textValue() const
 }
 
 void
+ConstParameter::setValue(const QString & value)
+{
+  _value = value;
+}
+
+void
 ConstParameter::reset()
 {
 }

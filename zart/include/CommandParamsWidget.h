@@ -50,6 +50,7 @@
 #include <QVector>
 #include <QDomNode>
 #include <QPushButton>
+#include <QStringList>
 class AbstractParameter;
 class QLabel;
 
@@ -61,6 +62,8 @@ public:
   void build( QDomNode presetNode );
   virtual ~CommandParamsWidget();
   const QString & valueString() const;
+  QStringList valueStringList() const;
+  void setValues(const QStringList & );
   void saveValuesInDOM();
 public slots:
   void updateValueString(bool notify = true);

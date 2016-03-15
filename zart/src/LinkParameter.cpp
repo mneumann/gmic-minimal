@@ -91,6 +91,11 @@ LinkParameter::textValue() const
 }
 
 void
+LinkParameter::setValue(const QString & )
+{
+}
+
+void
 LinkParameter::reset()
 {
 }

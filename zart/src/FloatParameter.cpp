@@ -114,6 +114,16 @@ FloatParameter::textValue() const
 }
 
 void
+FloatParameter::setValue(const QString & value)
+{
+  _value = value.toFloat();
+  if ( _slider ) {
+    _slider->setValue(static_cast<int>(1000*(_value-_min)/(_max-_min)));
+    _spinBox->setValue(_value);
+  }
+}
+
+void
 FloatParameter::reset()
 {
   _slider->setValue(_default);

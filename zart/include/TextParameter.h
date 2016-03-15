@@ -59,6 +59,8 @@ public:
   ~TextParameter();
   void addTo( QWidget *, int row );
   QString textValue() const;
+  QString unquotedTextValue() const;
+  void setValue( const QString & value );
   void reset();
   void saveValueInDOM();
 public slots:

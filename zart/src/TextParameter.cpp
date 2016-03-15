@@ -94,6 +94,21 @@ TextParameter::textValue() const
     return QString("\"%1\"").arg(text);
 }
 
+QString
+TextParameter::unquotedTextValue() const
+{
+  return _lineEdit->text();
+}
+
+void
+TextParameter::setValue(const QString & value)
+{
+  _value = value;
+  if ( _lineEdit ) {
+    _lineEdit->setText(_value);
+  }
+}
+
 void
 TextParameter::reset()
 {

@@ -6,21 +6,21 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1036</width>
-    <height>816</height>
+    <width>1263</width>
+    <height>853</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QGridLayout" name="gridLayout_9">
-    <item row="0" column="0">
+   <layout class="QHBoxLayout" name="horizontalLayout_3">
+    <item>
      <widget class="QSplitter" name="_verticalSplitter">
       <property name="orientation">
        <enum>Qt::Horizontal</enum>
       </property>
-      <widget class="QSplitter" name="splitter">
+      <widget class="QSplitter" name="_leftSplitter">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
          <horstretch>0</horstretch>
@@ -155,26 +155,58 @@
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
-       <layout class="QGridLayout" name="gridLayout_8">
-        <item row="0" column="0">
+       <layout class="QVBoxLayout" name="verticalLayout_5">
+        <item>
          <widget class="QSplitter" name="_rightPanelSplitter">
           <property name="orientation">
            <enum>Qt::Vertical</enum>
           </property>
-          <widget class="QTreeWidget" name="_treeGPresets">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <column>
-            <property name="text">
-             <string notr="true">Presets</string>
-            </property>
-           </column>
+          <widget class="QWidget" name="layoutWidget1">
+           <layout class="QVBoxLayout" name="verticalLayout_4">
+            <item>
+             <widget class="QTreeWidget" name="_treeGPresets">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <column>
+               <property name="text">
+                <string notr="true">Presets</string>
+               </property>
+              </column>
+             </widget>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout">
+              <item>
+               <widget class="QLabel" name="label_14">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="text">
+                 <string>Faves</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QComboBox" name="_cbFaves"/>
+              </item>
+              <item>
+               <widget class="QToolButton" name="_tbAddFave"/>
+              </item>
+              <item>
+               <widget class="QToolButton" name="_tbRemoveFave"/>
+              </item>
+             </layout>
+            </item>
+           </layout>
           </widget>
-          <widget class="QWidget" name="layoutWidget">
+          <widget class="QWidget" name="layoutWidget3">
            <layout class="QVBoxLayout" name="verticalLayout_2">
             <item>
              <widget class="Line" name="line">
@@ -523,7 +555,7 @@
                     <rect>
                      <x>0</x>
                      <y>0</y>
-                     <width>80</width>
+                     <width>62</width>
                      <height>16</height>
                     </rect>
                    </property>
@@ -588,6 +620,12 @@
              <layout class="QHBoxLayout" name="horizontalLayout_2">
               <item>
                <widget class="QToolButton" name="_tbZoomOriginal">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
                 <property name="toolTip">
                  <string>Set zoom factor to 1:1</string>
                 </property>
@@ -598,16 +636,16 @@
                  <iconset resource="../zart.qrc">
                   <normaloff>:/images/zoom-original.png</normaloff>:/images/zoom-original.png</iconset>
                 </property>
-                <property name="iconSize">
-                 <size>
-                  <width>24</width>
-                  <height>24</height>
-                 </size>
-                </property>
                </widget>
               </item>
               <item>
                <widget class="QToolButton" name="_tbZoomFit">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
                 <property name="toolTip">
                  <string>Best fit zoom</string>
                 </property>
@@ -642,7 +680,7 @@
               <item>
                <widget class="QToolButton" name="_tbCamera">
                 <property name="sizePolicy">
-                 <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                 <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                   <horstretch>0</horstretch>
                   <verstretch>0</verstretch>
                  </sizepolicy>
@@ -656,12 +694,6 @@
                 <property name="icon">
                  <iconset resource="../zart.qrc">
                   <normaloff>:/images/camera.png</normaloff>:/images/camera.png</iconset>
-                </property>
-                <property name="iconSize">
-                 <size>
-                  <width>24</width>
-                  <height>24</height>
-                 </size>
                 </property>
                </widget>
               </item>
@@ -682,8 +714,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1036</width>
-     <height>25</height>
+     <width>1263</width>
+     <height>22</height>
     </rect>
    </property>
   </widget>

@@ -103,6 +103,27 @@ FolderParameter::textValue() const
     return QString("\"%1\"").arg(_value);
 }
 
+QString
+FolderParameter::unquotedTextValue() const
+{
+  return _value;
+}
+
+void
+FolderParameter::setValue(const QString & value)
+{
+  _value = value;
+  if ( _button ) {
+    if ( _value.isEmpty() ) {
+      _button->setText("...");
+    } else {
+      int width = _button->contentsRect().width()-10;
+      QFontMetrics fm(_button->font());
+      _button->setText(fm.elidedText(QFileInfo(_value).fileName(),Qt::ElideRight,width));
+    }
+  }
+}
+
 void
 FolderParameter::reset()
 {

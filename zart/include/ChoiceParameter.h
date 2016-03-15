@@ -59,6 +59,7 @@ public:
   ~ChoiceParameter();
   void addTo( QWidget *, int row );
   QString textValue() const;
+  void setValue( const QString & );
   void reset();
   void saveValueInDOM();
 public slots:

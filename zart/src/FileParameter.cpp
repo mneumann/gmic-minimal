@@ -103,6 +103,27 @@ FileParameter::textValue() const
     return QString("\"%1\"").arg(_value);
 }
 
+QString
+FileParameter::unquotedTextValue() const
+{
+  return _value;
+}
+
+void
+FileParameter::setValue(const QString & value)
+{
+  _value = value;
+  if ( _button ) {
+    if ( _value.isEmpty() ) {
+      _button->setText("...");
+    } else {
+      int width = _button->contentsRect().width()-10;
+      QFontMetrics fm(_button->font());
+      _button->setText(fm.elidedText(QFileInfo(_value).fileName(),Qt::ElideRight,width));
+    }
+  }
+}
+
 void
 FileParameter::reset()
 {

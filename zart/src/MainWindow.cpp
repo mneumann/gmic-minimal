@@ -70,6 +70,7 @@
 #include <QToolTip>
 #include <QGridLayout>
 #include <QMessageBox>
+#include <QTreeWidgetItemIterator>
 
 #include "Common.h"
 #include "DialogAbout.h"
@@ -114,6 +115,9 @@ MainWindow::MainWindow( QWidget * parent )
 
   _verticalSplitter->setCollapsible(0,false);
   _verticalSplitter->setCollapsible(1,true);
+
+  _leftSplitter->setCollapsible(0,false);
+  _leftSplitter->setCollapsible(1,true);
 
   _fullScreenWidget = new FullScreenWidget(this);
   connect( _fullScreenWidget, SIGNAL(escapePressed()),
@@ -268,12 +272,12 @@ MainWindow::MainWindow( QWidget * parent )
   _tbCamera->setIcon(QIcon::fromTheme("camera-photo",QIcon(":/images/camera.png")));
 #else
   _tbCamera->setIcon(QIcon(":images/camera.png");
-    #endif
+#endif
 
 
 
-      connect( _cbPreviewMode, SIGNAL(activated(int)),
-               this, SLOT(onPreviewModeChanged(int)));
+  connect( _cbPreviewMode, SIGNAL(activated(int)),
+           this, SLOT(onPreviewModeChanged(int)));
 
   connect( _tbZoomOriginal, SIGNAL( clicked() ),
            _imageView, SLOT( zoomOriginal() ) );
@@ -378,6 +382,33 @@ MainWindow::MainWindow( QWidget * parent )
     _webcam.start();
     _webcam.stop();
   }
+
+  // Favorites
+#if QT_VERSION >= 0x040600
+  _tbAddFave->setIcon(QIcon::fromTheme("list-add",QIcon(":/images/list-add.png")));
+  _tbRemoveFave->setIcon(QIcon::fromTheme("list-remove",QIcon(":/images/list-remove.png")));
+#else
+  _tbAddFave->setIcon(QIcon(":/images/list-add.png"));
+  _tbRemoveFave->setIcon(QIcon(":/images/list-remove.png")));
+#endif
+  int favesCount = settings.value("Faves/Count",0).toInt();
+  for (int i = 0; i < favesCount; ++i) {
+    QStringList list = settings.value(QString("Faves/%1").arg(i),QStringList()).toStringList();
+    if (list.size() >= 3) {
+      _cbFaves->addItem(list[0],list);
+    }
+  }
+  _cbFaves->setEnabled(favesCount);
+  _tbAddFave->setEnabled(false);
+  _tbRemoveFave->setEnabled(false);
+  connect( _tbAddFave, SIGNAL(clicked(bool)),
+           this, SLOT(onAddFave()) );
+  connect( _tbRemoveFave, SIGNAL(clicked(bool)),
+           this, SLOT(onRemoveFave()) );
+  connect( _cbFaves, SIGNAL(activated(int)),
+           this, SLOT(onFaveSelected(int)));
+
+
   updateWindowTitle();
 }
 
@@ -387,6 +418,11 @@ MainWindow::~MainWindow()
   for ( int i = 0; i < _cameraDefaultResolutionsIndexes.size(); ++i ) {
     settings.setValue(QString("WebcamSource/DefaultResolutionCam%1").arg(i),
                       WebcamSource::webcamResolutions(i).at(_cameraDefaultResolutionsIndexes[i]));
+  }
+  settings.remove("Faves");
+  settings.setValue("Faves/Count",_cbFaves->count());
+  for (int i = 0; i < _cbFaves->count(); ++i) {
+    settings.setValue(QString("Faves/%1").arg(i),_cbFaves->itemData(i).toStringList());
   }
   if ( _filterThread ) {
     _filterThread->stop();
@@ -832,10 +868,15 @@ MainWindow::commandModified()
 void
 MainWindow::presetClicked( QTreeWidgetItem * item, int  )
 {
-  if ( item->childCount() ) return;
+  if ( item->childCount() ) {
+    _tbAddFave->setEnabled(false);
+    return;
+  }
   TreeWidgetPresetItem * presetItem = dynamic_cast<TreeWidgetPresetItem*>(item);
-  if ( presetItem )
+  if ( presetItem ) {
+    _tbAddFave->setEnabled(true);
     setCurrentPreset( presetItem->node() );
+  }
   _tabParams->setCurrentIndex(1);
   int previewMode = _cbPreviewMode->itemData(_cbPreviewMode->currentIndex()).toInt();
   if ( previewMode == FilterThread::Original ) {
@@ -1101,6 +1142,54 @@ MainWindow::updateCameraResolutionCombo()
           this,SLOT(onWebcamResolutionComboChanged(int)));
 }
 
+TreeWidgetPresetItem *
+MainWindow::findPresetItem(const QString & folder, const QString & name)
+{
+  if (folder.isEmpty()) {
+    QTreeWidgetItemIterator it(_treeGPresets);
+    while (*it) {
+      if ((*it)->text(0) == name) {
+        return dynamic_cast<TreeWidgetPresetItem*>(*it);
+      }
+      ++it;
+    }
+  } else {
+    QTreeWidgetItemIterator it(_treeGPresets);
+    while (*it) {
+      if ((*it)->text(0) == folder) {
+        int count = (*it)->childCount();
+        for (int i=0; i<count; ++i) {
+          QTreeWidgetItem * item = (*it)->child(i);
+          if ( item->text(0) == name ) {
+            return dynamic_cast<TreeWidgetPresetItem*>(item);
+          }
+        }
+      }
+      ++it;
+    }
+  }
+  return 0;
+}
+
+QString
+MainWindow::faveUniqueName(const QString & name)
+{
+  int count = _cbFaves->count();
+  int n = 1;
+  for (int i = 0; i < count; ++i) {
+    QString s = _cbFaves->itemText(i);
+    s.replace(QRegExp(" \\(\\d*\\)"),"");
+    if ( s == name ) {
+      ++n;
+    }
+  }
+  if (n > 1) {
+    return QString("%1 (%2)").arg(name).arg(n);
+  } else {
+    return name;
+  }
+}
+
 void
 MainWindow::onRefreshCameraResolutions()
 {
@@ -1207,4 +1296,52 @@ void
 MainWindow::onOutputWindowClosing()
 {
   _outputWindowAction->setChecked(false);
+}
+
+void
+MainWindow::onAddFave()
+{
+  QTreeWidgetItem * item = _treeGPresets->currentItem();
+  QStringList faveData;
+  if ( item && item->childCount() == 0) {
+    // "Display Name", "Folder", "Filter Name", "Parameter0", "Parameter1", "Parameter3", etc.
+    faveData.append( faveUniqueName(item->text(0)) );
+    QTreeWidgetItem * parent = item->parent();
+    if ( parent ) {
+      faveData.append(parent->text(0));
+    } else {
+      faveData.append("");
+    }
+    faveData.append(item->text(0));
+    faveData.append(_commandParamsWidget->valueStringList());
+    _cbFaves->addItem(faveData[0],faveData);
+    _cbFaves->setCurrentIndex(_cbFaves->count()-1);
+    _cbFaves->setEnabled(true);
+    _cbFaves->model()->sort(0,Qt::AscendingOrder);
+    _tbRemoveFave->setEnabled(true);
+  }
+}
+
+void
+MainWindow::onRemoveFave()
+{
+  _cbFaves->removeItem(_cbFaves->currentIndex());
+  _cbFaves->setEnabled(_cbFaves->count());
+  _tbRemoveFave->setEnabled(_cbFaves->count());
+}
+
+void
+MainWindow::onFaveSelected(int index)
+{
+  _tbRemoveFave->setEnabled(true);
+  QStringList list = _cbFaves->itemData(index).toStringList();
+  TreeWidgetPresetItem * item = findPresetItem(list[1],list[2]);
+  if (item) {
+    list.pop_front();
+    list.pop_front();
+    list.pop_front();
+    _treeGPresets->setCurrentItem(item);
+    presetClicked(item,0);
+    _commandParamsWidget->setValues(list);
+  }
 }

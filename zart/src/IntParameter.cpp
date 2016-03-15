@@ -107,6 +107,16 @@ IntParameter::textValue() const
 }
 
 void
+IntParameter::setValue(const QString & value)
+{
+  _value = value.toInt();
+  if ( _spinBox ) {
+    _spinBox->setValue(_value);
+    _slider->setValue(_value);
+  }
+}
+
+void
 IntParameter::reset()
 {
   _slider->setValue(_default);

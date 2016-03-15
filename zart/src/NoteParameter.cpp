@@ -80,6 +80,11 @@ NoteParameter::textValue() const
 }
 
 void
+NoteParameter::setValue(const QString &)
+{
+}
+
+void
 NoteParameter::reset()
 {
 }

@@ -84,6 +84,10 @@ SeparatorParameter::textValue() const
   return QString::null;
 }
 
+void SeparatorParameter::setValue(const QString &)
+{
+}
+
 void
 SeparatorParameter::reset()
 {

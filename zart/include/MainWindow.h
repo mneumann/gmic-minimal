@@ -129,6 +129,9 @@ public slots:
   void initGUIFromCameraList(const QList<int> & camList, int firstUnused);
   void onOutputWindow(bool);
   void onOutputWindowClosing();
+  void onAddFave();
+  void onRemoveFave();
+  void onFaveSelected(int);
 
 private:
 
@@ -139,6 +142,9 @@ private:
   void setCurrentPreset( QDomNode node );
   void showOneSourceImage();
   void updateCameraResolutionCombo();
+  TreeWidgetPresetItem * findPresetItem( const QString & folder, const QString & name );
+
+  QString faveUniqueName(const QString & name);
 
   int _firstWebcamIndex;
   int _secondWebcamIndex;

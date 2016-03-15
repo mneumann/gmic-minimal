@@ -67,11 +67,13 @@ ColorParameter::ColorParameter(QDomNode node, QObject *parent)
   _name = node.attributes().namedItem( "name" ).nodeValue();
   QString def = node.attributes().namedItem( "default" ).nodeValue();
   QString value = node.toElement().attribute("savedValue",def);
-  int r,g,b,a;
-  char str[100] = {0};
-  strcpy(str,value.toLatin1().constData());
-  int n = sscanf(str,"%d,%d,%d,%d",&r,&g,&b,&a);
-  if ( n == 4 ) {
+
+  QStringList list = value.split(",");
+  int r = list[0].toInt();
+  int g = list[1].toInt();
+  int b = list[2].toInt();
+  if ( list.size() == 4 ) {
+    int a = list[3].toInt();
     _default = _value = QColor(r,g,b,a);
     _alphaChannel = true;
   } else {
@@ -116,6 +118,26 @@ ColorParameter::textValue() const
     return QString("%1,%2,%3,%4").arg(c.red()).arg(c.green()).arg(c.blue()).arg(c.alpha());
   else
     return QString("%1,%2,%3").arg(c.red()).arg(c.green()).arg(c.blue());
+}
+
+void
+ColorParameter::setValue(const QString & value)
+{
+  QStringList list = value.split(",");
+  int red = list[0].toInt();
+  int green = list[1].toInt();
+  int blue = list[2].toInt();
+  if ( list.size() == 4 ) {
+    int alpha = list[3].toInt();
+    _value = QColor(red,green,blue,alpha);
+    _alphaChannel = true;
+  } else {
+    _value = QColor(red,green,blue);
+    _alphaChannel = false;
+  }
+  if ( _button ) {
+    updateButtonColor();
+  }
 }
 
 void

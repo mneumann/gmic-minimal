@@ -57,6 +57,8 @@ public:
   virtual bool isVisible() const;
   virtual void addTo( QWidget *, int row ) = 0;
   virtual QString textValue() const = 0;
+  virtual QString unquotedTextValue() const;
+  virtual void setValue( const QString & value ) = 0;
   virtual void reset() = 0;
   virtual void saveValueInDOM() = 0;
   static AbstractParameter * createFromNode(QDomNode node , QObject * parent = 0);

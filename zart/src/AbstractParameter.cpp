@@ -73,8 +73,14 @@ AbstractParameter::isVisible() const
   return true;
 }
 
+QString
+AbstractParameter::unquotedTextValue() const
+{
+  return textValue();
+}
+
 AbstractParameter *
-AbstractParameter::createFromNode(QDomNode node, QObject * parent )
+AbstractParameter::createFromNode(QDomNode node, QObject * parent)
 {
    QString name = node.nodeName();
    if ( name == "int" ) {

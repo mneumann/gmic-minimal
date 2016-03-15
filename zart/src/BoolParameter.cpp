@@ -91,6 +91,15 @@ BoolParameter::textValue() const
 }
 
 void
+BoolParameter::setValue( const QString & value )
+{
+  _value = ( value == "1" );
+  if ( _checkBox ) {
+    _checkBox->setChecked(_value);
+  }
+}
+
+void
 BoolParameter::reset()
 {
   _checkBox->setChecked(_default);

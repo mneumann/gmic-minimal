@@ -114,6 +114,28 @@ CommandParamsWidget::valueString() const
   return _valueString;
 }
 
+QStringList
+CommandParamsWidget::valueStringList() const
+{
+  QStringList list;
+  for ( int i = 0; i < _presetParameters.size(); ++i ) {
+    list.append( _presetParameters[i]->unquotedTextValue() );
+  }
+  return list;
+}
+
+void
+CommandParamsWidget::setValues(const QStringList & list)
+{
+  if ( _presetParameters.size() != list.size() ) {
+    return;
+  }
+  for ( int i = 0; i < _presetParameters.size(); ++i ) {
+    _presetParameters[i]->setValue(list[i]);
+  }
+  updateValueString(true);
+}
+
 void
 CommandParamsWidget::saveValuesInDOM()
 {

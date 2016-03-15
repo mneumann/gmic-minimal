@@ -106,6 +106,15 @@ ChoiceParameter::textValue() const
 }
 
 void
+ChoiceParameter::setValue(const QString & value)
+{
+  _value = value.toInt();
+  if ( _comboBox ) {
+    _comboBox->setCurrentIndex(_value);
+  }
+}
+
+void
 ChoiceParameter::reset()
 {
   _comboBox->setCurrentIndex(_default);
