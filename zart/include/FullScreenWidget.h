@@ -52,7 +52,9 @@ class ImageView;
 class MainWindow;
 class QShowEvent;
 class QFrame;
-class QTreeWidget;
+class QTreeView;
+class QAbstractItemModel;
+class QComboBox;
 
 class FullScreenWidget : public QWidget, public Ui::FullScreenWidget {
   Q_OBJECT
@@ -60,12 +62,14 @@ public:
   FullScreenWidget( MainWindow * );
   ~FullScreenWidget();
   ImageView * imageView();
-  QTreeWidget * treeWidget();
+  QTreeWidget *treeWidget();
   CommandParamsWidget * commandParamsWidget();
+  void setFavesModel(QAbstractItemModel *);
+  QComboBox * cbFaves();
 protected:
   void showEvent(QShowEvent * event);
-  void mouseMoveEvent(QMouseEvent * event);
   void keyPressEvent( QKeyEvent * );
+  bool eventFilter( QObject * watched, QEvent * event );
 signals:
   void escapePressed();
   void spaceBarPressed();

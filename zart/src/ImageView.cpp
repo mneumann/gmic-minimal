@@ -75,6 +75,12 @@ ImageView::setImageSize(int width, int height)
 }
 
 void
+ImageView::setBackgroundColor(QColor color)
+{
+  _backgroundColor = color;
+}
+
+void
 ImageView::paintEvent( QPaintEvent * )
 {
   QPainter painter( this );
@@ -84,6 +90,9 @@ ImageView::paintEvent( QPaintEvent * )
     _imagePosition = rect();
     _scaleFactor = 1.0;
     return;
+  }
+  if ( _backgroundColor.isValid() ) {
+    painter.fillRect(rect(),_backgroundColor);
   }
   QImage scaled;
   const double imageRatio = _image.width() / static_cast<double>(_image.height() );

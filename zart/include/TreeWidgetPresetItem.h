@@ -51,6 +51,7 @@
 #include <QTreeWidget>
 #include <QTreeWidgetItem>
 #include <QDomNode>
+#include <QStringList>
 
 class TreeWidgetPresetItem : public QTreeWidgetItem {
 public:
@@ -58,7 +59,9 @@ public:
   TreeWidgetPresetItem(QTreeWidget * parent, const QStringList & strings, QDomNode node = QDomNode() );
   TreeWidgetPresetItem(QTreeWidgetItem * parent, const QStringList & strings, QDomNode node = QDomNode() );
   ~TreeWidgetPresetItem();
-  QDomNode node() const;
+  QDomNode node() const;  
+  TreeWidgetPresetItem * clone() const;
+  QStringList path() const;
 private:
   QDomNode _presetNode;
 };

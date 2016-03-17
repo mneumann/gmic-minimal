@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1263</width>
-    <height>853</height>
+    <width>985</width>
+    <height>830</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -265,7 +265,7 @@
                <enum>QTabWidget::Rounded</enum>
               </property>
               <property name="currentIndex">
-               <number>0</number>
+               <number>1</number>
               </property>
               <property name="elideMode">
                <enum>Qt::ElideNone</enum>
@@ -555,8 +555,8 @@
                     <rect>
                      <x>0</x>
                      <y>0</y>
-                     <width>62</width>
-                     <height>16</height>
+                     <width>453</width>
+                     <height>291</height>
                     </rect>
                    </property>
                    <layout class="QGridLayout" name="gridLayout_5">
@@ -714,7 +714,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1263</width>
+     <width>985</width>
      <height>22</height>
     </rect>
    </property>

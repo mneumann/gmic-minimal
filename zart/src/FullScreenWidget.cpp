@@ -76,14 +76,12 @@ FullScreenWidget::FullScreenWidget(MainWindow * mainwindow)
   connect( _imageView, SIGNAL( mouseMove( QMouseEvent * ) ),
            _mainWindow, SLOT( imageViewMouseEvent( QMouseEvent * ) ) );
   _imageView->setMouseTracking( true );
+  _imageView->setBackgroundColor(Qt::black);
   setMouseTracking(true);
   _rightFrame->setVisible(false);
   _splitter->setChildrenCollapsible(false);
-  layout()->setContentsMargins(1,0,1,0);
-
-  QPalette p = palette();
-  p.setColor(QPalette::Window,Qt::black);
-  setPalette(p);
+  layout()->setContentsMargins(0,0,0,0);
+  _imageView->installEventFilter(this);
 }
 
 FullScreenWidget::~FullScreenWidget()
@@ -104,6 +102,17 @@ FullScreenWidget::keyPressEvent( QKeyEvent * e )
   }
 }
 
+bool
+FullScreenWidget::eventFilter(QObject * , QEvent * event)
+{
+  if ( _rightFrame->isVisible() ||(event->type() != QEvent::MouseMove) ) return false;
+  if ( dynamic_cast<QMouseEvent*>(event)->x() == width() - 1 ) {
+    _rightFrame->setVisible(true);
+    return true;
+  } else {
+    return false;
+  }
+}
 
 ImageView *
 FullScreenWidget::imageView()
@@ -124,15 +133,19 @@ FullScreenWidget::commandParamsWidget()
 }
 
 void
-FullScreenWidget::showEvent(QShowEvent *)
+FullScreenWidget::setFavesModel(QAbstractItemModel * model)
 {
-  _imageView->setFocus();
+  _cbFaves->setModel(model);
+}
+
+QComboBox *
+FullScreenWidget::cbFaves()
+{
+  return _cbFaves;
 }
 
 void
-FullScreenWidget::mouseMoveEvent(QMouseEvent *event)
+FullScreenWidget::showEvent(QShowEvent *)
 {
-  if ( event->x() == width() - 1 && !_rightFrame->isVisible() ) {
-    _rightFrame->setVisible(true);
-  }
+  _imageView->setFocus();
 }

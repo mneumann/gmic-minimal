@@ -120,8 +120,9 @@ MainWindow::MainWindow( QWidget * parent )
   _leftSplitter->setCollapsible(1,true);
 
   _fullScreenWidget = new FullScreenWidget(this);
+  _fullScreenWidget->setFavesModel(_cbFaves->model());
   connect( _fullScreenWidget, SIGNAL(escapePressed()),
-           this, SLOT( leaveFullScreenMode()) );
+           this, SLOT( toggleFullScreenMode()) );
   _displayMode = InWindow;
 
   QSettings settings;
@@ -165,8 +166,6 @@ MainWindow::MainWindow( QWidget * parent )
   connect(_tbCamResolutionsRefresh,SIGNAL(clicked(bool)),
           this,SLOT(onRefreshCameraResolutions()));
 
-
-
   // Find available cameras, and setup the default one
   QList<int> cameras = WebcamSource::getWebcamList();
   int firstUnused = WebcamSource::getFirstUnusedWebcam();
@@ -187,7 +186,7 @@ MainWindow::MainWindow( QWidget * parent )
   action->setCheckable(true);
   action->setChecked(settings.value("showRightPanel",true).toBool());
 
-  action = menu->addAction("&Full screen",this,SLOT( enterFullScreenMode() ), QKeySequence( Qt::Key_F5 ) );
+  action = menu->addAction("&Full screen",this,SLOT( toggleFullScreenMode() ), QKeySequence( Qt::Key_F5 ) );
   action->setShortcutContext( Qt::ApplicationShortcut );
 
   _outputWindowAction = new QAction("&Secondary window",this);
@@ -399,6 +398,7 @@ MainWindow::MainWindow( QWidget * parent )
     }
   }
   _cbFaves->setEnabled(favesCount);
+  _fullScreenWidget->cbFaves()->setEnabled(favesCount);
   _tbAddFave->setEnabled(false);
   _tbRemoveFave->setEnabled(false);
   connect( _tbAddFave, SIGNAL(clicked(bool)),
@@ -407,7 +407,10 @@ MainWindow::MainWindow( QWidget * parent )
            this, SLOT(onRemoveFave()) );
   connect( _cbFaves, SIGNAL(activated(int)),
            this, SLOT(onFaveSelected(int)));
-
+  connect(_fullScreenWidget->cbFaves(),SIGNAL(activated(int)),
+          _cbFaves,SLOT(setCurrentIndex(int)));
+  connect(_fullScreenWidget->cbFaves(),SIGNAL(activated(int)),
+          this, SLOT(onFaveSelected(int)));
 
   updateWindowTitle();
 }
@@ -627,34 +630,34 @@ MainWindow::onCommandParametersChangedFullScreen()
   }
 }
 
-void MainWindow::enterFullScreenMode()
-{
-  if ( _displayMode == FullScreen ) { // F5 shortcut while already fullscreen
-    leaveFullScreenMode();
-    return;
-  }
-  _displayMode = FullScreen;
-  bool running = _filterThread && _filterThread->isRunning();
-  stop();
-  _commandParamsWidget->saveValuesInDOM();
-  _fullScreenWidget->imageView()->image() = _imageView->image();
-  _fullScreenWidget->imageView()->zoomFitBest();
-  _fullScreenWidget->commandParamsWidget()->build(_currentPresetNode);
-  _fullScreenWidget->showFullScreen();
-  if ( running ) {
-    play();
-  }
-}
-
 void
-MainWindow::leaveFullScreenMode()
+MainWindow::toggleFullScreenMode()
 {
-  _fullScreenWidget->close();
-  _displayMode = InWindow;
   bool running = _filterThread && _filterThread->isRunning();
-  stop();
-  _fullScreenWidget->commandParamsWidget()->saveValuesInDOM();
-  _commandParamsWidget->build(_currentPresetNode);
+  if ( _displayMode == FullScreen ) {   
+    TreeWidgetPresetItem * item = dynamic_cast<TreeWidgetPresetItem*>(_fullScreenWidget->treeWidget()->currentItem());
+    _fullScreenWidget->close();
+    _displayMode = InWindow;
+    stop();
+    _fullScreenWidget->commandParamsWidget()->saveValuesInDOM();
+    _commandParamsWidget->build(_currentPresetNode);
+    if ( item ) {
+      _treeGPresets->setCurrentItem(findPresetItem(_treeGPresets,item->path()));
+    }
+  } else { // InWindow to FullScreen mode
+    TreeWidgetPresetItem * item = dynamic_cast<TreeWidgetPresetItem*>(_treeGPresets->currentItem());
+    _displayMode = FullScreen;
+    stop();
+    _commandParamsWidget->saveValuesInDOM();
+    _fullScreenWidget->imageView()->image() = _imageView->image();
+    _fullScreenWidget->imageView()->zoomFitBest();
+    _fullScreenWidget->commandParamsWidget()->build(_currentPresetNode);
+    _fullScreenWidget->showFullScreen();
+    if ( item ) {
+      QTreeWidget * tw = _fullScreenWidget->treeWidget();
+      tw->setCurrentItem(findPresetItem(tw,item->path()));
+    }
+  }
   if ( running ) {
     play();
   }
@@ -868,18 +871,19 @@ MainWindow::commandModified()
 void
 MainWindow::presetClicked( QTreeWidgetItem * item, int  )
 {
-  if ( item->childCount() ) {
+  TreeWidgetPresetItem * presetItem = dynamic_cast<TreeWidgetPresetItem*>(item);
+  if ( ! presetItem ) {
+    return;
+  }
+  if ( presetItem->node().isNull() ) { // A "folder" has been clicked, not a preset
     _tbAddFave->setEnabled(false);
     return;
   }
-  TreeWidgetPresetItem * presetItem = dynamic_cast<TreeWidgetPresetItem*>(item);
-  if ( presetItem ) {
-    _tbAddFave->setEnabled(true);
-    setCurrentPreset( presetItem->node() );
-  }
+  _tbAddFave->setEnabled(true);
+  setCurrentPreset( presetItem->node() );
   _tabParams->setCurrentIndex(1);
   int previewMode = _cbPreviewMode->itemData(_cbPreviewMode->currentIndex()).toInt();
-  if ( previewMode == FilterThread::Original ) {
+  if (previewMode == FilterThread::Original) {
     _cbPreviewMode->setCurrentIndex(0);
     onPreviewModeChanged(0);
   }
@@ -890,12 +894,12 @@ void
 MainWindow::snapshot()
 {
   if ( _filterThread ) _startStopAction->setChecked(false);
-  QString filename = QFileDialog::getSaveFileName( this,
-                                                   "Save image as...",
-                                                   _currentDir,
-                                                   _imageFilters,
-                                                   0,
-                                                   0 );
+  QString filename = QFileDialog::getSaveFileName(this,
+                                                  "Save image as...",
+                                                  _currentDir,
+                                                  _imageFilters,
+                                                  0,
+                                                  0);
   if ( ! filename.isEmpty() ) {
     QFileInfo info( filename );
     _currentDir = info.filePath();
@@ -991,41 +995,40 @@ void
 MainWindow::setPresets(const QDomElement & domE)
 {
   _treeGPresets->clear();
-  _fullScreenWidget->treeWidget()->clear();
   _presetsCount = 0;
-  addPresets( domE, 0 , 0);
-  _treeGPresets->setHeaderLabel(QString("Presets (%1)").arg(_presetsCount));
-  _fullScreenWidget->treeWidget()->setHeaderLabel(QString("Presets (%1)").arg(_presetsCount));
+  addPresets( domE, 0 );
+
+  QString label;
+  label.sprintf("Presets (%d)",_presetsCount);
+  _treeGPresets->setHeaderLabel(label);
+  _fullScreenWidget->treeWidget()->setHeaderLabel(label);
+
+  _fullScreenWidget->treeWidget()->clear();
+  int count = _treeGPresets->topLevelItemCount();
+  for ( int i = 0; i < count; ++i ) {
+    _fullScreenWidget->treeWidget()->addTopLevelItem(_treeGPresets->topLevelItem(i)->clone());
+  }
 }
 
 void
 MainWindow::addPresets( const QDomElement & domE,
-                        TreeWidgetPresetItem * parentRegular,
-                        TreeWidgetPresetItem * parentFullscreen )
+                        TreeWidgetPresetItem * parent )
 {
   for( QDomNode node = domE.firstChild(); !node.isNull(); node = node.nextSibling() ) {
     QString name = node.attributes().namedItem( "name" ).nodeValue();
     if ( node.nodeName() == QString("preset") ) {
-      // QString text = n.firstChild().toText().data();
       QStringList strList;
       strList << name;
-      if ( ! parentRegular ) {
-        Q_ASSERT( ! parentFullscreen );
+      if ( ! parent ) {
         _treeGPresets->addTopLevelItem( new TreeWidgetPresetItem( strList, node ) );
-        _fullScreenWidget->treeWidget()->addTopLevelItem( new TreeWidgetPresetItem( strList, node ) );
       } else {
-        new TreeWidgetPresetItem( parentRegular, strList, node );
-        new TreeWidgetPresetItem( parentFullscreen, strList, node );
+        new TreeWidgetPresetItem( parent, strList, node );
       }
       ++_presetsCount;
     } else if ( node.nodeName() == QString("preset_group") ) {
-      QStringList strList;
-      strList << name;
-      TreeWidgetPresetItem * parent1 = new TreeWidgetPresetItem( strList );
-      TreeWidgetPresetItem * parent2 = new TreeWidgetPresetItem( strList );
-      _treeGPresets->addTopLevelItem( parent1 );
-      _fullScreenWidget->treeWidget()->addTopLevelItem( parent2 );
-      addPresets( node.toElement(), parent1, parent2 );
+      TreeWidgetPresetItem * folder = new TreeWidgetPresetItem( QStringList() << name );
+      _treeGPresets->addTopLevelItem( folder );
+      addPresets( node.toElement(), folder );
     }
   }
 }
@@ -1143,10 +1146,10 @@ MainWindow::updateCameraResolutionCombo()
 }
 
 TreeWidgetPresetItem *
-MainWindow::findPresetItem(const QString & folder, const QString & name)
+MainWindow::findPresetItem(QTreeWidget * tree, const QString & folder, const QString & name)
 {
   if (folder.isEmpty()) {
-    QTreeWidgetItemIterator it(_treeGPresets);
+    QTreeWidgetItemIterator it(tree);
     while (*it) {
       if ((*it)->text(0) == name) {
         return dynamic_cast<TreeWidgetPresetItem*>(*it);
@@ -1154,7 +1157,7 @@ MainWindow::findPresetItem(const QString & folder, const QString & name)
       ++it;
     }
   } else {
-    QTreeWidgetItemIterator it(_treeGPresets);
+    QTreeWidgetItemIterator it(tree);
     while (*it) {
       if ((*it)->text(0) == folder) {
         int count = (*it)->childCount();
@@ -1169,6 +1172,21 @@ MainWindow::findPresetItem(const QString & folder, const QString & name)
     }
   }
   return 0;
+}
+
+TreeWidgetPresetItem *
+MainWindow::findPresetItem(QTreeWidget *tree, const QStringList & path)
+{
+  switch( path.size() ) {
+  case 1:
+    return findPresetItem(tree,QString(),path[0]);
+    break;
+  case 2:
+    return findPresetItem(tree,path[0],path[1]);
+    break;
+  default:
+    return 0;
+  }
 }
 
 QString
@@ -1301,9 +1319,9 @@ MainWindow::onOutputWindowClosing()
 void
 MainWindow::onAddFave()
 {
-  QTreeWidgetItem * item = _treeGPresets->currentItem();
+  TreeWidgetPresetItem * item = dynamic_cast<TreeWidgetPresetItem*>(_treeGPresets->currentItem());
   QStringList faveData;
-  if ( item && item->childCount() == 0) {
+  if ( item && (! item->node().isNull()) ) {
     // "Display Name", "Folder", "Filter Name", "Parameter0", "Parameter1", "Parameter3", etc.
     faveData.append( faveUniqueName(item->text(0)) );
     QTreeWidgetItem * parent = item->parent();
@@ -1317,6 +1335,7 @@ MainWindow::onAddFave()
     _cbFaves->addItem(faveData[0],faveData);
     _cbFaves->setCurrentIndex(_cbFaves->count()-1);
     _cbFaves->setEnabled(true);
+    _fullScreenWidget->cbFaves()->setEnabled(true);
     _cbFaves->model()->sort(0,Qt::AscendingOrder);
     _tbRemoveFave->setEnabled(true);
   }
@@ -1327,6 +1346,7 @@ MainWindow::onRemoveFave()
 {
   _cbFaves->removeItem(_cbFaves->currentIndex());
   _cbFaves->setEnabled(_cbFaves->count());
+  _fullScreenWidget->cbFaves()->setEnabled(_cbFaves->count());
   _tbRemoveFave->setEnabled(_cbFaves->count());
 }
 
@@ -1335,12 +1355,17 @@ MainWindow::onFaveSelected(int index)
 {
   _tbRemoveFave->setEnabled(true);
   QStringList list = _cbFaves->itemData(index).toStringList();
-  TreeWidgetPresetItem * item = findPresetItem(list[1],list[2]);
+  QString folder = list[1];
+  QString name  = list[2];
+  TreeWidgetPresetItem * item = findPresetItem(_treeGPresets,folder,name);
   if (item) {
     list.pop_front();
     list.pop_front();
     list.pop_front();
     _treeGPresets->setCurrentItem(item);
+    QTreeWidget * tree = _fullScreenWidget->treeWidget();
+    TreeWidgetPresetItem * itemFS = findPresetItem(tree,folder,name);
+    tree->setCurrentItem(itemFS);
     presetClicked(item,0);
     _commandParamsWidget->setValues(list);
   }

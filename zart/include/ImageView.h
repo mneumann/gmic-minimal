@@ -52,13 +52,14 @@
 class QPaintEvent;
 
 class ImageView : public QWidget {
-  Q_OBJECT;
+  Q_OBJECT
 
 public:
   ImageView( QWidget * parent = 0 );
   inline QImage & image();
   inline QMutex & imageMutex();
   void setImageSize(int width, int height);
+  void setBackgroundColor(QColor);
 
 public slots:
   void zoomOriginal();
@@ -90,6 +91,7 @@ private:
   QRect _imagePosition;
   double _scaleFactor;
   bool _zoomOriginal;
+  QColor _backgroundColor;
 };
 
 QImage &

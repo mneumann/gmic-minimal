@@ -122,8 +122,7 @@ public slots:
   void onFilterThreadFinished();
   void onCommandParametersChanged();
   void onCommandParametersChangedFullScreen();
-  void enterFullScreenMode();
-  void leaveFullScreenMode();
+  void toggleFullScreenMode();
   void onRefreshCameraResolutions();
   void onDetectCameras();
   void initGUIFromCameraList(const QList<int> & camList, int firstUnused);
@@ -136,13 +135,13 @@ public slots:
 private:
 
   void setPresets( const QDomElement & );
-  void addPresets( const QDomElement &,
-                   TreeWidgetPresetItem *,
-                   TreeWidgetPresetItem * );
+  void addPresets(const QDomElement &,
+                  TreeWidgetPresetItem * parent);
   void setCurrentPreset( QDomNode node );
   void showOneSourceImage();
   void updateCameraResolutionCombo();
-  TreeWidgetPresetItem * findPresetItem( const QString & folder, const QString & name );
+  TreeWidgetPresetItem * findPresetItem(QTreeWidget * tree, const QString & folder, const QString & name );
+  TreeWidgetPresetItem * findPresetItem(QTreeWidget * tree, const QStringList & path  );
 
   QString faveUniqueName(const QString & name);
 

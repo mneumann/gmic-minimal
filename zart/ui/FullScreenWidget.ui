@@ -6,21 +6,43 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>859</width>
-    <height>580</height>
+    <width>850</width>
+    <height>590</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QHBoxLayout" name="horizontalLayout">
+  <layout class="QHBoxLayout" name="horizontalLayout" stretch="3,1">
+   <property name="spacing">
+    <number>0</number>
+   </property>
+   <property name="leftMargin">
+    <number>0</number>
+   </property>
+   <property name="topMargin">
+    <number>0</number>
+   </property>
+   <property name="rightMargin">
+    <number>0</number>
+   </property>
+   <property name="bottomMargin">
+    <number>0</number>
+   </property>
    <item>
-    <widget class="ImageView" name="_imageView" native="true"/>
+    <widget class="ImageView" name="_imageView" native="true">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+    </widget>
    </item>
    <item>
     <widget class="QFrame" name="_rightFrame">
      <property name="sizePolicy">
-      <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+      <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
@@ -54,45 +76,62 @@
        </layout>
       </item>
       <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_2">
+        <item>
+         <widget class="QLabel" name="label">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string>Faves</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QComboBox" name="_cbFaves"/>
+        </item>
+       </layout>
+      </item>
+      <item>
        <widget class="QSplitter" name="_splitter">
         <property name="orientation">
          <enum>Qt::Vertical</enum>
         </property>
-        <property name="childrenCollapsible">
-         <bool>false</bool>
-        </property>
         <widget class="QTreeWidget" name="_treePresetsFullScreen">
+         <column>
+          <property name="text">
+           <string>Presets</string>
+          </property>
+         </column>
+        </widget>
+        <widget class="QScrollArea" name="scrollArea">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+          <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
-         <column>
-          <property name="text">
-           <string notr="true">Presets</string>
+         <property name="widgetResizable">
+          <bool>true</bool>
+         </property>
+         <widget class="QWidget" name="scrollAreaWidgetContents">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>190</width>
+            <height>82</height>
+           </rect>
           </property>
-         </column>
-        </widget>
-        <widget class="QWidget" name="layoutWidget">
-         <layout class="QVBoxLayout" name="verticalLayout">
-          <item>
-           <widget class="CommandParamsWidget" name="_commandParamsWidget" native="true"/>
-          </item>
-          <item>
-           <spacer name="verticalSpacer">
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>20</width>
-              <height>40</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-         </layout>
+          <layout class="QGridLayout" name="gridLayout_2">
+           <item row="0" column="0">
+            <widget class="CommandParamsWidget" name="_commandParamsWidget" native="true"/>
+           </item>
+          </layout>
+         </widget>
         </widget>
        </widget>
       </item>
@@ -105,7 +144,7 @@
   <customwidget>
    <class>ImageView</class>
    <extends>QWidget</extends>
-   <header>include/ImageView.h</header>
+   <header>ImageView.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
