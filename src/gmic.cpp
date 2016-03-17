@@ -13862,7 +13862,12 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
     position = commands_line.size();
     is_released = is_quit = true;
   } catch (CImgException &e) {
-    CImg<char> error_message(e.what(),(unsigned int)std::strlen(e.what()) + 1);
+    const char *e_ptr = e.what();
+    if (!std::strncmp(e.what(),"[_cimg_math_parser] ",20)) {
+      e_ptr = std::strstr(e.what(),": ");
+      if (e_ptr) e_ptr+=2; else e_ptr = e.what();
+    }
+    CImg<char> error_message(e_ptr,(unsigned int)std::strlen(e_ptr) + 1);
     for (char *str = std::strstr(error_message,"CImg<"); str; str = std::strstr(str,"CImg<")) {
       str[0] = 'g'; str[1] = 'm'; str[2] = 'i'; str[3] = 'c';
     }
@@ -13946,7 +13951,6 @@ int main(int argc, char **argv) {
   CImg<char> commands_user, commands_update, filename_update;
   bool is_invalid_user = false, is_invalid_update = false;
   char sep = 0;
-  cimg::exception_mode(0);
   gmic_instance.verbosity = -1;
 
   // Update file (in resources directory).
