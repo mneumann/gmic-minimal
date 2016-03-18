@@ -13862,11 +13862,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
     position = commands_line.size();
     is_released = is_quit = true;
   } catch (CImgException &e) {
-    const char *e_ptr = e.what();
-    if (!std::strncmp(e.what(),"[_cimg_math_parser] ",20)) {
-      e_ptr = std::strstr(e.what(),": ");
-      if (e_ptr) e_ptr+=2; else e_ptr = e.what();
-    }
+    const char *const e_ptr = e.what() + (!std::strncmp(e.what(),"[_cimg_math_parser] ",20)?20:0);
     CImg<char> error_message(e_ptr,(unsigned int)std::strlen(e_ptr) + 1);
     for (char *str = std::strstr(error_message,"CImg<"); str; str = std::strstr(str,"CImg<")) {
       str[0] = 'g'; str[1] = 'm'; str[2] = 'i'; str[3] = 'c';
