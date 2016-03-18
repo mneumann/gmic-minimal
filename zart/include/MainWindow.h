@@ -78,9 +78,9 @@ class MainWindow : public QMainWindow, public Ui::MainWindow {
   Q_OBJECT
 public:
 
-  MainWindow( QWidget * parent = 0 );
+  MainWindow(QWidget * parent = 0);
   ~MainWindow();
-  QString getPreset( const QString & name );
+  QString getPreset(const QString & name);
 
   enum Source { Webcam, StillImage, Video };
   enum DisplayMode { InWindow, FullScreen };
@@ -93,27 +93,27 @@ public slots:
   void onEndOfSource();
   void onPlayAction(bool);
   void commandModified();
-  void presetClicked( QTreeWidgetItem * item, int column );
+  void presetClicked(QTreeWidgetItem * item, int column);
 
-  void imageViewMouseEvent( QMouseEvent * );
+  void imageViewMouseEvent(QMouseEvent *);
   void snapshot();
   void about();
   void license();
   void visitGMIC();
-  void setWebcamSkipFrames(int );
-  void setVideoSkipFrames(int );
-  void setImageFPS(int );
-  void setVideoFPS(int );
-  void setPresetsFile( const QString & = QString() );
+  void setWebcamSkipFrames(int);
+  void setVideoSkipFrames(int);
+  void setImageFPS(int);
+  void setVideoFPS(int);
+  void setPresetsFile(const QString & = QString());
   void savePresetsFile();
 
-  void onWebcamComboChanged( int index );
-  void onWebcamResolutionComboChanged(int i );
-  void onUseBuiltinPresets( bool );
+  void onWebcamComboChanged(int index);
+  void onWebcamResolutionComboChanged(int i);
+  void onUseBuiltinPresets(bool);
   void onReloadPresets();
-  void onPreviewModeChanged( int index );
-  void onRightPanel( bool );
-  void onComboSourceChanged( int );
+  void onPreviewModeChanged(int index);
+  void onRightPanel(bool);
+  void onComboSourceChanged(int);
   void onOpenImageFile();
   void onOpenVideoFile();
   void updateWindowTitle();
@@ -134,14 +134,14 @@ public slots:
 
 private:
 
-  void setPresets( const QDomElement & );
+  void setPresets(const QDomElement &);
   void addPresets(const QDomElement &,
                   TreeWidgetPresetItem * parent);
-  void setCurrentPreset( QDomNode node );
+  void setCurrentPreset(QDomNode node);
   void showOneSourceImage();
   void updateCameraResolutionCombo();
-  TreeWidgetPresetItem * findPresetItem(QTreeWidget * tree, const QString & folder, const QString & name );
-  TreeWidgetPresetItem * findPresetItem(QTreeWidget * tree, const QStringList & path  );
+  TreeWidgetPresetItem * findPresetItem(QTreeWidget * tree, const QString & folder, const QString & name);
+  TreeWidgetPresetItem * findPresetItem(QTreeWidget * tree, const QStringList & path);
 
   QString faveUniqueName(const QString & name);
 

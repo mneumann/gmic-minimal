@@ -53,21 +53,21 @@
 #include <QTime>
 IplImage * ImageConverter::_image = 0;
 
-void ImageConverter::convert( const IplImage * in, QImage * out )
+void ImageConverter::convert(const IplImage * in, QImage * out)
 {  
-  if ( !in || !out ) return;
+  if (!in || !out) return;
   assert(in->depth== IPL_DEPTH_8U);
   assert(in->nChannels == 3);
   const unsigned int w3 = 3 * in->width;
   const unsigned int qiOffset = (w3%4)?(4-(w3%4)):0;
   const unsigned int iplOffset = in->widthStep - w3;
-  unsigned char * src = reinterpret_cast<unsigned char *>( in->imageData );
-  unsigned char * dst = reinterpret_cast<unsigned char *>( out->scanLine( 0 ) );
+  unsigned char * src = reinterpret_cast<unsigned char *>(in->imageData);
+  unsigned char * dst = reinterpret_cast<unsigned char *>(out->scanLine(0));
   unsigned char * endSrc;
   unsigned int line = in->height;
-  while ( line-- ) {
+  while (line--) {
     endSrc = src + w3;
-    while ( src != endSrc ) {
+    while (src != endSrc) {
       dst[0] = src[2];
       dst[1] = src[1];
       dst[2] = src[0];
@@ -82,18 +82,18 @@ void ImageConverter::convert( const IplImage * in, QImage * out )
 
 void ImageConverter::convert(const QImage & in, IplImage **out)
 {
-  if ( !out ) return;
+  if (!out) return;
   *out = cvCreateImage(cvSize(in.width(),in.height()),IPL_DEPTH_8U,3);
   const unsigned int w3 = 3 * in.width();
   const unsigned int qiOffset = (w3%4)?(4-(w3%4)):0;
   const unsigned int iplOffset = (*out)->widthStep - w3;
-  unsigned char * dst = reinterpret_cast<unsigned char *>( (*out)->imageData );
-  const unsigned char * src = reinterpret_cast<const unsigned char *>( in.scanLine( 0 ) );
+  unsigned char * dst = reinterpret_cast<unsigned char *>((*out)->imageData);
+  const unsigned char * src = reinterpret_cast<const unsigned char *>(in.scanLine(0));
   const unsigned char * endSrc;
   unsigned int line = in.height();
-  while ( line-- ) {
+  while (line--) {
     endSrc = src + w3;
-    while ( src != endSrc ) {
+    while (src != endSrc) {
       dst[0] = src[2];
       dst[1] = src[1];
       dst[2] = src[0];
@@ -105,83 +105,83 @@ void ImageConverter::convert(const QImage & in, IplImage **out)
   }
 }
 
-void ImageConverter::convert( const cimg_library::CImg<float> & in, QImage * out )
+void ImageConverter::convert(const cimg_library::CImg<float> & in, QImage * out)
 {
-  if ( !out ) return;
+  if (!out) return;
   const int spectrum = in.spectrum();
   unsigned char * dst = out->scanLine(0);
-  const float *srcR = in.data( 0,0,0,0 );
+  const float *srcR = in.data(0,0,0,0);
   const float * endSrcR = srcR;
-  const float *srcG = in.data( 0,0,0,(spectrum>=2)?1:0 );
-  const float *srcB = in.data( 0,0,0,(spectrum>=3)?2:0 );
+  const float *srcG = in.data(0,0,0,(spectrum>=2)?1:0);
+  const float *srcB = in.data(0,0,0,(spectrum>=3)?2:0);
   unsigned int height = out->height();
   const unsigned int width = out->width();
   const unsigned int offset = ((width*3)%4)?(4-((width*3)%4)):0;
-  while ( height-- ) {
+  while (height--) {
     endSrcR += width;
-    while ( srcR != endSrcR ) {
-      dst[0] = static_cast<unsigned char>( *srcR++ );
-      dst[1] = static_cast<unsigned char>( *srcG++ );
-      dst[2] = static_cast<unsigned char>( *srcB++ );
+    while (srcR != endSrcR) {
+      dst[0] = static_cast<unsigned char>(*srcR++);
+      dst[1] = static_cast<unsigned char>(*srcG++);
+      dst[2] = static_cast<unsigned char>(*srcB++);
       dst += 3;
     }
     dst += offset;
   }
 }
 
-void ImageConverter::merge( IplImage * iplImage,
-                            const cimg_library::CImg<float> & cimgImage,
-                            QImage * out,
-                            QMutex * imageMutex,
-                            MergeDirection direction )
+void ImageConverter::merge(IplImage * iplImage,
+                           const cimg_library::CImg<float> & cimgImage,
+                           QImage * out,
+                           QMutex * imageMutex,
+                           MergeDirection direction)
 {
-  if ( !iplImage || !out ) return;
+  if (!iplImage || !out) return;
   IplImage * cameraImage = iplImage;
-  if ( iplImage->width != cimgImage.width() || iplImage->height != cimgImage.height() ) {
-    if ( _image )
+  if (iplImage->width != cimgImage.width() || iplImage->height != cimgImage.height()) {
+    if (_image)
       cvReleaseImage(&_image);
     _image = cvCreateImage(cvSize(cimgImage.width(),cimgImage.height()),IPL_DEPTH_8U,3);
     cvResize(iplImage,_image,CV_INTER_LINEAR);
     cameraImage = _image;
   }
-  QSize size( cimgImage.width(), cimgImage.height());
-  if ( out->size() != size ) {
+  QSize size(cimgImage.width(), cimgImage.height());
+  if (out->size() != size) {
     imageMutex->lock();
-    *out = QImage( size, QImage::Format_RGB888 );
+    *out = QImage(size, QImage::Format_RGB888);
     imageMutex->unlock();
   }
   switch (direction) {
   case MergeTop:
-    mergeTop( cameraImage, cimgImage, out );
+    mergeTop(cameraImage, cimgImage, out);
     break;
   case MergeLeft:
-    mergeLeft( cameraImage, cimgImage, out );
+    mergeLeft(cameraImage, cimgImage, out);
     break;
   case MergeBottom:
-    mergeBottom( cameraImage, cimgImage, out );
+    mergeBottom(cameraImage, cimgImage, out);
     break;
   case MergeRight:
-    mergeRight( cameraImage, cimgImage, out );
+    mergeRight(cameraImage, cimgImage, out);
     break;
   case DuplicateVertical:
-    mergeBottom(cameraImage, cimgImage, out, false );
+    mergeBottom(cameraImage, cimgImage, out, false);
     break;
   case DuplicateHorizontal:
-    mergeRight(cameraImage, cimgImage, out, false );
+    mergeRight(cameraImage, cimgImage, out, false);
     break;
   }
 }
 
-void ImageConverter::mergeTop( IplImage * iplImage,
-                               const cimg_library::CImg<float> & cimgImage,
-                               QImage * out )
+void ImageConverter::mergeTop(IplImage * iplImage,
+                              const cimg_library::CImg<float> & cimgImage,
+                              QImage * out)
 {
   const int height = iplImage->height;
   const int width = iplImage->width;
   const int spectrum = cimgImage.spectrum();
-  const float *srcR = cimgImage.data( 0,0,0,0 );
-  const float *srcG = cimgImage.data( 0,0,0,(spectrum>=2)?1:0 );
-  const float *srcB = cimgImage.data( 0,0,0,(spectrum>=3)?2:0 );
+  const float *srcR = cimgImage.data(0,0,0,0);
+  const float *srcG = cimgImage.data(0,0,0,(spectrum>=2)?1:0);
+  const float *srcB = cimgImage.data(0,0,0,(spectrum>=3)?2:0);
   unsigned char * dst = out->scanLine(0);
   unsigned char * endDst;
   const unsigned int qiOffset = ((width*3)%4)?(4-((width*3)%4)):0;
@@ -189,24 +189,24 @@ void ImageConverter::mergeTop( IplImage * iplImage,
 
   // Copy from cimgImage
   unsigned int lines = height/2;
-  while ( lines-- ) {
+  while (lines--) {
     endDst= dst + 3 * width;
-    while ( dst != endDst ) {
-      dst[0] = static_cast<unsigned char>( *srcR++ );
-      dst[1] = static_cast<unsigned char>( *srcG++ );
-      dst[2] = static_cast<unsigned char>( *srcB++ );
+    while (dst != endDst) {
+      dst[0] = static_cast<unsigned char>(*srcR++);
+      dst[1] = static_cast<unsigned char>(*srcG++);
+      dst[2] = static_cast<unsigned char>(*srcB++);
       dst += 3;
     }
     dst += qiOffset;
   }
 
   // Copy from iplImage
-  unsigned char * srcIpl = reinterpret_cast<unsigned char *>( iplImage->imageData );
+  unsigned char * srcIpl = reinterpret_cast<unsigned char *>(iplImage->imageData);
   srcIpl +=  (height/2) * iplImage->widthStep;
   lines = height - height/2;
-  while ( lines-- ) {
+  while (lines--) {
     endDst= dst + 3 * width;
-    while ( dst != endDst ) {
+    while (dst != endDst) {
       dst[0] = srcIpl[2];
       dst[1] = srcIpl[1];
       dst[2] = srcIpl[0];
@@ -218,16 +218,16 @@ void ImageConverter::mergeTop( IplImage * iplImage,
   }
 }
 
-void ImageConverter::mergeLeft( IplImage * iplImage,
-                                const cimg_library::CImg<float> & cimgImage,
-                                QImage * out )
+void ImageConverter::mergeLeft(IplImage * iplImage,
+                               const cimg_library::CImg<float> & cimgImage,
+                               QImage * out)
 {
   const int width = iplImage->width;
   const int spectrum = cimgImage.spectrum();
-  const float *srcR = cimgImage.data( 0,0,0,0 );
-  const float *srcG = cimgImage.data( 0,0,0,(spectrum>=2)?1:0 );
-  const float *srcB = cimgImage.data( 0,0,0,(spectrum>=3)?2:0 );
-  unsigned char * srcIpl = reinterpret_cast<unsigned char *>( iplImage->imageData );
+  const float *srcR = cimgImage.data(0,0,0,0);
+  const float *srcG = cimgImage.data(0,0,0,(spectrum>=2)?1:0);
+  const float *srcB = cimgImage.data(0,0,0,(spectrum>=3)?2:0);
+  unsigned char * srcIpl = reinterpret_cast<unsigned char *>(iplImage->imageData);
   unsigned char * dst = out->scanLine(0);
   unsigned char * endDst;
   const unsigned int qiOffset = ((width*3)%4)?(4-((width*3)%4)):0;
@@ -236,12 +236,12 @@ void ImageConverter::mergeLeft( IplImage * iplImage,
   const unsigned int firstHalf = width/2;
   const unsigned int secondHalf = width - width/2;
   int height = iplImage->height;
-  while ( height-- ) {
+  while (height--) {
     endDst= dst + 3 * firstHalf;
-    while ( dst != endDst ) {
-      dst[0] = static_cast<unsigned char>( *srcR++ );
-      dst[1] = static_cast<unsigned char>( *srcG++ );
-      dst[2] = static_cast<unsigned char>( *srcB++ );
+    while (dst != endDst) {
+      dst[0] = static_cast<unsigned char>(*srcR++);
+      dst[1] = static_cast<unsigned char>(*srcG++);
+      dst[2] = static_cast<unsigned char>(*srcB++);
       dst += 3;
     }
     srcR += secondHalf;
@@ -250,7 +250,7 @@ void ImageConverter::mergeLeft( IplImage * iplImage,
 
     srcIpl += 3 * firstHalf;
     endDst= dst + 3 * secondHalf;
-    while ( dst != endDst ) {
+    while (dst != endDst) {
       dst[0] = srcIpl[2];
       dst[1] = srcIpl[1];
       dst[2] = srcIpl[0];
@@ -275,11 +275,11 @@ void ImageConverter::mergeBottom(IplImage * iplImage,
   const unsigned int iplOffset = iplImage->widthStep - 3 * width;
 
   // Copy from iplImage
-  unsigned char * srcIpl = reinterpret_cast<unsigned char *>( iplImage->imageData );
+  unsigned char * srcIpl = reinterpret_cast<unsigned char *>(iplImage->imageData);
   unsigned int lines = height/2;
-  while ( lines-- ) {
+  while (lines--) {
     endDst= dst + 3 * width;
-    while ( dst != endDst ) {
+    while (dst != endDst) {
       dst[0] = srcIpl[2];
       dst[1] = srcIpl[1];
       dst[2] = srcIpl[0];
@@ -293,16 +293,16 @@ void ImageConverter::mergeBottom(IplImage * iplImage,
   // Copy from cimgImage
   const unsigned int cimgOffset = (shift ? (width * (height/2)) : 0);
   const int spectrum = cimgImage.spectrum();
-  const float *srcR = cimgImage.data( 0,0,0,0 ) + cimgOffset;
-  const float *srcG = cimgImage.data( 0,0,0,(spectrum>=2)?1:0 ) + cimgOffset;
-  const float *srcB = cimgImage.data( 0,0,0,(spectrum>=3)?2:0 ) + cimgOffset;
+  const float *srcR = cimgImage.data(0,0,0,0) + cimgOffset;
+  const float *srcG = cimgImage.data(0,0,0,(spectrum>=2)?1:0) + cimgOffset;
+  const float *srcB = cimgImage.data(0,0,0,(spectrum>=3)?2:0) + cimgOffset;
   lines = height - height/2;
-  while ( lines-- ) {
+  while (lines--) {
     endDst= dst + 3 * width;
-    while ( dst != endDst ) {
-      dst[0] = static_cast<unsigned char>( *srcR++ );
-      dst[1] = static_cast<unsigned char>( *srcG++ );
-      dst[2] = static_cast<unsigned char>( *srcB++ );
+    while (dst != endDst) {
+      dst[0] = static_cast<unsigned char>(*srcR++);
+      dst[1] = static_cast<unsigned char>(*srcG++);
+      dst[2] = static_cast<unsigned char>(*srcB++);
       dst += 3;
     }
     dst += qiOffset;
@@ -319,11 +319,11 @@ void ImageConverter::mergeRight(IplImage * iplImage,
   const unsigned int secondHalf = width - width/2;
 
   const int spectrum = cimgImage.spectrum();
-  const float *srcR = cimgImage.data( 0,0,0,0 ) + (shift?firstHalf:0);
-  const float *srcG = cimgImage.data( 0,0,0,(spectrum>=2)?1:0 ) + (shift?firstHalf:0);
-  const float *srcB = cimgImage.data( 0,0,0,(spectrum>=3)?2:0 ) + (shift?firstHalf:0);
+  const float *srcR = cimgImage.data(0,0,0,0) + (shift?firstHalf:0);
+  const float *srcG = cimgImage.data(0,0,0,(spectrum>=2)?1:0) + (shift?firstHalf:0);
+  const float *srcB = cimgImage.data(0,0,0,(spectrum>=3)?2:0) + (shift?firstHalf:0);
 
-  unsigned char * srcIpl = reinterpret_cast<unsigned char *>( iplImage->imageData );
+  unsigned char * srcIpl = reinterpret_cast<unsigned char *>(iplImage->imageData);
   const unsigned int iplOffset = iplImage->widthStep - 3 * width;
   const unsigned int iplShift = 3 * secondHalf + iplOffset;
 
@@ -332,10 +332,10 @@ void ImageConverter::mergeRight(IplImage * iplImage,
   const unsigned int qiOffset = ((width*3)%4)?(4-((width*3)%4)):0;
 
   int height = iplImage->height;
-  while ( height-- ) {
+  while (height--) {
     // First half from iplImage
     endDst= dst + 3 * firstHalf;
-    while ( dst != endDst ) {
+    while (dst != endDst) {
       dst[0] = srcIpl[2];
       dst[1] = srcIpl[1];
       dst[2] = srcIpl[0];
@@ -345,10 +345,10 @@ void ImageConverter::mergeRight(IplImage * iplImage,
     srcIpl += iplShift;
     // Second half from cimgImage
     endDst= dst + 3 * secondHalf;
-    while ( dst != endDst ) {
-      dst[0] = static_cast<unsigned char>( *srcR++ );
-      dst[1] = static_cast<unsigned char>( *srcG++ );
-      dst[2] = static_cast<unsigned char>( *srcB++ );
+    while (dst != endDst) {
+      dst[0] = static_cast<unsigned char>(*srcR++);
+      dst[1] = static_cast<unsigned char>(*srcG++);
+      dst[2] = static_cast<unsigned char>(*srcB++);
       dst += 3;
     }
     srcR += firstHalf;
@@ -358,23 +358,23 @@ void ImageConverter::mergeRight(IplImage * iplImage,
   }
 }
 
-void ImageConverter::convert( const IplImage * in, cimg_library::CImg<float> & out )
+void ImageConverter::convert(const IplImage * in, cimg_library::CImg<float> & out)
 {
   assert(in->depth== IPL_DEPTH_8U);
   assert(in->nChannels == 3);
   assert(in);
   const int spectrum = out.spectrum();
-  float * dstR = out.data( 0,0,0,0 );
-  float * dstG = out.data( 0,0,0,(spectrum>=2)?1:0 );
-  float * dstB = out.data( 0,0,0,(spectrum>=3)?2:0 );
-  const unsigned char * src = reinterpret_cast<unsigned char*>(in->imageData );
+  float * dstR = out.data(0,0,0,0);
+  float * dstG = out.data(0,0,0,(spectrum>=2)?1:0);
+  float * dstB = out.data(0,0,0,(spectrum>=3)?2:0);
+  const unsigned char * src = reinterpret_cast<unsigned char*>(in->imageData);
   const unsigned char * endSrc;
   const unsigned int w3 = in->width * 3;
   const unsigned int iplOffset = in->widthStep - w3;
   unsigned int height = in->height;
-  while ( height-- ) {
+  while (height--) {
     endSrc = src + w3;
-    while ( src != endSrc ) {
+    while (src != endSrc) {
       *dstB++ = static_cast<float>(src[0]);
       *dstG++ = static_cast<float>(src[1]);
       *dstR++ = static_cast<float>(src[2]);

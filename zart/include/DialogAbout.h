@@ -55,7 +55,7 @@
 class DialogAbout : public QDialog, public Ui::DialogAbout  {
 
 public:
-  DialogAbout( QWidget * parent );
+  DialogAbout(QWidget * parent);
 
 protected:
 

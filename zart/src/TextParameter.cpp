@@ -57,8 +57,8 @@ TextParameter::TextParameter(QDomNode node, QObject *parent)
     _label(0),
     _lineEdit(0)
 {
-  _name = node.attributes().namedItem( "name" ).nodeValue();
-  QString def = node.attributes().namedItem( "default" ).nodeValue();
+  _name = node.attributes().namedItem("name").nodeValue();
+  QString def = node.attributes().namedItem("default").nodeValue();
   _default = node.toElement().attribute("default",QString());
   _value = node.toElement().attribute("savedValue",_default);
 }
@@ -72,8 +72,8 @@ TextParameter::~TextParameter()
 void
 TextParameter::addTo(QWidget * widget, int row)
 {
-  QGridLayout * grid = dynamic_cast<QGridLayout*>( widget->layout() );
-  if ( ! grid ) return;
+  QGridLayout * grid = dynamic_cast<QGridLayout*>(widget->layout());
+  if (! grid) return;
   delete _label;
   delete _lineEdit;
   _lineEdit = new QLineEdit(_value,widget);
@@ -88,7 +88,7 @@ TextParameter::textValue() const
 {
   QString text = _lineEdit->text();
   text.replace(QChar('"'),QString("\\\""));
-  if ( _lineEdit->text().isEmpty())
+  if (_lineEdit->text().isEmpty())
     return QString("\"\\\"\\\"\"");
   else
     return QString("\"%1\"").arg(text);
@@ -104,7 +104,7 @@ void
 TextParameter::setValue(const QString & value)
 {
   _value = value;
-  if ( _lineEdit ) {
+  if (_lineEdit) {
     _lineEdit->setText(_value);
   }
 }

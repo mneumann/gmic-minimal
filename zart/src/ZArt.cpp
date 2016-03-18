@@ -63,14 +63,14 @@ void onSigQuit(int)
 }
 #endif
 
-int main( int argc, char *argv[] )
+int main(int argc, char *argv[])
 {
 #ifdef _IS_UNIX_
   signal(SIGQUIT,onSigQuit);
   signal(SIGINT,onSigQuit);
 #endif
-  QApplication app( argc, argv );
-  app.setWindowIcon( QIcon(":images/gmic_hat.png") );
+  QApplication app(argc, argv);
+  app.setWindowIcon(QIcon(":images/gmic_hat.png"));
   QCoreApplication::setOrganizationName("GREYC");
   QCoreApplication::setOrganizationDomain("greyc.fr");
   QCoreApplication::setApplicationName("ZArt");
@@ -79,7 +79,7 @@ int main( int argc, char *argv[] )
   QStringList args = app.arguments();
   QStringList::iterator it = args.begin();
   while (it != args.end()) {
-    if ( it->startsWith("-h") || it->startsWith("--help") ) {
+    if (it->startsWith("-h") || it->startsWith("--help")) {
       cout << "Usage:" << endl
            << "       "
            << QFileInfo(argv[0]).baseName().toLatin1().constData()
@@ -95,12 +95,12 @@ int main( int argc, char *argv[] )
   QSplashScreen splashScreen(QPixmap(":/images/splash.png"));
   splashScreen.show();
   app.processEvents();
-  if ( QApplication::arguments().contains("--clear-cams") ) {
+  if (QApplication::arguments().contains("--clear-cams")) {
     WebcamSource::clearSavedSettings();
   }
   WebcamSource::retrieveWebcamResolutions(WebcamSource::getWebcamList(),
                                           &splashScreen);
-  if ( ! gmic::init_rc() ) {
+  if (! gmic::init_rc()) {
     cerr << "[ZArt] Warning: Could not create resources directory.\n";
   }
   MainWindow mainWindow;

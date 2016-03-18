@@ -55,7 +55,7 @@ class ImageView : public QWidget {
   Q_OBJECT
 
 public:
-  ImageView( QWidget * parent = 0 );
+  ImageView(QWidget * parent = 0);
   inline QImage & image();
   inline QMutex & imageMutex();
   void setImageSize(int width, int height);
@@ -67,25 +67,25 @@ public slots:
   void checkSize();
 
 protected:
-  void paintEvent( QPaintEvent * );
-  void mousePressEvent( QMouseEvent * );
-  void mouseReleaseEvent( QMouseEvent * );
+  void paintEvent(QPaintEvent *);
+  void mousePressEvent(QMouseEvent *);
+  void mouseReleaseEvent(QMouseEvent *);
   void mouseDoubleClickEvent(QMouseEvent *);
-  void mouseMoveEvent( QMouseEvent * );
-  void resizeEvent ( QResizeEvent * );
-  void keyPressEvent( QKeyEvent * );
-  void closeEvent( QCloseEvent * );
+  void mouseMoveEvent(QMouseEvent *);
+  void resizeEvent (QResizeEvent *);
+  void keyPressEvent(QKeyEvent *);
+  void closeEvent(QCloseEvent *);
 
 signals:
-  void mousePress( QMouseEvent * );
-  void mouseMove( QMouseEvent * );
-  void mouseDoubleClick( QMouseEvent * );
+  void mousePress(QMouseEvent *);
+  void mouseMove(QMouseEvent *);
+  void mouseDoubleClick(QMouseEvent *);
   void aboutToClose();
   void spaceBarPressed();
   void escapePressed();
 
 private:
-  QMouseEvent mapMousePositionToImage( QMouseEvent * e );
+  QMouseEvent mapMousePositionToImage(QMouseEvent * e);
   QImage _image;
   QMutex _imageMutex;
   QRect _imagePosition;

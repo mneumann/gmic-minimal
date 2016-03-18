@@ -55,7 +55,7 @@ StillImageSource::StillImageSource()
 
 StillImageSource::~StillImageSource()
 {
-  if ( image() ) {
+  if (image()) {
     IplImage * iplImage = image();
     cvReleaseImage(&iplImage);
   }
@@ -69,17 +69,17 @@ bool StillImageSource::loadImage(QString filename)
 {
   QImage qimage;
   QFileInfo info(filename);
-  if ( ! info.isReadable() ) {
+  if (! info.isReadable()) {
     return false;
   }
-  if ( ! qimage.load(filename) ) {
+  if (! qimage.load(filename)) {
     return false;
   }
   QImage rgb = qimage.convertToFormat(QImage::Format_RGB888);
   _filename = info.fileName();
   _filePath = info.absolutePath();
   IplImage * iplImage = image();
-  if ( iplImage )
+  if (iplImage)
     cvReleaseImage(&iplImage);
   iplImage = 0;
   ImageConverter::convert(rgb,&iplImage);

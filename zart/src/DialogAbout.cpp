@@ -49,12 +49,12 @@
 /**
  * Constructor
  */
-DialogAbout::DialogAbout( QWidget * parent )
-  :QDialog( parent )
+DialogAbout::DialogAbout(QWidget * parent)
+  :QDialog(parent)
 {
-  setupUi( this );
+  setupUi(this);
   setWindowTitle("About ZArt");
   QString str = _topLabel->text();
-  str.replace( "VERSION", ZART_VERSION );
-  _topLabel->setText( str );
+  str.replace("VERSION", ZART_VERSION_STRING);
+  _topLabel->setText(str);
 }

@@ -59,7 +59,7 @@ class QComboBox;
 class FullScreenWidget : public QWidget, public Ui::FullScreenWidget {
   Q_OBJECT
 public:
-  FullScreenWidget( MainWindow * );
+  FullScreenWidget(MainWindow *);
   ~FullScreenWidget();
   ImageView * imageView();
   QTreeWidget *treeWidget();
@@ -68,8 +68,8 @@ public:
   QComboBox * cbFaves();
 protected:
   void showEvent(QShowEvent * event);
-  void keyPressEvent( QKeyEvent * );
-  bool eventFilter( QObject * watched, QEvent * event );
+  void keyPressEvent(QKeyEvent *);
+  bool eventFilter(QObject * watched, QEvent * event);
 signals:
   void escapePressed();
   void spaceBarPressed();

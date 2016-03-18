@@ -55,9 +55,9 @@ class LinkParameter : public AbstractParameter {
 public:
   LinkParameter(QDomNode node, QObject * parent = 0);
   ~LinkParameter();
-  void addTo( QWidget *, int row );
+  void addTo(QWidget *, int row);
   QString textValue() const;
-  void setValue( const QString & value );
+  void setValue(const QString & value);
   void reset();
   void saveValueInDOM();
 public slots:

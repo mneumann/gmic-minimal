@@ -62,9 +62,9 @@ class ColorParameter : public AbstractParameter {
 public:
   ColorParameter(QDomNode node, QObject * parent = 0);
   ~ColorParameter();
-  void addTo( QWidget *, int row );
+  void addTo(QWidget *, int row);
   QString textValue() const;
-  void setValue( const QString & value);
+  void setValue(const QString & value);
   void reset();
   void saveValueInDOM();
 public slots:

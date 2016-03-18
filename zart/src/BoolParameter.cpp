@@ -57,8 +57,8 @@ BoolParameter::BoolParameter(QDomNode node, QObject *parent)
     _label(0),
     _checkBox(0)
 {
-  _name = node.attributes().namedItem( "name" ).nodeValue();
-  QString def = node.attributes().namedItem( "default" ).nodeValue();
+  _name = node.attributes().namedItem("name").nodeValue();
+  QString def = node.attributes().namedItem("default").nodeValue();
   QString value = node.toElement().attribute("savedValue",def);
   _default = def.toInt();
   _value = value.toInt();
@@ -73,15 +73,15 @@ BoolParameter::~BoolParameter()
 void
 BoolParameter::addTo(QWidget * widget, int row)
 {
-  QGridLayout * grid = dynamic_cast<QGridLayout*>( widget->layout() );
-  if ( ! grid ) return;
+  QGridLayout * grid = dynamic_cast<QGridLayout*>(widget->layout());
+  if (! grid) return;
   delete _checkBox;
   delete _label;
   _checkBox = new QCheckBox(_name,widget);
   _checkBox->setChecked(_value);
   grid->addWidget(_checkBox,row,0,1,3);
-  connect( _checkBox, SIGNAL(toggled(bool)),
-           this, SLOT(onCheckBoxChanged(bool)));
+  connect(_checkBox, SIGNAL(toggled(bool)),
+          this, SLOT(onCheckBoxChanged(bool)));
 }
 
 QString
@@ -91,10 +91,10 @@ BoolParameter::textValue() const
 }
 
 void
-BoolParameter::setValue( const QString & value )
+BoolParameter::setValue(const QString & value)
 {
-  _value = ( value == "1" );
-  if ( _checkBox ) {
+  _value = (value == "1");
+  if (_checkBox) {
     _checkBox->setChecked(_value);
   }
 }

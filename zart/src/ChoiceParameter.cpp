@@ -58,7 +58,7 @@ ChoiceParameter::ChoiceParameter(QDomNode node, QObject *parent)
     _label(0),
     _comboBox(0)
 {
-  _name = node.attributes().namedItem( "name" ).nodeValue();
+  _name = node.attributes().namedItem("name").nodeValue();
 
   QString def = node.toElement().attribute("default","0");
   QString value = node.toElement().attribute("savedValue",def);
@@ -75,17 +75,17 @@ ChoiceParameter::~ChoiceParameter()
 void
 ChoiceParameter::addTo(QWidget * widget, int row)
 {
-  QGridLayout * grid = dynamic_cast<QGridLayout*>( widget->layout() );
-  if ( ! grid ) return;
+  QGridLayout * grid = dynamic_cast<QGridLayout*>(widget->layout());
+  if (! grid) return;
   delete _comboBox;
   delete _label;
 
   _comboBox = new QComboBox(widget);
   QDomNamedNodeMap attributes = _node.attributes();
   bool done = false;
-  for ( int i = 0; i < 50 && !done; ++i ) {
+  for (int i = 0; i < 50 && !done; ++i) {
     QDomAttr attr = attributes.namedItem(QString("choice%1").arg(i)).toAttr();
-    if ( attr.isNull() ) {
+    if (attr.isNull()) {
       done = true;
     } else {
       _comboBox->addItem(attr.nodeValue(),QVariant(i));
@@ -95,8 +95,8 @@ ChoiceParameter::addTo(QWidget * widget, int row)
 
   grid->addWidget(_label = new QLabel(_name,widget),row,0,1,1);
   grid->addWidget(_comboBox,row,1,1,2);
-  connect( _comboBox, SIGNAL(currentIndexChanged(int)),
-           this, SLOT(onComboBoxIndexChanged(int)));
+  connect(_comboBox, SIGNAL(currentIndexChanged(int)),
+          this, SLOT(onComboBoxIndexChanged(int)));
 }
 
 QString
@@ -109,7 +109,7 @@ void
 ChoiceParameter::setValue(const QString & value)
 {
   _value = value.toInt();
-  if ( _comboBox ) {
+  if (_comboBox) {
     _comboBox->setCurrentIndex(_value);
   }
 }

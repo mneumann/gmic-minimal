@@ -63,7 +63,7 @@ public:
 
   enum PreviewMode { Full, TopHalf, LeftHalf, BottomHalf, RightHalf, DuplicateVertical, DuplicateHorizontal, Original };
 
-  FilterThread( ImageSource & webcam,
+  FilterThread(ImageSource & webcam,
                 const QString & command,
                 QImage * outputImageA,
                 QMutex * imageMutexA,
@@ -72,20 +72,20 @@ public:
                 PreviewMode previewMode,
                 int frameSkip,
                 int fps,
-                QSemaphore * blockingSemaphore );
+                QSemaphore * blockingSemaphore);
 
   virtual ~FilterThread();
 
   void run();
-  void setMousePosition( int x, int y, int buttons );
+  void setMousePosition(int x, int y, int buttons);
 
-  void setArguments(const QString & );
+  void setArguments(const QString &);
 
 public slots:
 
-  void setFrameSkip( int );
-  void setFPS( int );
-  void setPreviewMode( PreviewMode );
+  void setFrameSkip(int);
+  void setFPS(int);
+  void setPreviewMode(PreviewMode);
   void stop();
 
 signals:
@@ -95,7 +95,7 @@ signals:
 
 private:
 
-  void setCommand( const QString & command );
+  void setCommand(const QString & command);
 
   ImageSource & _imageSource;
   QString _command;

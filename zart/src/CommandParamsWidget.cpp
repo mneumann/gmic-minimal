@@ -76,11 +76,11 @@ CommandParamsWidget::build(QDomNode presetNode)
 
   int row = 0;
   QDomNode child = presetNode.firstChild();
-  while ( ! child.isNull() ) {
-    AbstractParameter * parameter = AbstractParameter::createFromNode( child, this );
-    if ( parameter ) {
+  while (! child.isNull()) {
+    AbstractParameter * parameter = AbstractParameter::createFromNode(child, this);
+    if (parameter) {
       _presetParameters.push_back(parameter);
-      if ( parameter->isVisible() ) {
+      if (parameter->isVisible()) {
         parameter->addTo(this,row++);
       }
       connect(parameter,SIGNAL(valueChanged()),
@@ -88,7 +88,7 @@ CommandParamsWidget::build(QDomNode presetNode)
     }
     child = child.nextSibling();
   }
-  if ( row ) {
+  if (row) {
     _pbReset = new QPushButton("Reset",this);
     grid->addWidget(_pbReset,row,0,1,3);
     connect(_pbReset,SIGNAL(clicked()),
@@ -118,8 +118,8 @@ QStringList
 CommandParamsWidget::valueStringList() const
 {
   QStringList list;
-  for ( int i = 0; i < _presetParameters.size(); ++i ) {
-    list.append( _presetParameters[i]->unquotedTextValue() );
+  for (int i = 0; i < _presetParameters.size(); ++i) {
+    list.append(_presetParameters[i]->unquotedTextValue());
   }
   return list;
 }
@@ -127,10 +127,10 @@ CommandParamsWidget::valueStringList() const
 void
 CommandParamsWidget::setValues(const QStringList & list)
 {
-  if ( _presetParameters.size() != list.size() ) {
+  if (_presetParameters.size() != list.size()) {
     return;
   }
-  for ( int i = 0; i < _presetParameters.size(); ++i ) {
+  for (int i = 0; i < _presetParameters.size(); ++i) {
     _presetParameters[i]->setValue(list[i]);
   }
   updateValueString(true);
@@ -139,7 +139,7 @@ CommandParamsWidget::setValues(const QStringList & list)
 void
 CommandParamsWidget::saveValuesInDOM()
 {
-  for ( int i = 0; i < _presetParameters.size(); ++i ) {
+  for (int i = 0; i < _presetParameters.size(); ++i) {
     _presetParameters[i]->saveValueInDOM();
   }
 }
@@ -149,24 +149,24 @@ CommandParamsWidget::updateValueString(bool notify)
 {
   _valueString.clear();
   bool firstParameter = true;
-  for ( int i = 0; i < _presetParameters.size(); ++i ) {
+  for (int i = 0; i < _presetParameters.size(); ++i) {
     QString str = _presetParameters[i]->textValue();
-    if ( !str.isNull() ) {
-      if ( !firstParameter ) {
+    if (!str.isNull()) {
+      if (!firstParameter) {
         _valueString += ",";
       }
       _valueString += str;
       firstParameter = false;
     }
   }
-  if ( notify )
+  if (notify)
     emit valueChanged();
 }
 
 void
 CommandParamsWidget::reset()
 {
-  for ( int i = 0; i < _presetParameters.size(); ++i ) {
+  for (int i = 0; i < _presetParameters.size(); ++i) {
     _presetParameters[i]->reset();
   }
   updateValueString(true);
@@ -176,9 +176,9 @@ void
 CommandParamsWidget::clear()
 {
   QVector<AbstractParameter*>::iterator it = _presetParameters.begin();
-  while (it != _presetParameters.end() ) {
-     delete *it;
-     ++it;
+  while (it != _presetParameters.end()) {
+    delete *it;
+    ++it;
   }
   _presetParameters.clear();
   delete _pbReset;

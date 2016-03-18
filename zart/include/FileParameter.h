@@ -57,10 +57,10 @@ class FileParameter : public AbstractParameter {
 public:
   FileParameter(QDomNode node, QObject * parent = 0);
   ~FileParameter();
-  void addTo( QWidget *, int row );
+  void addTo(QWidget *, int row);
   QString textValue() const;
   QString unquotedTextValue() const;
-  void setValue( const QString & value );
+  void setValue(const QString & value);
   void reset();
   void saveValueInDOM();
 public slots:

@@ -69,7 +69,7 @@ public:
   ~WebcamSource();
   int cameraIndex();
   void capture();
-  void setCameraIndex( int i );
+  void setCameraIndex(int i);
   void stop();
   void start();
   QSize captureSize();

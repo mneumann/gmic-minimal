@@ -59,10 +59,10 @@ IntParameter::IntParameter(QDomNode node, QObject *parent)
     _slider(0),
     _spinBox(0)
 {
-  _name = node.attributes().namedItem( "name" ).nodeValue();
-  QString min = node.attributes().namedItem( "min" ).nodeValue();
-  QString max = node.attributes().namedItem( "max" ).nodeValue();
-  QString def = node.attributes().namedItem( "default" ).nodeValue();
+  _name = node.attributes().namedItem("name").nodeValue();
+  QString min = node.attributes().namedItem("min").nodeValue();
+  QString max = node.attributes().namedItem("max").nodeValue();
+  QString def = node.attributes().namedItem("default").nodeValue();
   QString value = node.toElement().attribute("savedValue",def);
   _min = min.toInt();
   _max = max.toInt();
@@ -80,8 +80,8 @@ IntParameter::~IntParameter()
 void
 IntParameter::addTo(QWidget * widget, int row)
 {
-  QGridLayout * grid = dynamic_cast<QGridLayout*>( widget->layout() );
-  if ( ! grid ) return;
+  QGridLayout * grid = dynamic_cast<QGridLayout*>(widget->layout());
+  if (! grid) return;
   delete _spinBox;
   delete _slider;
   delete _label;
@@ -94,10 +94,10 @@ IntParameter::addTo(QWidget * widget, int row)
   grid->addWidget(_label = new QLabel(_name,widget),row,0,1,1);
   grid->addWidget(_slider,row,1,1,1);
   grid->addWidget(_spinBox,row,2,1,1);
-  connect( _slider, SIGNAL(valueChanged(int)),
-           this, SLOT(onSliderChanged(int)));
-  connect( _spinBox, SIGNAL(valueChanged(int)),
-           this, SLOT(onSpinBoxChanged(int)));
+  connect(_slider, SIGNAL(valueChanged(int)),
+          this, SLOT(onSliderChanged(int)));
+  connect(_spinBox, SIGNAL(valueChanged(int)),
+          this, SLOT(onSpinBoxChanged(int)));
 }
 
 QString
@@ -110,7 +110,7 @@ void
 IntParameter::setValue(const QString & value)
 {
   _value = value.toInt();
-  if ( _spinBox ) {
+  if (_spinBox) {
     _spinBox->setValue(_value);
     _slider->setValue(_value);
   }
@@ -145,4 +145,3 @@ IntParameter::onSpinBoxChanged(int i)
   _slider->setValue(i);
   emit valueChanged();
 }
-

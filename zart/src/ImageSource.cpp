@@ -78,7 +78,7 @@ void
 ImageSource::setImage(IplImage *image)
 {
   _image = image;
-  if ( _image ) {
+  if (_image) {
     _width = image->width;
     _height = image->height;
   } else {

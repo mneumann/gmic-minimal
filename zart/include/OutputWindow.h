@@ -57,16 +57,16 @@ class QTreeWidget;
 class OutputWindow: public QWidget, public Ui::OutputWindow {
   Q_OBJECT
 public:
-  OutputWindow(MainWindow * );
+  OutputWindow(MainWindow *);
   ~OutputWindow();
   ImageView * imageView();
 protected:
   void showEvent(QShowEvent * event);
-  void keyPressEvent( QKeyEvent * );
+  void keyPressEvent(QKeyEvent *);
   void closeEvent(QCloseEvent * event);
 public slots:
   void onCloseClicked();
-  void onShowFullscreen(bool );
+  void onShowFullscreen(bool);
   void onToggleFullScreen();
 signals:
   void escapePressed();

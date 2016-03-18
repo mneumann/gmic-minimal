@@ -55,9 +55,9 @@ public:
   ConstParameter(QDomNode node, QObject * parent = 0);
   ~ConstParameter();
   bool isVisible() const;
-  void addTo( QWidget *, int row );
+  void addTo(QWidget *, int row);
   QString textValue() const;
-  void setValue( const QString & value );
+  void setValue(const QString & value);
   void reset();
   void saveValueInDOM();
 signals:

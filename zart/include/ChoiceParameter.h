@@ -57,9 +57,9 @@ class ChoiceParameter : public AbstractParameter {
 public:
   ChoiceParameter(QDomNode node, QObject * parent = 0);
   ~ChoiceParameter();
-  void addTo( QWidget *, int row );
+  void addTo(QWidget *, int row);
   QString textValue() const;
-  void setValue( const QString & );
+  void setValue(const QString &);
   void reset();
   void saveValueInDOM();
 public slots:

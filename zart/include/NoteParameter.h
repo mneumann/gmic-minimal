@@ -54,9 +54,9 @@ class NoteParameter : public AbstractParameter {
 public:
   NoteParameter(QDomNode node, QObject * parent = 0);
   ~NoteParameter();
-  void addTo( QWidget *, int row );
+  void addTo(QWidget *, int row);
   QString textValue() const;
-  void setValue( const QString & value );
+  void setValue(const QString & value);
   void reset();
   void saveValueInDOM();
 signals:

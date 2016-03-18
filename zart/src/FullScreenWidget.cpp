@@ -59,7 +59,7 @@ FullScreenWidget::FullScreenWidget(MainWindow * mainwindow)
   setupUi(this);
 
 #if QT_VERSION >= 0x040600
-  _tbFoldRightPanel->setIcon( QIcon::fromTheme( "window-close") );
+  _tbFoldRightPanel->setIcon(QIcon::fromTheme("window-close"));
 #else
   _tbFoldRightPanel->setText("Hide >>");
 #endif
@@ -67,15 +67,15 @@ FullScreenWidget::FullScreenWidget(MainWindow * mainwindow)
           _rightFrame, SLOT(hide()));
   connect(_tbFoldRightPanel,SIGNAL(clicked()),
           _imageView, SLOT(setFocus()));
-  connect( _imageView, SIGNAL(escapePressed()),
-           this, SIGNAL(escapePressed()) );
-  connect( _imageView, SIGNAL(spaceBarPressed()),
-           this, SIGNAL(spaceBarPressed()) );
-  connect( _imageView, SIGNAL( mousePress( QMouseEvent * ) ),
-           _mainWindow, SLOT( imageViewMouseEvent( QMouseEvent * ) ) );
-  connect( _imageView, SIGNAL( mouseMove( QMouseEvent * ) ),
-           _mainWindow, SLOT( imageViewMouseEvent( QMouseEvent * ) ) );
-  _imageView->setMouseTracking( true );
+  connect(_imageView, SIGNAL(escapePressed()),
+          this, SIGNAL(escapePressed()));
+  connect(_imageView, SIGNAL(spaceBarPressed()),
+          this, SIGNAL(spaceBarPressed()));
+  connect(_imageView, SIGNAL(mousePress(QMouseEvent *)),
+          _mainWindow, SLOT(imageViewMouseEvent(QMouseEvent *)));
+  connect(_imageView, SIGNAL(mouseMove(QMouseEvent *)),
+          _mainWindow, SLOT(imageViewMouseEvent(QMouseEvent *)));
+  _imageView->setMouseTracking(true);
   _imageView->setBackgroundColor(Qt::black);
   setMouseTracking(true);
   _rightFrame->setVisible(false);
@@ -90,13 +90,13 @@ FullScreenWidget::~FullScreenWidget()
 }
 
 void
-FullScreenWidget::keyPressEvent( QKeyEvent * e )
+FullScreenWidget::keyPressEvent(QKeyEvent * e)
 {
-  if ( e->key() == Qt::Key_Escape || e->key() == Qt::Key_F5) {
+  if (e->key() == Qt::Key_Escape || e->key() == Qt::Key_F5) {
     emit escapePressed();
     e->accept();
   }
-  if ( e->key() == Qt::Key_Space && !_rightFrame->isVisible() ) {
+  if (e->key() == Qt::Key_Space && !_rightFrame->isVisible()) {
     emit spaceBarPressed();
     e->accept();
   }
@@ -105,8 +105,8 @@ FullScreenWidget::keyPressEvent( QKeyEvent * e )
 bool
 FullScreenWidget::eventFilter(QObject * , QEvent * event)
 {
-  if ( _rightFrame->isVisible() ||(event->type() != QEvent::MouseMove) ) return false;
-  if ( dynamic_cast<QMouseEvent*>(event)->x() == width() - 1 ) {
+  if (_rightFrame->isVisible() ||(event->type() != QEvent::MouseMove)) return false;
+  if (dynamic_cast<QMouseEvent*>(event)->x() == width() - 1) {
     _rightFrame->setVisible(true);
     return true;
   } else {

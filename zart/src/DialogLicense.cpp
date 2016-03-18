@@ -50,10 +50,10 @@
 /**
  * Constructor
  */
-DialogLicense::DialogLicense( QWidget * parent )
-  :QDialog( parent )
+DialogLicense::DialogLicense(QWidget * parent)
+  :QDialog(parent)
 {
-  setupUi( this );
+  setupUi(this);
   QFile license(":/Licence_CeCILL_V2-en.html");
   license.open(QFile::ReadOnly);
   _text->setText(license.readAll());

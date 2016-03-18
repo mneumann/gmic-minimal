@@ -67,21 +67,21 @@ OutputWindow::OutputWindow(MainWindow * mainwindow)
 #endif
   _pbClose->setCheckable(false);
   _tbFullScreen->setCheckable(true);
-  connect( _tbFullScreen, SIGNAL(toggled(bool)),
-           this, SLOT(onShowFullscreen(bool)) );
-  connect( _pbClose, SIGNAL(clicked(bool)),
-           this, SLOT(onCloseClicked()) );
-  connect( _imageView, SIGNAL(escapePressed()),
-           this, SIGNAL(escapePressed()) );
-  connect( _imageView, SIGNAL(spaceBarPressed()),
-           this, SIGNAL(spaceBarPressed()) );
-  connect( _imageView, SIGNAL( mousePress( QMouseEvent * ) ),
-           _mainWindow, SLOT( imageViewMouseEvent( QMouseEvent * ) ) );
-  connect( _imageView, SIGNAL( mouseMove( QMouseEvent * ) ),
-           _mainWindow, SLOT( imageViewMouseEvent( QMouseEvent * ) ) );
-  connect( _imageView, SIGNAL(mouseDoubleClick(QMouseEvent*)),
-           this, SLOT(onToggleFullScreen()) );
-  _imageView->setMouseTracking( true );
+  connect(_tbFullScreen, SIGNAL(toggled(bool)),
+          this, SLOT(onShowFullscreen(bool)));
+  connect(_pbClose, SIGNAL(clicked(bool)),
+          this, SLOT(onCloseClicked()));
+  connect(_imageView, SIGNAL(escapePressed()),
+          this, SIGNAL(escapePressed()));
+  connect(_imageView, SIGNAL(spaceBarPressed()),
+          this, SIGNAL(spaceBarPressed()));
+  connect(_imageView, SIGNAL(mousePress(QMouseEvent *)),
+          _mainWindow, SLOT(imageViewMouseEvent(QMouseEvent *)));
+  connect(_imageView, SIGNAL(mouseMove(QMouseEvent *)),
+          _mainWindow, SLOT(imageViewMouseEvent(QMouseEvent *)));
+  connect(_imageView, SIGNAL(mouseDoubleClick(QMouseEvent*)),
+          this, SLOT(onToggleFullScreen()));
+  _imageView->setMouseTracking(true);
   setMouseTracking(true);
   layout()->setContentsMargins(1,0,1,0);
 }
@@ -91,14 +91,14 @@ OutputWindow::~OutputWindow()
 }
 
 void
-OutputWindow::keyPressEvent( QKeyEvent * e )
+OutputWindow::keyPressEvent(QKeyEvent * e)
 {    
-  if ( isFullScreen() && (e->key() == Qt::Key_Escape || e->key() == Qt::Key_F5) ) {
+  if (isFullScreen() && (e->key() == Qt::Key_Escape || e->key() == Qt::Key_F5)) {
     onShowFullscreen(false);
     emit escapePressed();
     e->accept();
   }
-  if ( e->key() == Qt::Key_Space ) {
+  if (e->key() == Qt::Key_Space) {
     emit spaceBarPressed();
     e->accept();
   }

@@ -54,15 +54,12 @@
 class CommandEditor : public QPlainTextEdit {
   Q_OBJECT
 public:
-  /**
-    * Constructor with no arguments.
-    */
-  CommandEditor( QWidget * parent = 0 );
+  CommandEditor(QWidget * parent = 0);
   ~CommandEditor();
 signals:
   void commandModified();
 protected:
-  void keyPressEvent ( QKeyEvent * event );
+  void keyPressEvent (QKeyEvent * event);
 private:
 
 };

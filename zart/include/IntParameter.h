@@ -58,9 +58,9 @@ class IntParameter : public AbstractParameter {
 public:
   IntParameter(QDomNode node, QObject * parent = 0);
   ~IntParameter();
-  void addTo( QWidget *, int row );
+  void addTo(QWidget *, int row);
   QString textValue() const;
-  void setValue( const QString & value );
+  void setValue(const QString & value);
   void reset();
   void saveValueInDOM();
 public slots:

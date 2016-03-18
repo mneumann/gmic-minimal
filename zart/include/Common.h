@@ -48,17 +48,14 @@
 #define _COMMON_H_
 
 #include <iostream>
+#include <QDebug>
 
-#ifdef _ZART_DEBUG_
-#define SHOW( V ) std::cerr << " " #V " = " << ( V ) << std::endl << std::flush
-#define QSHOW( V ) std::cerr << " " #V " = " << ( QString("%1").arg( V ).toLatin1().constData() ) << std::endl << std::flush
-#define CERR std::cerr
-#else
-#define SHOW( V ) if ( false ) std::cerr << std::endl
-#define QSHOW( V ) if ( false ) std::cerr << std::endl
-#define CERR if ( false ) std::cerr
-#endif
+#define SHOW(V) qDebug() << " " #V " = " << (V)
 
-#define ZART_VERSION "3.0.1"
+#define ZART_VERSION 3.2.1
+
+#define ZART_STRINGIFY(X) #X
+#define ZART_XSTRINGIFY(X) ZART_STRINGIFY(X)
+#define ZART_VERSION_STRING ZART_XSTRINGIFY(ZART_VERSION)
 
 #endif

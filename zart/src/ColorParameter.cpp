@@ -64,15 +64,15 @@ ColorParameter::ColorParameter(QDomNode node, QObject *parent)
     _button(0),
     _dialog(0)
 {
-  _name = node.attributes().namedItem( "name" ).nodeValue();
-  QString def = node.attributes().namedItem( "default" ).nodeValue();
+  _name = node.attributes().namedItem("name").nodeValue();
+  QString def = node.attributes().namedItem("default").nodeValue();
   QString value = node.toElement().attribute("savedValue",def);
 
   QStringList list = value.split(",");
   int r = list[0].toInt();
   int g = list[1].toInt();
   int b = list[2].toInt();
-  if ( list.size() == 4 ) {
+  if (list.size() == 4) {
     int a = list[3].toInt();
     _default = _value = QColor(r,g,b,a);
     _alphaChannel = true;
@@ -91,8 +91,8 @@ ColorParameter::~ColorParameter()
 void
 ColorParameter::addTo(QWidget * widget, int row)
 {
-  QGridLayout * grid = dynamic_cast<QGridLayout*>( widget->layout() );
-  if ( ! grid ) return;
+  QGridLayout * grid = dynamic_cast<QGridLayout*>(widget->layout());
+  if (! grid) return;
   delete _button;
   delete _label;
 
@@ -106,15 +106,15 @@ ColorParameter::addTo(QWidget * widget, int row)
 
   grid->addWidget(_label = new QLabel(_name,widget),row,0,1,1);
   grid->addWidget(_button,row,1,1,1);
-  connect( _button, SIGNAL(clicked()),
-           this, SLOT(onButtonPressed()));
+  connect(_button, SIGNAL(clicked()),
+          this, SLOT(onButtonPressed()));
 }
 
 QString
 ColorParameter::textValue() const
 {
   const QColor & c = _value;
-  if ( _alphaChannel )
+  if (_alphaChannel)
     return QString("%1,%2,%3,%4").arg(c.red()).arg(c.green()).arg(c.blue()).arg(c.alpha());
   else
     return QString("%1,%2,%3").arg(c.red()).arg(c.green()).arg(c.blue());
@@ -127,7 +127,7 @@ ColorParameter::setValue(const QString & value)
   int red = list[0].toInt();
   int green = list[1].toInt();
   int blue = list[2].toInt();
-  if ( list.size() == 4 ) {
+  if (list.size() == 4) {
     int alpha = list[3].toInt();
     _value = QColor(red,green,blue,alpha);
     _alphaChannel = true;
@@ -135,7 +135,7 @@ ColorParameter::setValue(const QString & value)
     _value = QColor(red,green,blue);
     _alphaChannel = false;
   }
-  if ( _button ) {
+  if (_button) {
     updateButtonColor();
   }
 }
@@ -155,14 +155,14 @@ void
 ColorParameter::onButtonPressed()
 {
   QColor color = _value;
-  if ( !_dialog ) {
+  if (!_dialog) {
     _dialog = new QColorDialog(color,0);
     connect(_dialog,SIGNAL(currentColorChanged(QColor)),
             this, SLOT(colorChanged(QColor)));
   } else {
     _dialog->setCurrentColor(color);
   }
-  if ( _alphaChannel ) {
+  if (_alphaChannel) {
     _dialog->setOptions(QColorDialog::ShowAlphaChannel|QColorDialog::NoButtons);
   } else {
     _dialog->setOptions(QColorDialog::NoButtons);
@@ -173,7 +173,7 @@ ColorParameter::onButtonPressed()
 void
 ColorParameter::colorChanged(const QColor & color)
 {
-  if ( color.isValid() ) {
+  if (color.isValid()) {
     _value = color;
     updateButtonColor();
     emit valueChanged();
@@ -184,7 +184,7 @@ void ColorParameter::updateButtonColor()
 {
   QPainter painter(&_pixmap);
   QColor color(_value);
-  if ( _alphaChannel )
+  if (_alphaChannel)
     painter.drawImage(0,0,QImage(":images/transparency.png"));
   painter.setBrush(color);
   painter.setPen(Qt::black);

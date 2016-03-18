@@ -54,9 +54,9 @@ class SeparatorParameter : public AbstractParameter {
 public:
   SeparatorParameter(QDomNode node, QObject * parent = 0);
   ~SeparatorParameter();
-  void addTo( QWidget *, int row );
+  void addTo(QWidget *, int row);
   QString textValue() const;
-  void setValue( const QString & value );
+  void setValue(const QString & value);
   void reset();
   void saveValueInDOM();
 signals:

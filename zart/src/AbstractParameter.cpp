@@ -59,7 +59,7 @@
 #include "ConstParameter.h"
 
 AbstractParameter::AbstractParameter(QObject *parent)
-   : QObject(parent)
+  : QObject(parent)
 {
 }
 
@@ -82,43 +82,43 @@ AbstractParameter::unquotedTextValue() const
 AbstractParameter *
 AbstractParameter::createFromNode(QDomNode node, QObject * parent)
 {
-   QString name = node.nodeName();
-   if ( name == "int" ) {
-      return new IntParameter(node,parent);
-   }
-   if ( name == "float" ) {
-      return new FloatParameter(node,parent);
-   }
-   if ( name == "bool" ) {
-      return new BoolParameter(node,parent);
-   }
-   if ( name == "choice" ) {
-      return new ChoiceParameter(node,parent);
-   }
-   if ( name == "color" ) {
-      return new ColorParameter(node,parent);
-   }
-   if ( name == "separator" ) {
-      return new SeparatorParameter(node,parent);
-   }
-   if ( name == "note" ) {
-      return new NoteParameter(node,parent);
-   }
-   if ( name == "file" ) {
-      return new FileParameter(node,parent);
-   }
-   if ( name == "folder" ) {
-      return new FolderParameter(node,parent);
-   }
-   if ( name == "text" ) {
-      return new TextParameter(node,parent);
-   }
-   if ( name == "link" ) {
-      return new LinkParameter(node,parent);
-   }
-   if ( name == "const" ) {
-      return new ConstParameter(node,parent);
-   }
-   return 0;
+  QString name = node.nodeName();
+  if (name == "int") {
+    return new IntParameter(node,parent);
+  }
+  if (name == "float") {
+    return new FloatParameter(node,parent);
+  }
+  if (name == "bool") {
+    return new BoolParameter(node,parent);
+  }
+  if (name == "choice") {
+    return new ChoiceParameter(node,parent);
+  }
+  if (name == "color") {
+    return new ColorParameter(node,parent);
+  }
+  if (name == "separator") {
+    return new SeparatorParameter(node,parent);
+  }
+  if (name == "note") {
+    return new NoteParameter(node,parent);
+  }
+  if (name == "file") {
+    return new FileParameter(node,parent);
+  }
+  if (name == "folder") {
+    return new FolderParameter(node,parent);
+  }
+  if (name == "text") {
+    return new TextParameter(node,parent);
+  }
+  if (name == "link") {
+    return new LinkParameter(node,parent);
+  }
+  if (name == "const") {
+    return new ConstParameter(node,parent);
+  }
+  return 0;
 }
 

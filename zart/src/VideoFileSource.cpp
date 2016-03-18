@@ -64,13 +64,13 @@ VideoFileSource::~VideoFileSource()
 
 void VideoFileSource::capture()
 {
-  if ( !_videoIsReadable )
+  if (!_videoIsReadable)
     return;
   IplImage * newImage = cvQueryFrame(_capture);
-  if ( ! newImage ) {
+  if (! newImage) {
     cvReleaseCapture(&_capture);
     loadVideoFile(_filename);
-    if ( _loop ) newImage = cvQueryFrame(_capture);
+    if (_loop) newImage = cvQueryFrame(_capture);
   }
   setImage(newImage);
 }
@@ -78,11 +78,11 @@ void VideoFileSource::capture()
 bool VideoFileSource::loadVideoFile(QString filename)
 {
   QFileInfo info(filename);
-  if ( ! info.isReadable() ) return false;
+  if (! info.isReadable()) return false;
   _capture = cvCaptureFromFile(filename.toLatin1().constData());
-  if ( _capture ) {
+  if (_capture) {
     IplImage * iplImage = cvQueryFrame(_capture);
-    if ( iplImage ) {
+    if (iplImage) {
       _filename = filename;
       _filePath = info.absolutePath();
       _videoIsReadable = true;

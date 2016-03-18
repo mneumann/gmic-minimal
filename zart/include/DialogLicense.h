@@ -56,7 +56,7 @@
 class DialogLicense : public QDialog, public Ui::DialogLicense  {
 
  public:
-  DialogLicense( QWidget * parent );
+  DialogLicense(QWidget * parent);
 
  protected:
 

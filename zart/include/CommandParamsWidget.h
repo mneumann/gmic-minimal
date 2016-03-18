@@ -59,11 +59,11 @@ class CommandParamsWidget : public QWidget {
 public:
 
   CommandParamsWidget(QWidget * parent = 0);
-  void build( QDomNode presetNode );
+  void build(QDomNode presetNode);
   virtual ~CommandParamsWidget();
   const QString & valueString() const;
   QStringList valueStringList() const;
-  void setValues(const QStringList & );
+  void setValues(const QStringList &);
   void saveValuesInDOM();
 public slots:
   void updateValueString(bool notify = true);

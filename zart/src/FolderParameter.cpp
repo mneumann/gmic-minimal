@@ -60,7 +60,7 @@ FolderParameter::FolderParameter(QDomNode node, QObject *parent)
     _label(0),
     _button(0)
 {
-  _name = node.attributes().namedItem( "name" ).nodeValue();
+  _name = node.attributes().namedItem("name").nodeValue();
   _default = node.toElement().attribute("default",QString());
   _value = node.toElement().attribute("savedValue",_default);
 }
@@ -74,13 +74,13 @@ FolderParameter::~FolderParameter()
 void
 FolderParameter::addTo(QWidget * widget, int row)
 {
-  QGridLayout * grid = dynamic_cast<QGridLayout*>( widget->layout() );
-  if ( ! grid ) return;
+  QGridLayout * grid = dynamic_cast<QGridLayout*>(widget->layout());
+  if (! grid) return;
   delete _label;
   delete _button;
 
   QString buttonText;
-  if ( _value.isEmpty() ) {
+  if (_value.isEmpty()) {
     buttonText = "...";
   } else {
     int w = widget->contentsRect().width()/3;
@@ -90,14 +90,14 @@ FolderParameter::addTo(QWidget * widget, int row)
   _button = new QPushButton(buttonText,widget);
   grid->addWidget(_label = new QLabel(_name,widget),row,0,1,1);
   grid->addWidget(_button,row,1,1,2);
-  connect( _button, SIGNAL(clicked()),
-           this, SLOT(onButtonPressed()) );
+  connect(_button, SIGNAL(clicked()),
+          this, SLOT(onButtonPressed()));
 }
 
 QString
 FolderParameter::textValue() const
 {
-  if ( _value.isEmpty() )
+  if (_value.isEmpty())
     return QString("\"\\\"\\\"\"");
   else
     return QString("\"%1\"").arg(_value);
@@ -113,8 +113,8 @@ void
 FolderParameter::setValue(const QString & value)
 {
   _value = value;
-  if ( _button ) {
-    if ( _value.isEmpty() ) {
+  if (_button) {
+    if (_value.isEmpty()) {
       _button->setText("...");
     } else {
       int width = _button->contentsRect().width()-10;
@@ -140,7 +140,7 @@ void
 FolderParameter::onButtonPressed()
 {
   QString filename = QFileDialog::getExistingDirectory(0,"Select a directory",_value);
-  if ( filename.isNull() ) {
+  if (filename.isNull()) {
     _value = "";
     _button->setText("...");
   } else {

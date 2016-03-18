@@ -8,6 +8,16 @@ PKGCONFIG += opencv fftw3 zlib
 LIBS += -lfftw3_threads
 DEFINES += cimg_use_fftw3 cimg_use_zlib
 
+unix {
+   VERSION = $$system(grep \"define.ZART_VERSION \" include/Common.h | sed -e \"s/.*VERSION //\")
+}
+
+isEmpty( VERSION ):{
+   VERSION = 0.0.0
+   message( Warning: VERSION was not found in include/Common.h. Set to $$VERSION )
+}
+
+
 # enable OpenMP by default on with g++, except on OS X
 !macx:*g++* {
     CONFIG += openmp
@@ -27,25 +37,23 @@ openmp {
 
 # compile our own version of gmic, with the same cimg_* flags as zart
 #LIBS += ../src/libgmic.a
-SOURCES += ../src/gmic.cpp \
-    src/OutputWindow.cpp
+SOURCES += ../src/gmic.cpp
 DEFINES += gmic_build gmic_is_parallel cimg_use_abort
-
 
 INCLUDEPATH	+= $$PWD $$PWD/include $$PWD/../src/
 
 DEPENDPATH += $$PWD/include
 
 HEADERS	+= ../src/gmic.h \
-           ../src/gmic_stdlib.h \
-           ../src/CImg.h \
-           include/ImageView.h \
-           include/MainWindow.h \
-           include/FilterThread.h \
-           include/CommandEditor.h \
-           include/DialogAbout.h \
-           include/ImageConverter.h \
-           include/DialogLicense.h \
+    ../src/gmic_stdlib.h \
+    ../src/CImg.h \
+    include/ImageView.h \
+    include/MainWindow.h \
+    include/FilterThread.h \
+    include/CommandEditor.h \
+    include/DialogAbout.h \
+    include/ImageConverter.h \
+    include/DialogLicense.h \
     include/ImageSource.h \
     include/WebcamSource.h \
     include/StillImageSource.h \
@@ -71,14 +79,14 @@ HEADERS	+= ../src/gmic.h \
     include/OutputWindow.h
 
 SOURCES	+= \
-           src/ImageView.cpp \
-           src/MainWindow.cpp \
-           src/ZArt.cpp \
-           src/FilterThread.cpp \
-           src/DialogAbout.cpp \
-           src/CommandEditor.cpp \
-           src/ImageConverter.cpp \
-           src/DialogLicense.cpp \
+    src/ImageView.cpp \
+    src/MainWindow.cpp \
+    src/ZArt.cpp \
+    src/FilterThread.cpp \
+    src/DialogAbout.cpp \
+    src/CommandEditor.cpp \
+    src/ImageConverter.cpp \
+    src/DialogLicense.cpp \
     src/ImageSource.cpp \
     src/WebcamSource.cpp \
     src/StillImageSource.cpp \
@@ -98,37 +106,41 @@ SOURCES	+= \
     src/FolderParameter.cpp \
     src/TextParameter.cpp \
     src/LinkParameter.cpp \
-    src/ConstParameter.cpp
+    src/ConstParameter.cpp \
+    src/OutputWindow.cpp
 
 RESOURCES = zart.qrc
 DEPENDPATH += $$PWD/images
 
-FORMS = ui/MainWindow.ui ui/DialogAbout.ui ui/DialogLicense.ui \
+FORMS = ui/MainWindow.ui \
+    ui/DialogAbout.ui \
+    ui/DialogLicense.ui \
     ui/FullScreenWidget.ui \
     ui/OutputWindow.ui
 
 PRE_TARGETDEPS +=
 
-debug {
+CONFIG(release, debug|release) {
+    message(Release build)
+    DEFINES += QT_NO_DEBUG_OUTPUT
+    QMAKE_CXXFLAGS += -ffast-math
+}
+
+CONFIG(debug, debug|release) {
+    message(Debug build)
     DEFINES += _ZART_DEBUG_
     QMAKE_CXXFLAGS_DEBUG += -fsanitize=address -Dcimg_verbosity=3
     QMAKE_LFLAGS_DEBUG +=  -fsanitize=address
 }
-release {
-    QMAKE_CXXFLAGS += -ffast-math
-}
+
 UI_DIR = .ui
 MOC_DIR = .moc
 RCC_DIR = .qrc
 OBJECTS_DIR = .obj
 
-unix:!macx {
-    DEFINES += _IS_UNIX_
-}
+unix:!macx { DEFINES += _IS_UNIX_ }
 
-macx {
-    DEFINES += _IS_MACOS_
-}
+macx {  DEFINES += _IS_MACOS_ }
 
 DEFINES += cimg_display=0
 

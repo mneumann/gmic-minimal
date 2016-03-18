@@ -46,7 +46,7 @@
 #include <TreeWidgetPresetItem.h>
 
 TreeWidgetPresetItem::TreeWidgetPresetItem(const QStringList &strings,
-                                           QDomNode node )
+                                           QDomNode node)
   : QTreeWidgetItem(strings),
     _presetNode(node)
 {
@@ -54,7 +54,7 @@ TreeWidgetPresetItem::TreeWidgetPresetItem(const QStringList &strings,
 
 TreeWidgetPresetItem::TreeWidgetPresetItem(QTreeWidget * parent,
                                            const QStringList &strings,
-                                           QDomNode node )
+                                           QDomNode node)
   : QTreeWidgetItem(parent,strings),
     _presetNode(node)
 {
@@ -62,7 +62,7 @@ TreeWidgetPresetItem::TreeWidgetPresetItem(QTreeWidget * parent,
 
 TreeWidgetPresetItem::TreeWidgetPresetItem(QTreeWidgetItem * parent,
                                            const QStringList & strings,
-                                           QDomNode node )
+                                           QDomNode node)
   : QTreeWidgetItem(parent,strings),
     _presetNode(node)
 {
@@ -83,7 +83,7 @@ TreeWidgetPresetItem::clone() const
 {
   int columns = columnCount();
   QStringList strings;
-  for ( int i = 0; i < columns; ++i ) {
+  for (int i = 0; i < columns; ++i) {
     strings.append(text(i));
   }
   TreeWidgetPresetItem * result = new TreeWidgetPresetItem(strings,_presetNode);
@@ -99,7 +99,7 @@ TreeWidgetPresetItem::path() const
 {
   QStringList result;
   TreeWidgetPresetItem * parentItem = dynamic_cast<TreeWidgetPresetItem*>(parent());
-  if ( parentItem ) {
+  if (parentItem) {
     result.append(parentItem->text(0));
   }
   result.append(text(0));

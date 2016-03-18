@@ -55,9 +55,9 @@
 
 class TreeWidgetPresetItem : public QTreeWidgetItem {
 public:
-  TreeWidgetPresetItem(const QStringList & strings, QDomNode node = QDomNode() );
-  TreeWidgetPresetItem(QTreeWidget * parent, const QStringList & strings, QDomNode node = QDomNode() );
-  TreeWidgetPresetItem(QTreeWidgetItem * parent, const QStringList & strings, QDomNode node = QDomNode() );
+  TreeWidgetPresetItem(const QStringList & strings, QDomNode node = QDomNode());
+  TreeWidgetPresetItem(QTreeWidget * parent, const QStringList & strings, QDomNode node = QDomNode());
+  TreeWidgetPresetItem(QTreeWidgetItem * parent, const QStringList & strings, QDomNode node = QDomNode());
   ~TreeWidgetPresetItem();
   QDomNode node() const;  
   TreeWidgetPresetItem * clone() const;
