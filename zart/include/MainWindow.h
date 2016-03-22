@@ -131,6 +131,7 @@ public slots:
   void onAddFave();
   void onRemoveFave();
   void onFaveSelected(int);
+  void onRenameFave();
 
 private:
 

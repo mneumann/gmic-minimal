@@ -15,5 +15,6 @@
         <file>images/transparency.png</file>
         <file>images/zoom-fit-best.png</file>
         <file>images/zoom-original.png</file>
+        <file>images/rename.png</file>
     </qresource>
 </RCC>

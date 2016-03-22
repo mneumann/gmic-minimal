@@ -52,6 +52,7 @@
 #include <QDir>
 #include <QFileInfo>
 #include <QDoubleSpinBox>
+#include <QInputDialog>
 #include <QFileDialog>
 #include <QFileInfo>
 #include <QImageWriter>
@@ -390,6 +391,7 @@ MainWindow::MainWindow(QWidget * parent)
   _tbAddFave->setIcon(QIcon(":/images/list-add.png"));
   _tbRemoveFave->setIcon(QIcon(":/images/list-remove.png")));
 #endif
+  _tbRenameFave->setIcon(QIcon(":/images/rename.png"));
   int favesCount = settings.value("Faves/Count",0).toInt();
   for (int i = 0; i < favesCount; ++i) {
     QStringList list = settings.value(QString("Faves/%1").arg(i),QStringList()).toStringList();
@@ -398,13 +400,17 @@ MainWindow::MainWindow(QWidget * parent)
     }
   }
   _cbFaves->setEnabled(favesCount);
+  _tbRenameFave->setEnabled(favesCount);
+  _tbRemoveFave->setEnabled(favesCount);
   _fullScreenWidget->cbFaves()->setEnabled(favesCount);
   _tbAddFave->setEnabled(false);
-  _tbRemoveFave->setEnabled(false);
+
   connect(_tbAddFave, SIGNAL(clicked(bool)),
           this, SLOT(onAddFave()));
   connect(_tbRemoveFave, SIGNAL(clicked(bool)),
           this, SLOT(onRemoveFave()));
+  connect(_tbRenameFave,SIGNAL(clicked(bool)),
+          this,SLOT(onRenameFave()));
   connect(_cbFaves, SIGNAL(activated(int)),
           this, SLOT(onFaveSelected(int)));
   connect(_fullScreenWidget->cbFaves(),SIGNAL(activated(int)),
@@ -1338,6 +1344,7 @@ MainWindow::onAddFave()
     _fullScreenWidget->cbFaves()->setEnabled(true);
     _cbFaves->model()->sort(0,Qt::AscendingOrder);
     _tbRemoveFave->setEnabled(true);
+    _tbRenameFave->setEnabled(true);
   }
 }
 
@@ -1348,12 +1355,14 @@ MainWindow::onRemoveFave()
   _cbFaves->setEnabled(_cbFaves->count());
   _fullScreenWidget->cbFaves()->setEnabled(_cbFaves->count());
   _tbRemoveFave->setEnabled(_cbFaves->count());
+  _tbRenameFave->setEnabled(_cbFaves->count());
 }
 
 void
 MainWindow::onFaveSelected(int index)
 {
   _tbRemoveFave->setEnabled(true);
+  _tbRenameFave->setEnabled(true);
   QStringList list = _cbFaves->itemData(index).toStringList();
   QString folder = list[1];
   QString name  = list[2];
@@ -1370,3 +1379,17 @@ MainWindow::onFaveSelected(int index)
     _commandParamsWidget->setValues(list);
   }
 }
+
+void
+MainWindow::onRenameFave()
+{
+  int index = _cbFaves->currentIndex();
+  QStringList list = CURRENTDATA(_cbFaves).toStringList();
+  QString newName = QInputDialog::getText(this,"Rename a fave","Enter a new name",QLineEdit::Normal,list[0],0);
+  if ( ! newName.isNull() ) {
+    _cbFaves->setItemText(index,newName);
+    list[0] = newName;
+    _cbFaves->setItemData(index,list);
+  }
+}
+

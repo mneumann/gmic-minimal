@@ -194,13 +194,28 @@
                </widget>
               </item>
               <item>
+               <widget class="QToolButton" name="_tbAddFave">
+                <property name="toolTip">
+                 <string>Add filter to faves</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QToolButton" name="_tbRemoveFave">
+                <property name="toolTip">
+                 <string>Remove fave</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QToolButton" name="_tbRenameFave">
+                <property name="toolTip">
+                 <string>Rename fave</string>
+                </property>
+               </widget>
+              </item>
+              <item>
                <widget class="QComboBox" name="_cbFaves"/>
-              </item>
-              <item>
-               <widget class="QToolButton" name="_tbAddFave"/>
-              </item>
-              <item>
-               <widget class="QToolButton" name="_tbRemoveFave"/>
               </item>
              </layout>
             </item>
