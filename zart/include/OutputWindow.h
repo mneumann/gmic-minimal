@@ -53,8 +53,9 @@ class MainWindow;
 class QShowEvent;
 class QFrame;
 class QTreeWidget;
+class QAction;
 
-class OutputWindow: public QWidget, public Ui::OutputWindow {
+class OutputWindow: public QWidget {
   Q_OBJECT
 public:
   OutputWindow(MainWindow *);
@@ -67,13 +68,15 @@ protected:
 public slots:
   void onCloseClicked();
   void onShowFullscreen(bool);
-  void onToggleFullScreen();
+  void toggleFullScreen();
 signals:
   void escapePressed();
   void spaceBarPressed();
   void aboutToClose();
 private:
+  Ui::OutputWindow * _ui;
   MainWindow * _mainWindow;
+  QAction * _fullScreenAction;
 };
 
 #endif

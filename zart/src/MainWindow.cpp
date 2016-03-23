@@ -440,6 +440,9 @@ MainWindow::~MainWindow()
     delete _filterThread;
   }
   delete _fullScreenWidget;
+  if (_outputWindow) {
+    delete _outputWindow;
+  }
 }
 
 void
@@ -1312,6 +1315,7 @@ MainWindow::onOutputWindow(bool on)
     }
   }
   if (!on && _outputWindow && _outputWindow->isVisible()) {
+    _outputWindow->onShowFullscreen(false);
     _outputWindow->close();
   }
 }
@@ -1391,5 +1395,17 @@ MainWindow::onRenameFave()
     list[0] = newName;
     _cbFaves->setItemData(index,list);
   }
+}
+
+void
+MainWindow::closeEvent(QCloseEvent * event)
+{
+  if ( _outputWindow && _outputWindow->isVisible() ) {
+    _outputWindow->close();
+  }
+  if ( _fullScreenWidget && _displayMode == FullScreen ) {
+    toggleFullScreenMode();
+  }
+  event->accept();
 }
 

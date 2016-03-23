@@ -55,39 +55,43 @@
 
 OutputWindow::OutputWindow(MainWindow * mainwindow)
   : QWidget(0),
+    _ui(new Ui::OutputWindow),
     _mainWindow(mainwindow)
 {
-  setupUi(this);
+  _ui->setupUi(this);
 
+  _fullScreenAction = new QAction(this);
+  _fullScreenAction->setCheckable(true);
+  _ui->_tbFullScreen->setDefaultAction(_fullScreenAction);
 #if QT_VERSION >= 0x040600
-  _tbFullScreen->setIcon(QIcon::fromTheme("view-fullscreen"));
+  _fullScreenAction->setIcon(QIcon::fromTheme("view-fullscreen"));
 #else
-  _tbFullScreen->setText("Fullscreen");
-  _tbFullScreen->setToolButtonStyle(Qt::ToolButtonTextOnly);
+  _fullScreenAction->setText("Fullscreen");
+  _ui->_tbFullScreen->setToolButtonStyle(Qt::ToolButtonTextOnly);
 #endif
-  _pbClose->setCheckable(false);
-  _tbFullScreen->setCheckable(true);
-  connect(_tbFullScreen, SIGNAL(toggled(bool)),
+  _ui->_pbClose->setCheckable(false);
+  connect(_fullScreenAction, SIGNAL(toggled(bool)),
           this, SLOT(onShowFullscreen(bool)));
-  connect(_pbClose, SIGNAL(clicked(bool)),
+  connect(_ui->_pbClose, SIGNAL(clicked(bool)),
           this, SLOT(onCloseClicked()));
-  connect(_imageView, SIGNAL(escapePressed()),
+  connect(_ui->_imageView, SIGNAL(escapePressed()),
           this, SIGNAL(escapePressed()));
-  connect(_imageView, SIGNAL(spaceBarPressed()),
+  connect(_ui->_imageView, SIGNAL(spaceBarPressed()),
           this, SIGNAL(spaceBarPressed()));
-  connect(_imageView, SIGNAL(mousePress(QMouseEvent *)),
+  connect(_ui->_imageView, SIGNAL(mousePress(QMouseEvent *)),
           _mainWindow, SLOT(imageViewMouseEvent(QMouseEvent *)));
-  connect(_imageView, SIGNAL(mouseMove(QMouseEvent *)),
+  connect(_ui->_imageView, SIGNAL(mouseMove(QMouseEvent *)),
           _mainWindow, SLOT(imageViewMouseEvent(QMouseEvent *)));
-  connect(_imageView, SIGNAL(mouseDoubleClick(QMouseEvent*)),
-          this, SLOT(onToggleFullScreen()));
-  _imageView->setMouseTracking(true);
+  connect(_ui->_imageView, SIGNAL(mouseDoubleClick(QMouseEvent*)),
+          this, SLOT(toggleFullScreen()));
+  _ui->_imageView->setMouseTracking(true);
   setMouseTracking(true);
   layout()->setContentsMargins(1,0,1,0);
 }
 
 OutputWindow::~OutputWindow()
 {
+  delete _ui;
 }
 
 void
@@ -124,33 +128,34 @@ OutputWindow::onShowFullscreen(bool on)
     QPalette p = palette();
     p.setColor(QPalette::Window,Qt::black);
     setPalette(p);
-    _buttonsFrame->hide();
+    _ui->_buttonsFrame->hide();
     showFullScreen();
     setFocus();
+    _fullScreenAction->setChecked(true);
   } else {
     setPalette(QPalette());
-    _buttonsFrame->show();
-    _pbClose->show();
-    _tbFullScreen->setChecked(false);
+    _ui->_buttonsFrame->show();
+    _ui->_pbClose->show();
+    _fullScreenAction->setChecked(false);
     showNormal();
   }
 }
 
 void
-OutputWindow::onToggleFullScreen()
+OutputWindow::toggleFullScreen()
 {
-  _tbFullScreen->setChecked(!isFullScreen());
+  _fullScreenAction->setChecked(!isFullScreen());
 }
 
 ImageView *
 OutputWindow::imageView()
 {
-  return _imageView;
+  return _ui->_imageView;
 }
 
 void
 OutputWindow::showEvent(QShowEvent *)
 {
-  _imageView->setFocus();
+  _ui->_imageView->setFocus();
 }
 

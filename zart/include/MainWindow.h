@@ -133,6 +133,10 @@ public slots:
   void onFaveSelected(int);
   void onRenameFave();
 
+protected:
+
+  void closeEvent(QCloseEvent *);
+
 private:
 
   void setPresets(const QDomElement &);
