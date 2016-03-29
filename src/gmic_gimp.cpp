@@ -2688,7 +2688,7 @@ void process_image(const char *const command_line, const bool is_apply) {
   // Create processing thread and wait for its completion.
   bool is_abort = spt.is_abort = false;
   if (run_mode!=GIMP_RUN_NONINTERACTIVE) {
-    const unsigned long time0 = cimg::time();
+    const cimg_ulong time0 = cimg::time();
     cimg::mutex(25); p_spt = (void*)&spt; cimg::mutex(25,0);
     spt.is_thread = true;
     pthread_mutex_init(&spt.is_running,0);
@@ -2698,7 +2698,7 @@ void process_image(const char *const command_line, const bool is_apply) {
 
 #if defined(__MACOSX__) || defined(__APPLE__)
     cimg::unused(time0);
-    const unsigned long stacksize = 8*1024*1024;
+    const cimg_ulong stacksize = (cimg_ulong)8*1024*1024;
     pthread_attr_t thread_attr;
     if (!pthread_attr_init(&thread_attr) && !pthread_attr_setstacksize(&thread_attr,stacksize))
       pthread_create(&spt.thread,&thread_attr,process_thread,(void*)&spt);
@@ -2723,7 +2723,7 @@ void process_image(const char *const command_line, const bool is_apply) {
 #if cimg_OS==2
         PROCESS_MEMORY_COUNTERS pmc;
         if (GetProcessMemoryInfo(GetCurrentProcess(),&pmc,sizeof(pmc)))
-          used_memory = (unsigned long)(pmc.WorkingSetSize/1024/1024);
+          used_memory = (cimg_ulong)(pmc.WorkingSetSize/1024/1024);
 #elif cimg_OS==1 // #if cimg_OS==2
         CImg<char> st; st.load_raw("/proc/self/status",512); st.back() = 0;
         const char *const s = std::strstr(st,"VmRSS:");
@@ -2732,7 +2732,7 @@ void process_image(const char *const command_line, const bool is_apply) {
       }
 
       if (!(i%3)) {
-        const unsigned long t = (cimg::time() - time0)/1000;
+        const cimg_ulong t = (cimg::time() - time0)/1000;
         if (used_memory)
           gimp_progress_set_text_printf(" G'MIC: %s... [%lu second%s, %u Mb]",
                                         progress_label.data(),
@@ -3243,7 +3243,7 @@ void process_preview() {
     pthread_mutex_lock(&spt.wait_lock);
 
 #if defined(__MACOSX__) || defined(__APPLE__)
-    const unsigned long stacksize = 8*1024*1024;
+    const cimg_ulong stacksize = (cimg_ulong)8*1024*1024;
     pthread_attr_t thread_attr;
     if (!pthread_attr_init(&thread_attr) && !pthread_attr_setstacksize(&thread_attr,stacksize))
       // Reserve enough stack size for the new thread.
@@ -3513,12 +3513,6 @@ void create_parameters_gui(const bool reset_params) {
             argument_fave = get_fave_parameter(filter,current_argument),
             argument_value = get_filter_parameter(filter,current_argument);
 
-#if defined(_WIN64)
-          typedef unsigned long long pint;
-#else
-          typedef unsigned long pint;
-#endif
-
           // Check for a float-valued argument.
           bool found_valid_argument = false;
           if (!found_valid_argument && !cimg::strcasecmp(argument_type,"float")) {
@@ -3533,7 +3527,7 @@ void create_parameters_gui(const bool reset_params) {
                                            (double)(max_value - min_value)/100,
                                            (double)(max_value - min_value)/20,
                                            2,true,0,0,0,0);
-            event_infos[2*current_argument] = (void*)(pint)current_argument;
+            event_infos[2*current_argument] = (void*)(cimg_ulong)current_argument;
             event_infos[2*current_argument + 1] = (void*)0;
             on_float_parameter_changed(GTK_ADJUSTMENT(scale),event_infos + 2*current_argument);
             g_signal_connect(scale,"value_changed",G_CALLBACK(on_float_parameter_changed),
@@ -3558,7 +3552,7 @@ void create_parameters_gui(const bool reset_params) {
                                            (double)1,
                                            (double)cimg::max(1.0,cimg::round((max_value - min_value)/20,1,1)),
                                            0,true,0,0,0,0);
-            event_infos[2*current_argument] = (void*)(pint)current_argument;
+            event_infos[2*current_argument] = (void*)(cimg_ulong)current_argument;
             event_infos[2*current_argument + 1] = (void*)0;
             on_int_parameter_changed(GTK_ADJUSTMENT(scale),event_infos + 2*current_argument);
             g_signal_connect(scale,"value_changed",G_CALLBACK(on_int_parameter_changed),
@@ -3585,7 +3579,7 @@ void create_parameters_gui(const bool reset_params) {
             gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton),value);
             gtk_table_attach(GTK_TABLE(table),checkbutton,0,3,(int)current_table_line,(int)current_table_line + 1,
                              (GtkAttachOptions)(GTK_EXPAND | GTK_FILL),GTK_SHRINK,0,0);
-            event_infos[2*current_argument] = (void*)(pint)current_argument;
+            event_infos[2*current_argument] = (void*)(cimg_ulong)current_argument;
             event_infos[2*current_argument + 1] = (void*)0;
             on_bool_parameter_changed(GTK_CHECK_BUTTON(checkbutton),event_infos + 2*current_argument);
             g_signal_connect(checkbutton,"toggled",G_CALLBACK(on_bool_parameter_changed),
@@ -3608,7 +3602,7 @@ void create_parameters_gui(const bool reset_params) {
             gtk_widget_show(align);
             gtk_table_attach(GTK_TABLE(table),align,0,3,(int)current_table_line,(int)current_table_line + 1,
                              (GtkAttachOptions)(GTK_EXPAND | GTK_FILL),GTK_SHRINK,0,0);
-            event_infos[2*current_argument] = (void*)(pint)current_argument;
+            event_infos[2*current_argument] = (void*)(cimg_ulong)current_argument;
             event_infos[2*current_argument + 1] = (void*)0;
             g_signal_connect(button,"clicked",G_CALLBACK(on_button_parameter_clicked),
                              event_infos + 2*current_argument);
@@ -3649,7 +3643,7 @@ void create_parameters_gui(const bool reset_params) {
             gtk_combo_box_set_active(GTK_COMBO_BOX(combobox),value);
             gtk_table_attach(GTK_TABLE(table),combobox,1,3,(int)current_table_line,(int)current_table_line + 1,
                              (GtkAttachOptions)(GTK_EXPAND | GTK_FILL),GTK_FILL,0,0);
-            event_infos[2*current_argument] = (void*)(pint)current_argument;
+            event_infos[2*current_argument] = (void*)(cimg_ulong)current_argument;
             event_infos[2*current_argument + 1] = (void*)0;
             on_list_parameter_changed(GTK_COMBO_BOX(combobox),event_infos + 2*current_argument);
             g_signal_connect(combobox,"changed",G_CALLBACK(on_list_parameter_changed),
@@ -3713,7 +3707,7 @@ void create_parameters_gui(const bool reset_params) {
               gtk_table_attach(GTK_TABLE(table),frame,0,3,(int)current_table_line,(int)current_table_line + 1,
                                (GtkAttachOptions)(GTK_EXPAND | GTK_FILL),(GtkAttachOptions)0,0,0);
 
-              event_infos[2*current_argument] = (void*)(pint)current_argument;
+              event_infos[2*current_argument] = (void*)(cimg_ulong)current_argument;
               event_infos[2*current_argument + 1] = (void*)view;
               on_multitext_parameter_changed(event_infos + 2*current_argument);
               g_signal_connect_swapped(button,"clicked",G_CALLBACK(on_multitext_parameter_changed),
@@ -3749,7 +3743,7 @@ void create_parameters_gui(const bool reset_params) {
               gtk_widget_show(button);
               gtk_table_attach(GTK_TABLE(table),button,2,3,(int)current_table_line,(int)current_table_line + 1,
                                GTK_FILL,GTK_SHRINK,0,0);
-              event_infos[2*current_argument] = (void*)(pint)current_argument;
+              event_infos[2*current_argument] = (void*)(cimg_ulong)current_argument;
               event_infos[2*current_argument + 1] = (void*)entry;
               on_text_parameter_changed(event_infos + 2*current_argument);
               g_signal_connect_swapped(button,"clicked",G_CALLBACK(on_text_parameter_changed),
@@ -3790,7 +3784,7 @@ void create_parameters_gui(const bool reset_params) {
             gtk_file_chooser_set_filename(GTK_FILE_CHOOSER(file_chooser),value);
             gtk_table_attach(GTK_TABLE(table),file_chooser,1,3,(int)current_table_line,(int)current_table_line + 1,
                              (GtkAttachOptions)(GTK_EXPAND | GTK_FILL),(GtkAttachOptions)0,0,0);
-            event_infos[2*current_argument] = (void*)(pint)current_argument;
+            event_infos[2*current_argument] = (void*)(cimg_ulong)current_argument;
             event_infos[2*current_argument + 1] = (void*)is_silent_argument; // Silent property handled by event.
             on_file_parameter_changed(GTK_FILE_CHOOSER(file_chooser),event_infos + 2*current_argument);
             g_signal_connect(file_chooser,"selection-changed",G_CALLBACK(on_file_parameter_changed),
@@ -3834,7 +3828,7 @@ void create_parameters_gui(const bool reset_params) {
               gtk_color_button_set_use_alpha(GTK_COLOR_BUTTON(color_chooser),true);
               gtk_color_button_set_alpha(GTK_COLOR_BUTTON(color_chooser),(unsigned int)(alpha*257));
             } else gtk_color_button_set_use_alpha(GTK_COLOR_BUTTON(color_chooser),false);
-            event_infos[2*current_argument] = (void*)(pint)current_argument;
+            event_infos[2*current_argument] = (void*)(cimg_ulong)current_argument;
             event_infos[2*current_argument + 1] = (void*)0;
             on_color_parameter_changed(GTK_COLOR_BUTTON(color_chooser),event_infos + 2*current_argument);
             g_signal_connect(color_chooser,"color-set",G_CALLBACK(on_color_parameter_changed),
