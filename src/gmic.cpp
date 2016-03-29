@@ -60,9 +60,9 @@ CImg<T>& gmic_invert_endianness(const char *const stype) {
             else _gmic_invert_endianness(unsigned int,"uint")
               else _gmic_invert_endianness(unsigned int,"unsigned int")
                 else _gmic_invert_endianness(int,"int")
-                  else _gmic_invert_endianness(unsigned int,"ulong")
-                    else _gmic_invert_endianness(unsigned int,"unsigned long")
-                      else _gmic_invert_endianness(int,"long")
+                  else _gmic_invert_endianness(ulongT,"ulong")
+                    else _gmic_invert_endianness(ulongT,"unsigned long")
+                      else _gmic_invert_endianness(longT,"long")
                         else _gmic_invert_endianness(float,"float")
                           else _gmic_invert_endianness(double,"double")
                             else invert_endianness();
@@ -88,12 +88,12 @@ CImg<T>& operator_eq(const char *const expression) {
 
 template<typename t>
 CImg<T>& operator_eq(const CImg<t>& img) {
-  const unsigned long siz = size(), isiz = img.size();
+  const ulongT siz = size(), isiz = img.size();
   if (siz && isiz) {
     if (is_overlapped(img)) return operator_eq(+img);
     T *ptrd = _data, *const ptre = _data + siz;
     if (siz>isiz)
-      for (unsigned long n = siz/isiz; n; --n)
+      for (ulongT n = siz/isiz; n; --n)
         for (const t *ptrs = img._data, *ptrs_end = ptrs + isiz; ptrs<ptrs_end; ++ptrd)
           *ptrd = (T)(*ptrd == (T)*(ptrs++));
     for (const t *ptrs = img._data; ptrd<ptre; ++ptrd) *ptrd = (T)(*ptrd == (T)*(ptrs++));
@@ -116,12 +116,12 @@ CImg<T>& operator_neq(const char *const expression) {
 
 template<typename t>
 CImg<T>& operator_neq(const CImg<t>& img) {
-  const unsigned long siz = size(), isiz = img.size();
+  const ulongT siz = size(), isiz = img.size();
   if (siz && isiz) {
     if (is_overlapped(img)) return operator_neq(+img);
     T *ptrd = _data, *const ptre = _data + siz;
     if (siz>isiz)
-      for (unsigned long n = siz/isiz; n; --n)
+      for (ulongT n = siz/isiz; n; --n)
         for (const t *ptrs = img._data, *ptrs_end = ptrs + isiz; ptrs<ptrs_end; ++ptrd)
           *ptrd = (T)(*ptrd != (T)*(ptrs++));
     for (const t *ptrs = img._data; ptrd<ptre; ++ptrd) *ptrd = (T)(*ptrd != (T)*(ptrs++));
@@ -144,12 +144,12 @@ CImg<T>& operator_gt(const char *const expression) {
 
 template<typename t>
 CImg<T>& operator_gt(const CImg<t>& img) {
-  const unsigned long siz = size(), isiz = img.size();
+  const ulongT siz = size(), isiz = img.size();
   if (siz && isiz) {
     if (is_overlapped(img)) return operator_gt(+img);
     T *ptrd = _data, *const ptre = _data + siz;
     if (siz>isiz)
-      for (unsigned long n = siz/isiz; n; --n)
+      for (ulongT n = siz/isiz; n; --n)
         for (const t *ptrs = img._data, *ptrs_end = ptrs + isiz; ptrs<ptrs_end; ++ptrd)
           *ptrd = (T)(*ptrd > (T)*(ptrs++));
     for (const t *ptrs = img._data; ptrd<ptre; ++ptrd) *ptrd = (T)(*ptrd > (T)*(ptrs++));
@@ -172,12 +172,12 @@ CImg<T>& operator_ge(const char *const expression) {
 
 template<typename t>
 CImg<T>& operator_ge(const CImg<t>& img) {
-  const unsigned long siz = size(), isiz = img.size();
+  const ulongT siz = size(), isiz = img.size();
   if (siz && isiz) {
     if (is_overlapped(img)) return operator_ge(+img);
     T *ptrd = _data, *const ptre = _data + siz;
     if (siz>isiz)
-      for (unsigned long n = siz/isiz; n; --n)
+      for (ulongT n = siz/isiz; n; --n)
         for (const t *ptrs = img._data, *ptrs_end = ptrs + isiz; ptrs<ptrs_end; ++ptrd)
           *ptrd = (T)(*ptrd >= (T)*(ptrs++));
     for (const t *ptrs = img._data; ptrd<ptre; ++ptrd) *ptrd = (T)(*ptrd >= (T)*(ptrs++));
@@ -200,12 +200,12 @@ CImg<T>& operator_lt(const char *const expression) {
 
 template<typename t>
 CImg<T>& operator_lt(const CImg<t>& img) {
-  const unsigned long siz = size(), isiz = img.size();
+  const ulongT siz = size(), isiz = img.size();
   if (siz && isiz) {
     if (is_overlapped(img)) return operator_lt(+img);
     T *ptrd = _data, *const ptre = _data + siz;
     if (siz>isiz)
-      for (unsigned long n = siz/isiz; n; --n)
+      for (ulongT n = siz/isiz; n; --n)
         for (const t *ptrs = img._data, *ptrs_end = ptrs + isiz; ptrs<ptrs_end; ++ptrd)
           *ptrd = (T)(*ptrd < (T)*(ptrs++));
     for (const t *ptrs = img._data; ptrd<ptre; ++ptrd) *ptrd = (T)(*ptrd < (T)*(ptrs++));
@@ -228,12 +228,12 @@ CImg<T>& operator_le(const char *const expression) {
 
 template<typename t>
 CImg<T>& operator_le(const CImg<t>& img) {
-  const unsigned long siz = size(), isiz = img.size();
+  const ulongT siz = size(), isiz = img.size();
   if (siz && isiz) {
     if (is_overlapped(img)) return operator_le(+img);
     T *ptrd = _data, *const ptre = _data + siz;
     if (siz>isiz)
-      for (unsigned long n = siz/isiz; n; --n)
+      for (ulongT n = siz/isiz; n; --n)
         for (const t *ptrs = img._data, *ptrs_end = ptrs + isiz; ptrs<ptrs_end; ++ptrd)
           *ptrd = (T)(*ptrd <= (T)*(ptrs++));
     for (const t *ptrs = img._data; ptrd<ptre; ++ptrd) *ptrd = (T)(*ptrd <= (T)*(ptrs++));
@@ -544,7 +544,7 @@ static CImg<T> append_CImg3d(const CImgList<T>& images) {
   if (images.size()==1) return +images[0];
   CImg<charT> error_message(1024);
   unsigned int nbv = 0, nbp = 0;
-  unsigned long siz = 0;
+  ulongT siz = 0;
   cimglist_for(images,l) {
     const CImg<T>& img = images[l];
     if (!img.is_CImg3d(false,error_message))
@@ -572,7 +572,7 @@ static CImg<T> append_CImg3d(const CImgList<T>& images) {
     ptrd+=3*nbv;
     ptrs[l] = img._data + 8 + 3*nbv;
   }
-  unsigned long poff = 0;
+  ulongT poff = 0;
   cimglist_for(images,l) { // Merge object primitives.
     const unsigned int
       nbv = cimg::float2uint((float)images[l][6]),
@@ -587,7 +587,7 @@ static CImg<T> append_CImg3d(const CImgList<T>& images) {
     }
     poff+=nbv;
   }
-  unsigned long voff = 0;
+  ulongT voff = 0;
   cimglist_for(images,l) { // Merge object colors.
     const unsigned int nbc = cimg::float2uint((float)images[l][7]);
     for (unsigned int c = 0; c<nbc; ++c)
@@ -600,7 +600,7 @@ static CImg<T> append_CImg3d(const CImgList<T>& images) {
         if (!h && !s) { *(ptrd++) = (T)(w + voff); *(ptrd++) = 0; *(ptrd++) = 0; }
         else {
           *(ptrd++) = (T)w; *(ptrd++) = (T)h; *(ptrd++) = (T)s;
-          const unsigned long whs = (unsigned long)w*h*s;
+          const ulongT whs = (ulongT)w*h*s;
           std::memcpy(ptrd,ptrs[l],whs*sizeof(T));
           ptrs[l]+=whs; ptrd+=whs;
         }
@@ -620,7 +620,7 @@ static CImg<T> append_CImg3d(const CImgList<T>& images) {
         if (!h && !s) { *(ptrd++) = (T)(w + voff); *(ptrd++) = 0; *(ptrd++) = 0; }
         else {
           *(ptrd++) = (T)w; *(ptrd++) = (T)h; *(ptrd++) = (T)s;
-          const unsigned long whs = (unsigned long)w*h*s;
+          const ulongT whs = (ulongT)w*h*s;
           std::memcpy(ptrd,ptrs[l],whs*sizeof(T));
           ptrs[l]+=whs; ptrd+=whs;
         }
@@ -1858,7 +1858,7 @@ const CImg<T>& gmic_print(const char *const title, const bool is_debug,
   cimg::mutex(29);
   CImg<doubleT> st;
   if (is_valid && !is_empty()) st = get_stats();
-  const unsigned long siz = size(), msiz = siz*sizeof(T), siz1 = siz - 1,
+  const ulongT siz = size(), msiz = siz*sizeof(T), siz1 = siz - 1,
     mdisp = msiz<8*1024?0U:msiz<8*1024*1024?1U:2U,
     wh = _width*_height, whd = _width*_height*_depth,
     w1 = _width - 1, wh1 = _width*_height - 1, whd1 = _width*_height*_depth - 1;
@@ -2687,11 +2687,11 @@ inline const char * gmic::set_variable(const char *const name, const char *const
                     operation=='*'?lvalue*rvalue:
                     operation=='/'?lvalue/rvalue:
                     operation=='%'?cimg::mod(lvalue,rvalue):
-                    operation=='&'?(double)((unsigned long)lvalue & (unsigned long)rvalue):
-                    operation=='|'?(double)((unsigned long)lvalue | (unsigned long)rvalue):
+                    operation=='&'?(double)((cimg_ulong)lvalue & (cimg_ulong)rvalue):
+                    operation=='|'?(double)((cimg_ulong)lvalue | (cimg_ulong)rvalue):
                     operation=='^'?std::pow(lvalue,rvalue):
-                    operation=='<'?(double)((long)lvalue << (unsigned int)rvalue):
-                    (double)((long)lvalue >> (unsigned int)rvalue));
+                    operation=='<'?(double)((cimg_long)lvalue << (unsigned int)rvalue):
+                    (double)((cimg_long)lvalue >> (unsigned int)rvalue));
       CImg<char>::string(s_value).move_to(__variables[ind]);
     }
   }
@@ -8664,9 +8664,9 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
                         else gmic_save_multitype(unsigned int,"uint")
                           else gmic_save_multitype(unsigned int,"unsigned int")
                             else gmic_save_multitype(int,"int")
-                              else gmic_save_multitype(unsigned long,"ulong")
-                                else gmic_save_multitype(unsigned long,"unsigned long")
-                                  else gmic_save_multitype(long,"long")
+                              else gmic_save_multitype(cimg_ulong,"ulong")
+                                else gmic_save_multitype(cimg_ulong,"unsigned long")
+                                  else gmic_save_multitype(cimg_long,"long")
                                     else gmic_save_multitype(float,"float")
                                       else gmic_save_multitype(double,"double")
                                         else error(images,0,0,
@@ -8747,9 +8747,9 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
                         else gmic_save_tiff(unsigned int,"uint")
                           else gmic_save_tiff(unsigned int,"unsigned int")
                             else gmic_save_tiff(int,"int")
-                              else gmic_save_tiff(unsigned long,"ulong")
-                                else gmic_save_tiff(unsigned long,"unsigned long")
-                                  else gmic_save_tiff(long,"long")
+                              else gmic_save_tiff(cimg_ulong,"ulong")
+                                else gmic_save_tiff(cimg_ulong,"unsigned long")
+                                  else gmic_save_tiff(cimg_long,"long")
                                     else gmic_save_tiff(float,"float")
                                       else gmic_save_tiff(double,"double")
                                         else error(images,0,0,
@@ -8922,9 +8922,9 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
                         else gmic_save_raw(unsigned int,"uint")
                           else gmic_save_raw(unsigned int,"unsigned int")
                             else gmic_save_raw(int,"int")
-                              else gmic_save_raw(unsigned long,"ulong")
-                                else gmic_save_raw(unsigned long,"unsigned long")
-                                  else gmic_save_raw(long,"long")
+                              else gmic_save_raw(cimg_ulong,"ulong")
+                                else gmic_save_raw(cimg_ulong,"unsigned long")
+                                  else gmic_save_raw(cimg_long,"long")
                                     else gmic_save_raw(float,"float")
                                       else gmic_save_raw(double,"double")
                                         else error(images,0,0,
@@ -8956,9 +8956,9 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
                         else gmic_save_cimg(unsigned int,"uint")
                           else gmic_save_cimg(unsigned int,"unsigned int")
                             else gmic_save_cimg(int,"int")
-                              else gmic_save_cimg(unsigned long,"ulong")
-                                else gmic_save_cimg(unsigned long,"unsigned long")
-                                  else gmic_save_cimg(long,"long")
+                              else gmic_save_cimg(cimg_ulong,"ulong")
+                                else gmic_save_cimg(cimg_ulong,"unsigned long")
+                                  else gmic_save_cimg(cimg_long,"long")
                                     else gmic_save_cimg(float,"float")
                                       else gmic_save_cimg(double,"double")
                                         else error(images,0,0,
@@ -8996,9 +8996,9 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
                         else gmic_save_gmz(unsigned int,"uint")
                           else gmic_save_gmz(unsigned int,"unsigned int")
                             else gmic_save_gmz(int,"int")
-                              else gmic_save_gmz(unsigned long,"ulong")
-                                else gmic_save_gmz(unsigned long,"unsigned long")
-                                  else gmic_save_gmz(long,"long")
+                              else gmic_save_gmz(cimg_ulong,"ulong")
+                                else gmic_save_gmz(cimg_ulong,"unsigned long")
+                                  else gmic_save_gmz(cimg_long,"long")
                                     else gmic_save_gmz(float,"float")
                                       else gmic_save_gmz(double,"double")
                                         else error(images,0,0,
@@ -9260,7 +9260,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
 #if cimg_OS!=2
 
 #if defined(__MACOSX__) || defined(__APPLE__)
-              const unsigned long stacksize = 8*1024*1024;
+              const cimg_ulong stacksize = (cimg_ulong)8*1024*1024;
               pthread_attr_t thread_attr;
               if (!pthread_attr_init(&thread_attr) && !pthread_attr_setstacksize(&thread_attr,stacksize))
                 // Reserve enough stack size for the new thread.
@@ -11369,9 +11369,9 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
                         else gmic_serialize(unsigned int,"uint")
                           else gmic_serialize(unsigned int,"unsigned int")
                             else gmic_serialize(int,"int")
-                              else gmic_serialize(unsigned long,"ulong")
-                                else gmic_serialize(unsigned long,"unsigned long")
-                                  else gmic_serialize(long,"long")
+                              else gmic_serialize(cimg_ulong,"ulong")
+                                else gmic_serialize(cimg_ulong,"unsigned long")
+                                  else gmic_serialize(cimg_long,"long")
                                     else gmic_serialize(float,"float")
                                       else gmic_serialize(double,"double")
                                         else error(images,0,0,
@@ -13148,7 +13148,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
 
         const char *file_type = 0;
         std::FILE *const file = is_stdin?0:std::fopen(filename,"rb");
-        long siz = 0;
+        cimg_long siz = 0;
         if (file) {
           std::fseek(file,0,SEEK_END);
           siz = std::ftell(file);
@@ -13426,9 +13426,9 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
                       else gmic_load_raw(unsigned int,"uint")
                         else gmic_load_raw(unsigned int,"unsigned int")
                           else gmic_load_raw(int,"int")
-                            else gmic_load_raw(unsigned int,"ulong")
-                              else gmic_load_raw(unsigned int,"unsigned long")
-                                else gmic_load_raw(int,"long")
+                            else gmic_load_raw(cimg_ulong,"ulong")
+                              else gmic_load_raw(cimg_ulong,"unsigned long")
+                                else gmic_load_raw(cimg_long,"long")
                                   else gmic_load_raw(float,"float")
                                     else gmic_load_raw(double,"double")
                                       else error(images,0,0,
