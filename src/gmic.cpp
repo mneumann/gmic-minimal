@@ -2817,7 +2817,7 @@ gmic& gmic::add_commands(std::FILE *const file,
   } catch (...) {
     std::rewind(file);
     std::fseek(file,0,SEEK_END);
-    const long siz = std::ftell(file);
+    const cimg_long siz = std::ftell(file);
     std::rewind(file);
     if (siz>0) {
       CImg<char> buffer(siz + 1);
@@ -4277,7 +4277,10 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
     return *this;
   }
   typedef typename cimg::superset<T,float>::type Tfloat;
-  typedef typename cimg::superset<T,long>::type Tlong;
+  typedef typename cimg::superset<T,cimg_long>::type Tlong;
+  typedef typename cimg::last<T,cimg_ulong>::type ulongT;
+  typedef typename cimg::last<T,cimg_long>::type longT;
+
   const unsigned int initial_callstack_size = callstack.size(), initial_debug_line = debug_line;
 
   CImgList<st_gmic_parallel<T> > threads_data;
@@ -8664,9 +8667,9 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
                         else gmic_save_multitype(unsigned int,"uint")
                           else gmic_save_multitype(unsigned int,"unsigned int")
                             else gmic_save_multitype(int,"int")
-                              else gmic_save_multitype(cimg_ulong,"ulong")
-                                else gmic_save_multitype(cimg_ulong,"unsigned long")
-                                  else gmic_save_multitype(cimg_long,"long")
+                              else gmic_save_multitype(ulongT,"ulong")
+                                else gmic_save_multitype(ulongT,"unsigned long")
+                                  else gmic_save_multitype(longT,"long")
                                     else gmic_save_multitype(float,"float")
                                       else gmic_save_multitype(double,"double")
                                         else error(images,0,0,
@@ -8747,9 +8750,9 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
                         else gmic_save_tiff(unsigned int,"uint")
                           else gmic_save_tiff(unsigned int,"unsigned int")
                             else gmic_save_tiff(int,"int")
-                              else gmic_save_tiff(cimg_ulong,"ulong")
-                                else gmic_save_tiff(cimg_ulong,"unsigned long")
-                                  else gmic_save_tiff(cimg_long,"long")
+                              else gmic_save_tiff(ulongT,"ulong")
+                                else gmic_save_tiff(ulongT,"unsigned long")
+                                  else gmic_save_tiff(longT,"long")
                                     else gmic_save_tiff(float,"float")
                                       else gmic_save_tiff(double,"double")
                                         else error(images,0,0,
@@ -8922,9 +8925,9 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
                         else gmic_save_raw(unsigned int,"uint")
                           else gmic_save_raw(unsigned int,"unsigned int")
                             else gmic_save_raw(int,"int")
-                              else gmic_save_raw(cimg_ulong,"ulong")
-                                else gmic_save_raw(cimg_ulong,"unsigned long")
-                                  else gmic_save_raw(cimg_long,"long")
+                              else gmic_save_raw(ulongT,"ulong")
+                                else gmic_save_raw(ulongT,"unsigned long")
+                                  else gmic_save_raw(longT,"long")
                                     else gmic_save_raw(float,"float")
                                       else gmic_save_raw(double,"double")
                                         else error(images,0,0,
@@ -8956,9 +8959,9 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
                         else gmic_save_cimg(unsigned int,"uint")
                           else gmic_save_cimg(unsigned int,"unsigned int")
                             else gmic_save_cimg(int,"int")
-                              else gmic_save_cimg(cimg_ulong,"ulong")
-                                else gmic_save_cimg(cimg_ulong,"unsigned long")
-                                  else gmic_save_cimg(cimg_long,"long")
+                              else gmic_save_cimg(ulongT,"ulong")
+                                else gmic_save_cimg(ulongT,"unsigned long")
+                                  else gmic_save_cimg(longT,"long")
                                     else gmic_save_cimg(float,"float")
                                       else gmic_save_cimg(double,"double")
                                         else error(images,0,0,
@@ -8996,9 +8999,9 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
                         else gmic_save_gmz(unsigned int,"uint")
                           else gmic_save_gmz(unsigned int,"unsigned int")
                             else gmic_save_gmz(int,"int")
-                              else gmic_save_gmz(cimg_ulong,"ulong")
-                                else gmic_save_gmz(cimg_ulong,"unsigned long")
-                                  else gmic_save_gmz(cimg_long,"long")
+                              else gmic_save_gmz(ulongT,"ulong")
+                                else gmic_save_gmz(ulongT,"unsigned long")
+                                  else gmic_save_gmz(longT,"long")
                                     else gmic_save_gmz(float,"float")
                                       else gmic_save_gmz(double,"double")
                                         else error(images,0,0,
@@ -9260,7 +9263,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
 #if cimg_OS!=2
 
 #if defined(__MACOSX__) || defined(__APPLE__)
-              const cimg_ulong stacksize = (cimg_ulong)8*1024*1024;
+              const ulongT stacksize = (ulongT)8*1024*1024;
               pthread_attr_t thread_attr;
               if (!pthread_attr_init(&thread_attr) && !pthread_attr_setstacksize(&thread_attr,stacksize))
                 // Reserve enough stack size for the new thread.
@@ -11369,9 +11372,9 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
                         else gmic_serialize(unsigned int,"uint")
                           else gmic_serialize(unsigned int,"unsigned int")
                             else gmic_serialize(int,"int")
-                              else gmic_serialize(cimg_ulong,"ulong")
-                                else gmic_serialize(cimg_ulong,"unsigned long")
-                                  else gmic_serialize(cimg_long,"long")
+                              else gmic_serialize(ulongT,"ulong")
+                                else gmic_serialize(ulongT,"unsigned long")
+                                  else gmic_serialize(longT,"long")
                                     else gmic_serialize(float,"float")
                                       else gmic_serialize(double,"double")
                                         else error(images,0,0,
@@ -13148,7 +13151,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
 
         const char *file_type = 0;
         std::FILE *const file = is_stdin?0:std::fopen(filename,"rb");
-        cimg_long siz = 0;
+        longT siz = 0;
         if (file) {
           std::fseek(file,0,SEEK_END);
           siz = std::ftell(file);
@@ -13426,9 +13429,9 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
                       else gmic_load_raw(unsigned int,"uint")
                         else gmic_load_raw(unsigned int,"unsigned int")
                           else gmic_load_raw(int,"int")
-                            else gmic_load_raw(cimg_ulong,"ulong")
-                              else gmic_load_raw(cimg_ulong,"unsigned long")
-                                else gmic_load_raw(cimg_long,"long")
+                            else gmic_load_raw(ulongT,"ulong")
+                              else gmic_load_raw(ulongT,"unsigned long")
+                                else gmic_load_raw(longT,"long")
                                   else gmic_load_raw(float,"float")
                                     else gmic_load_raw(double,"double")
                                       else error(images,0,0,
