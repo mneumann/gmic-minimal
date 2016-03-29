@@ -356,7 +356,7 @@ struct gmic {
   void *display_window;
 
   float focale3d, light3d_x, light3d_y, light3d_z, specular_lightness3d, specular_shininess3d, _progress, *progress;
-  cimg_ulong reference_time;
+  unsigned long reference_time;
   unsigned int nb_carriages, debug_filename, debug_line, cimg_exception_mode;
   int verbosity, render3d, renderd3d;
   bool is_released, is_debug, is_running, is_start, is_return, is_quit, is_double3d, is_debug_info, check_elif;
