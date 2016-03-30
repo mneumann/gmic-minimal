@@ -3298,7 +3298,7 @@ void gmic::_gmic(const char *const commands_line,
   specular_lightness3d = 0.15f;
   specular_shininess3d = 0.8f;
   starting_commands_line = commands_line;
-  reference_time = (unsigned long)cimg::time();
+  reference_time = cimg::time();
   for (unsigned int l = 0; l<512; ++l) {
     commands_names[l].assign();
     commands[l].assign();
@@ -4132,7 +4132,7 @@ CImg<char> gmic::substitute_item(const char *const source,
         const CImg<char>& name = is_braces?inbraces:substr;
         const unsigned int
           hashcode = gmic::hashcode(name,true),
-          l_name = is_braces?l_inbraces + 3:std::strlen(name) + 1;
+          l_name = is_braces?l_inbraces + 3:(unsigned int)std::strlen(name) + 1;
         const bool
           is_global = *name=='_',
           is_thread_global = is_global && name[1]=='_';
@@ -4280,7 +4280,6 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
   typedef typename cimg::superset<T,cimg_long>::type Tlong;
   typedef typename cimg::last<T,cimg_ulong>::type ulongT;
   typedef typename cimg::last<T,cimg_long>::type longT;
-
   const unsigned int initial_callstack_size = callstack.size(), initial_debug_line = debug_line;
 
   CImgList<st_gmic_parallel<T> > threads_data;
@@ -4631,7 +4630,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
           // Status with escaped backslash.
           if (!std::strcmp("-_status",item)) {
             gmic_substitute_args();
-            name.assign(2*std::strlen(argument) + 1);
+            name.assign((unsigned int)(2*std::strlen(argument) + 1));
             char *ptrd = name;
             for (const char *ptrs = argument; *ptrs; ++ptrs) {
               if (*ptrs=='\\') *(ptrd++) = '\\';
@@ -13379,7 +13378,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
 
           // Raw file.
           float dx = 0, dy = 1, dz = 1, dc = 1;
-          unsigned long offset = 0;
+          ulongT offset = 0;
           *argx = 0;
           if (!*options ||
               cimg_sscanf(options,"%f%c",&dx,&end)==1 ||
@@ -13914,6 +13913,9 @@ int _CRT_glob = 0; // Disable globbing for msys.
 #endif
 
 int main(int argc, char **argv) {
+
+	std::fprintf(stderr,"\nDEBUG : sizeof(cimg_long) = %u, sizeof(void*) = %u\n",(unsigned int)sizeof(cimg_long),(unsigned int)sizeof(void*));
+	getchar();
 
   // Set default output messages stream.
   const char *const is_debug = cimg_option("-debug",(char*)0,0);
