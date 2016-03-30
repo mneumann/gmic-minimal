@@ -13914,9 +13914,6 @@ int _CRT_glob = 0; // Disable globbing for msys.
 
 int main(int argc, char **argv) {
 
-	std::fprintf(stderr,"\nDEBUG : sizeof(cimg_long) = %u, sizeof(void*) = %u\n",(unsigned int)sizeof(cimg_long),(unsigned int)sizeof(void*));
-	getchar();
-
   // Set default output messages stream.
   const char *const is_debug = cimg_option("-debug",(char*)0,0);
   cimg::output(is_debug?stdout:stderr);
