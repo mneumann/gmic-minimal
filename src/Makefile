@@ -124,7 +124,7 @@ MANDATORY_CFLAGS += -std=c++11
 endif
 MANDATORY_LIBS += -L$(USR)/$(LIB)
 ifeq ($(notdir $(CXX)),g++)
-MANDATORY_CFLAGS += -Wall -W
+MANDATORY_CFLAGS += -Wall -Wextra
 MANDATORY_LIBS += -lm
 endif
 ifeq ($(OS),Unix)
