@@ -1179,8 +1179,9 @@ CImgList<char> update_filters(const bool try_net_update, const bool is_silent=fa
   CImgList<gmic_pixel_type> _sources;
   CImgList<char> _names;
   CImg<char> command(1024);
-  cimg_snprintf(command,command.width(),"%s-gimp_filter_sources",
-                get_verbosity_mode()>5?"-debug ":get_verbosity_mode()>3?"":"-v -99 ");
+  cimg_snprintf(command,command.width(),"%s-gimp_filter_sources %d",
+                get_verbosity_mode()>5?"-debug ":get_verbosity_mode()>3?"":"-v -99 ",
+                try_net_update?1:0);
   try { gmic(command,_sources,_names,gmic_additional_commands,true); } catch (...) { }
   CImgList<char> sources;
   _sources.move_to(sources);
