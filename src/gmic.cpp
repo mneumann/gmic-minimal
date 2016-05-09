@@ -1937,12 +1937,13 @@ inline bool _gmic_image_arg(const unsigned int ind, const CImg<unsigned int>& se
 // Macro to manage argument substitutions from a command.
 template<typename T>
 void gmic::_gmic_substitute_args(const char *const argument, const char *const argument0,
-                                 const char *const command, const CImgList<T>& images) {
+                                 const char *const command, const char *const item,
+                                 const CImgList<T>& images) {
   if (is_debug) {
     if (std::strcmp(argument,argument0)) debug(images,"Command '%s': arguments = '%s' -> '%s'.",
-                                               command,argument0,argument); \
+                                               *command?command:item,argument0,argument); \
     else debug(images,"Command '%s': arguments = '%s'.",
-               command,argument0);
+               *command?command:item,argument0);
   }
 }
 
@@ -1950,7 +1951,7 @@ void gmic::_gmic_substitute_args(const char *const argument, const char *const a
   const char *const argument0 = argument; \
   substitute_item(argument,images,images_names,parent_images,parent_images_names,variables_sizes,\
                   command_selection).move_to(_argument); \
-  _gmic_substitute_args(argument = _argument,argument0,command,images); \
+  _gmic_substitute_args(argument = _argument,argument0,command,item,images); \
 }
 
 // Macro for computing a readable version of a command argument.
