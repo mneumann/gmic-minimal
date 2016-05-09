@@ -3859,24 +3859,24 @@ CImg<char> gmic::substitute_item(const char *const source,
           *substr = 0; is_substituted = true;
         }
 
-        // String comparison.
+        // Operators for string comparison.
         if (!is_substituted && inbraces.width()>=5) {
-          char *const peq = std::strstr(inbraces,"'=='");
-          if (peq) {
-            *peq = 0;
+          char *peq = std::strstr(inbraces,"'="), *peq2 = 0;
+          unsigned int nb_chars = ~0U;
+          if (!peq) peq = std::strstr(inbraces,"'!");
+          if (peq && (peq[2]=='=' || peq[2]=='~') &&
+              (peq[3]=='\'' || (peq[3]>='0' && peq[3]<='9' &&
+                                std::sscanf(peq + 3,"%u%c",&nb_chars,&sep)==2 && sep=='\''))) {
+            // Operators '==', '=~', '!=' and '!~'
+            *peq = 0; peq2 = peq + 4;
+            if (nb_chars!=~0U) while (*(peq2++)!='\'') {}
             cimg::strunescape(inbraces.data());
-            cimg::strunescape(peq + 4);
-            cimg_snprintf(substr,substr.width(),"%d",(int)!std::strcmp(inbraces,peq + 4));
+            cimg::strunescape(peq2);
+            ind = (int)(nb_chars==~0U?
+                        (peq[2]=='~'?cimg::strcasecmp(inbraces,peq2):std::strcmp(inbraces,peq2)):
+                        (peq[2]=='~'?cimg::strncasecmp(inbraces,peq2,nb_chars):std::strncmp(inbraces,peq2,nb_chars)));
+            cimg_snprintf(substr,substr.width(),"%d",peq[1]=='!'?ind:!ind);
             is_substituted = true;
-          } else {
-            char *const pne = std::strstr(inbraces,"'!='");
-            if (pne) {
-              *pne = 0;
-              cimg::strunescape(inbraces.data());
-              cimg::strunescape(pne + 4);
-              cimg_snprintf(substr,substr.width(),"%d",(int)std::strcmp(inbraces,pne + 4));
-              is_substituted = true;
-            }
           }
         }
 
