@@ -4043,21 +4043,35 @@ CImg<char> gmic::substitute_item(const char *const source,
           }
 
           if (!is_substituted) { // Other mathematical expression.
+            const bool is_string = l_inbraces>=2 && *feature=='`' && inbraces[l_inbraces - 1]=='`';
+            if (is_string) { ++feature; inbraces[l_inbraces - 1] = 0; }
             const bool is_rounded = *feature=='_';
             if (is_rounded) ++feature;
             try {
               CImg<double> output;
               img.eval(output,feature,0,0,0,0,&images,&images);
               if (output._height>1) { // Vector-valued result
-                CImg<char> vs = output.value_string(',',0,is_rounded?"%g":"%.16g");
-                if (vs && *vs) { --vs._width; vs.append_string_to(substituted_items); }
+                CImg<char> vs;
+                if (is_string) {
+                  vs.assign(output._height + 1,1,1,1).fill(output).back() = 0;
+                  CImg<char>::string(vs,false).move_to(substituted_items);
+                } else {
+                  vs = output.value_string(',',0,is_rounded?"%g":"%.16g").move_to(vs);
+                  if (vs && *vs) { --vs._width; vs.append_string_to(substituted_items); }
+                }
               } else { // Scalar result
-                if (is_rounded) cimg_snprintf(substr,substr.width(),"%g",*output);
-                else cimg_snprintf(substr,substr.width(),"%.16g",*output);
+                if (is_string) {
+                  *substr = (char)*output;
+                  substr[1] = 0;
+                } else {
+                  if (is_rounded) cimg_snprintf(substr,substr.width(),"%g",*output);
+                  else cimg_snprintf(substr,substr.width(),"%.16g",*output);
+                }
                 is_substituted = true;
               }
             } catch (CImgException& e) {
               const char *const e_ptr = std::strstr(e.what(),": ");
+              if (is_string) inbraces[l_inbraces - 1] = '`';
               error(images,0,0,
                     "Item substitution '{%s}': %s",
                     cimg::strellipsize(inbraces,64,false),e_ptr?e_ptr + 2:e.what());
