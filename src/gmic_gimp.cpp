@@ -311,7 +311,7 @@ void set_locale() {
   if (!s_locale || std::strlen(s_locale)<2) s_locale = "en";
   cimg_sscanf(s_locale,"%c%c",&(locale[0]),&(locale[1]));
   locale[2] = 0;
-  cimg::uncase(locale);
+  cimg::lowercase(locale);
   gimp_set_data("gmic_locale",locale,std::strlen(locale) + 1);
 }
 
@@ -1419,7 +1419,7 @@ CImgList<char> update_filters(const bool try_net_update, const bool is_silent=fa
               unsigned int order = 0;
               for (unsigned int i = 0; i<4; ++i) {
                 order<<=8;
-                if (*_nentry) order|=(unsigned char)cimg::uncase(*(_nentry++));
+                if (*_nentry) order|=(unsigned char)cimg::lowercase(*(_nentry++));
               }
             }
           }
@@ -1463,7 +1463,7 @@ CImgList<char> update_filters(const bool try_net_update, const bool is_silent=fa
             gtk_label_set_markup(GTK_LABEL(markup2ascii),nentry);
             const char *_nentry = gtk_label_get_text(GTK_LABEL(markup2ascii));
             unsigned int order = 0;
-            for (unsigned int i = 0; i<3; ++i) { order<<=8; if (*_nentry) order|=cimg::uncase(*(_nentry++)); }
+            for (unsigned int i = 0; i<3; ++i) { order<<=8; if (*_nentry) order|=cimg::lowercase(*(_nentry++)); }
           }
           if (!is_testing) ++nb_available_filters;  // Count only non-testing filters.
         }
@@ -3774,7 +3774,7 @@ void create_parameters_gui(const bool reset_params) {
             gtk_misc_set_alignment(GTK_MISC(label),0,0.5);
             GtkWidget *const
               file_chooser = gtk_file_chooser_button_new(argument_name,
-                                                         cimg::uncase(argument_type[1])=='i'?
+                                                         cimg::lowercase(argument_type[1])=='i'?
                                                          GTK_FILE_CHOOSER_ACTION_OPEN:
                                                          GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER);
             gtk_widget_show(file_chooser);

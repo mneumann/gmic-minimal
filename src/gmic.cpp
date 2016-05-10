@@ -3839,26 +3839,6 @@ CImg<char> gmic::substitute_item(const char *const source,
           *substr = 0; is_substituted = true;
         }
 
-        // Sequence of ascii codes.
-        if (!is_substituted && inbraces.width()>=3 && *inbraces=='`' &&
-            inbraces[inbraces.width() - 2]=='`') {
-          if (inbraces.width()>3) {
-            unsigned int nb_values = 1;
-            cimg_for(inbraces,p,char) if (*p==',') ++nb_values;
-            inbraces[inbraces.width() - 2] = 0;
-            try {
-              CImg<char>(nb_values,1,1,1).fill(inbraces.data() + 1,false,false).append_string_to(substituted_items);
-              is_substituted = true;
-            } catch (CImgException &e) {
-              const char *const e_ptr = std::strstr(e.what(),": ");
-              error(images,0,0,
-                    "Item substitution '{`%s`}': %s",
-                    cimg::strellipsize(inbraces.data() + 1,64,false),e_ptr?e_ptr + 2:e.what());
-            }
-          }
-          *substr = 0; is_substituted = true;
-        }
-
         // Operators for string comparison.
         if (!is_substituted && inbraces.width()>=5)
           for (char *peq = inbraces; *peq; ++peq) {
@@ -8591,7 +8571,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
               *const filename = *cext?filename_tmp:_filename,
               *const ext = cimg::split_filename(filename);
             CImg<char> uext = CImg<char>::string(ext);
-            cimg::uncase(uext);
+            cimg::lowercase(uext);
 
             if (!cimg::strcasecmp(ext,"off")) {
               *formula = 0;
