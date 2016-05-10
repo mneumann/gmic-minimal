@@ -159,11 +159,7 @@ static struct cimg_is_abort {
   bool value, *ptr;
   cimg_is_abort():value(false),ptr(&value) {}
 } _cimg_is_abort;
-#ifdef cimg_use_openmp
-#define cimg_test_abort() if (*_cimg_is_abort.ptr && !omp_get_thread_num()) throw CImgAbortException();
-#else
-#define cimg_test_abort() if (*_cimg_is_abort.ptr) throw CImgAbortException()
-#endif // #ifdef cimg_use_openmp
+#define cimg_abort_test() if (*_cimg_is_abort.ptr) throw CImgAbortException()
 #endif // #ifdef cimg_use_abort
 #ifndef cimg_display
 #define cimg_display 0
