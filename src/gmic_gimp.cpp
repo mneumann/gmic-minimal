@@ -1385,7 +1385,8 @@ CImgList<char> update_filters(const bool try_net_update, const bool is_silent=fa
         cimg::strpare(entry,' ',false,true);
         char *nentry = entry; while (*nentry=='_') { ++nentry; --level; }
         if (level<0) level = 0; else if (level>7) level = 7;
-        cimg::strpare(nentry,' ',false,true); cimg::strpare(nentry,'\"',true);
+        cimg::strpare(nentry,' ',false,true);
+        cimg::strpare(nentry,'\"',true,false);
         if (*nentry) {
           if (level) {
             gtk_tree_store_append(tree_view_store,&parent[level],level?&parent[level - 1]:0);
@@ -1428,7 +1429,8 @@ CImgList<char> update_filters(const bool try_net_update, const bool is_silent=fa
         cimg::strpare(entry,' ',false,true);
         char *nentry = entry; while (*nentry=='_') { ++nentry; --level; }
         if (level<0) level = 0; else if (level>7) level = 7;
-        cimg::strpare(nentry,' ',false,true); cimg::strpare(nentry,'\"',true);
+        cimg::strpare(nentry,' ',false,true);
+        cimg::strpare(nentry,'\"',true,false);
         cimg::strpare(command,' ',false,true);
         cimg::strpare(arguments,' ',false,true);
         if (*nentry) {
@@ -2225,7 +2227,7 @@ void on_file_parameter_changed(GtkFileChooser *const file_chooser, const void *c
     *const _s_value = gtk_file_chooser_get_filename(file_chooser),
     *const s_value = _s_value?_s_value:"";
   CImg<char> o_value = get_filter_parameter(get_current_filter(),*(int*)event_infos);
-  cimg::strpare(o_value,'\"',true);
+  cimg::strpare(o_value,'\"',true,false);
   const bool
     is_same_file = !std::strcmp(gmic::basename(s_value),gmic::basename(o_value)),
     is_silent_argument = (bool)*((void**)event_infos + 1);
@@ -3499,7 +3501,7 @@ void create_parameters_gui(const bool reset_params) {
           argument += std::strlen(argument_name) + std::strlen(_argument_type) + std::strlen(argument_arg) + 3;
           if (*argument) ++argument;
           cimg::strpare(argument_name,' ',false,true);
-          cimg::strpare(argument_name,'\"',true);
+          cimg::strpare(argument_name,'\"',true,false);
           cimg::strunescape(argument_name);
           gtk_label_set_markup(GTK_LABEL(markup2ascii),argument_name);
           cimg_snprintf(argument_name,argument_name.width(),"%s",gtk_label_get_text(GTK_LABEL(markup2ascii)));
@@ -3565,7 +3567,8 @@ void create_parameters_gui(const bool reset_params) {
 
           // Check for a bool-valued argument.
           if (!found_valid_argument && !cimg::strcasecmp(argument_type,"bool")) {
-            cimg::strpare(argument_arg,' ',false,true); cimg::strpare(argument_arg,'\"',true);
+            cimg::strpare(argument_arg,' ',false,true);
+            cimg::strpare(argument_arg,'\"',true,false);
             bool
               value = !(!*argument_arg || !cimg::strcasecmp(argument_arg,"false") ||
                         (argument_arg[0]=='0' && argument_arg[1]==0));
@@ -3632,7 +3635,8 @@ void create_parameters_gui(const bool reset_params) {
             while (*entries) {
               if ((err = cimg_sscanf(entries,"%1023[^,]%c",s_entry.data(),&end))>0) {
                 entries += std::strlen(s_entry) + (err==2?1:0);
-                cimg::strpare(s_entry,' ',false,true); cimg::strpare(s_entry,'\"',true);
+                cimg::strpare(s_entry,' ',false,true);
+                cimg::strpare(s_entry,'\"',true,false);
                 cimg::strunescape(s_entry);
                 gtk_label_set_markup(GTK_LABEL(markup2ascii),s_entry);
                 cimg_snprintf(s_entry,s_entry.width(),"%s",gtk_label_get_text(GTK_LABEL(markup2ascii)));
@@ -3699,7 +3703,7 @@ void create_parameters_gui(const bool reset_params) {
               if (!reset_params && *argument_value) value = argument_value;
               else if (!is_fave) cimg::strunescape(value);
               cimg::strpare(value,' ',false,true);
-              cimg::strpare(value,'\"',true);
+              cimg::strpare(value,'\"',true,false);
               gtk_label_set_markup(GTK_LABEL(markup2ascii),value);
               cimg_snprintf(argument_arg,argument_arg.width(),"%s",gtk_label_get_text(GTK_LABEL(markup2ascii)));
               for (char *p = argument_arg; *p; ++p) if (*p==gmic_dquote) *p='\"';
@@ -3732,7 +3736,7 @@ void create_parameters_gui(const bool reset_params) {
               if (!reset_params && *argument_value) value = argument_value;
               else if (!is_fave) cimg::strunescape(value);
               cimg::strpare(value,' ',false,true);
-              cimg::strpare(value,'\"',true);
+              cimg::strpare(value,'\"',true,false);
               gtk_label_set_markup(GTK_LABEL(markup2ascii),value);
               cimg_snprintf(argument_arg,argument_arg.width(),"%s",gtk_label_get_text(GTK_LABEL(markup2ascii)));
 
@@ -3779,7 +3783,7 @@ void create_parameters_gui(const bool reset_params) {
             if (is_fave) value = argument_fave;
             if (!reset_params && *argument_value) value = argument_value;
             cimg::strpare(value,' ',false,true);
-            cimg::strpare(value,'\"',true);
+            cimg::strpare(value,'\"',true,false);
             gtk_label_set_markup(GTK_LABEL(markup2ascii),value);
             cimg_snprintf(argument_arg,argument_arg.width(),"%s",gtk_label_get_text(GTK_LABEL(markup2ascii)));
             gtk_file_chooser_set_filename(GTK_FILE_CHOOSER(file_chooser),value);
@@ -3851,7 +3855,7 @@ void create_parameters_gui(const bool reset_params) {
           // Check for a note.
           if (!found_valid_argument && !cimg::strcasecmp(argument_type,"note")) {
             cimg::strpare(argument_arg,' ',false,true);
-            cimg::strpare(argument_arg,'\"',true);
+            cimg::strpare(argument_arg,'\"',true,false);
             cimg::strunescape(argument_arg);
             GtkWidget *const label = gtk_label_new(NULL);
             gtk_label_set_markup(GTK_LABEL(label),argument_arg);
@@ -3873,11 +3877,13 @@ void create_parameters_gui(const bool reset_params) {
             case 0 : if (cimg_sscanf(argument_arg,"%1023[^,],%1023s",label.data(),url.data())==1)
                 std::strcpy(url,label); break;
             }
-            cimg::strpare(label,' ',false,true); cimg::strpare(label,'\"',true);
+            cimg::strpare(label,' ',false,true);
+            cimg::strpare(label,'\"',true,false);
             cimg::strunescape(label);
             gtk_label_set_markup(GTK_LABEL(markup2ascii),label);
             cimg_snprintf(label,label.width(),"%s",gtk_label_get_text(GTK_LABEL(markup2ascii)));
-            cimg::strpare(url,' ',false,true); cimg::strpare(url,'\"',true);
+            cimg::strpare(url,' ',false,true);
+            cimg::strpare(url,'\"',true,false);
             GtkWidget *const link = gtk_link_button_new_with_label(url,label);
             gtk_widget_show(link);
             gtk_button_set_alignment(GTK_BUTTON(link),alignment,0.5);
