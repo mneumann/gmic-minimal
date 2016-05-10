@@ -4023,10 +4023,11 @@ CImg<char> gmic::substitute_item(const char *const source,
           }
 
           if (!is_substituted) { // Other mathematical expression.
-            const bool is_string = l_inbraces>=2 && *feature=='`' && inbraces[l_inbraces - 1]=='`';
-            if (is_string) { ++feature; inbraces[l_inbraces - 1] = 0; }
+            const bool is_string = inbraces._width>=3 && *feature=='`' && inbraces[inbraces._width - 2]=='`';
+            if (is_string) { ++feature; inbraces[inbraces._width - 2] = 0; }
             const bool is_rounded = *feature=='_';
             if (is_rounded) ++feature;
+
             try {
               CImg<double> output;
               img.eval(output,feature,0,0,0,0,&images,&images);
@@ -4034,9 +4035,9 @@ CImg<char> gmic::substitute_item(const char *const source,
                 CImg<char> vs;
                 if (is_string) {
                   vs.assign(output._height + 1,1,1,1).fill(output).back() = 0;
-                  CImg<char>::string(vs,false).move_to(substituted_items);
+                  CImg<char>::string(vs,false).append_string_to(substituted_items);
                 } else {
-                  vs = output.value_string(',',0,is_rounded?"%g":"%.16g").move_to(vs);
+                  output.value_string(',',0,is_rounded?"%g":"%.16g").move_to(vs);
                   if (vs && *vs) { --vs._width; vs.append_string_to(substituted_items); }
                 }
               } else { // Scalar result
@@ -4051,7 +4052,7 @@ CImg<char> gmic::substitute_item(const char *const source,
               }
             } catch (CImgException& e) {
               const char *const e_ptr = std::strstr(e.what(),": ");
-              if (is_string) inbraces[l_inbraces - 1] = '`';
+              if (is_string) inbraces[inbraces._width - 2] = '`';
               error(images,0,0,
                     "Item substitution '{%s}': %s",
                     cimg::strellipsize(inbraces,64,false),e_ptr?e_ptr + 2:e.what());
