@@ -11911,6 +11911,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
             }
             if (dimh==0) dimw = 0;
             strreplace_fw(title);
+            cimg::strunescape(title);
 
 #if cimg_display==0
             print(images,0,
