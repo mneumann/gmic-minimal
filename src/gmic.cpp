@@ -4023,7 +4023,7 @@ CImg<char> gmic::substitute_item(const char *const source,
           }
 
           if (!is_substituted) { // Other mathematical expression.
-            const bool is_string = inbraces._width>=3 && *feature=='`' && inbraces[inbraces._width - 2]=='`';
+            const bool is_string = l_feature>=3 && *feature=='`' && inbraces[inbraces._width - 2]=='`';
             if (is_string) { ++feature; inbraces[inbraces._width - 2] = 0; }
             const bool is_rounded = *feature=='_';
             if (is_rounded) ++feature;
