@@ -2246,6 +2246,26 @@ char *gmic::strreplace_bw(char *const str) {
   return str;
 }
 
+//! Escape a string.
+// 'res' must be a C-string large enough ('4*strlen(str)+1' is always safe).
+void gmic::strescape(const char *const str, char *const res) {
+  char *ptrd = res;
+  for (const char *ptrs = str; *ptrs; ++ptrs) {
+    const char c = *ptrs;
+    if (c=='\\' || c=='\'' || c=='\"') { *(ptrd++) = '\\'; *(ptrd++) = c; }
+    else if (c>=32 && c<=126) *(ptrd++) = c;
+    else {
+      *(ptrd++) = '\\';
+      *(ptrd++) = 'x';
+      char d = c>>4;
+      *(ptrd++) = d + (d<10?'0':'a'-10);
+      d = c&15;
+      *(ptrd++) = d + (d<10?'0':'a'-10);
+    }
+  }
+  *ptrd = 0;
+}
+
 // Constructors / destructors.
 //----------------------------
 #if cimg_display!=0
@@ -3824,22 +3844,6 @@ CImg<char> gmic::substitute_item(const char *const source,
 #endif // #if cimg_display==0
         }
 
-/*
-        // Sequence of ascii characters.
-        if (!is_substituted && inbraces.width()>=3 && *inbraces=='\'' &&
-            inbraces[inbraces.width() - 2]=='\'') {
-          const char *s = inbraces.data() + 1;
-          if (inbraces.width()>3) {
-            inbraces[inbraces.width() - 2] = 0;
-            for (*substr = 0, cimg::strunescape(inbraces); *s; ++s) {
-              cimg_snprintf(substr,substr.width(),"%d,",(int)(unsigned char)*s);
-              CImg<char>(substr.data(),(unsigned int)std::strlen(substr)).append_string_to(substituted_items);
-            }
-            if (*substr) --(substituted_items._width);
-          }
-          *substr = 0; is_substituted = true;
-        }
-*/
         // Operators for string comparison.
         if (!is_substituted && inbraces.width()>=5)
           for (char *peq = inbraces; *peq; ++peq) {
@@ -4032,24 +4036,21 @@ CImg<char> gmic::substitute_item(const char *const source,
             try {
               CImg<double> output;
               img.eval(output,feature,0,0,0,0,&images,&images);
-              if (output._height>1) { // Vector-valued result
-                CImg<char> vs;
-                if (is_string) {
-                  vs.assign(output._height + 1,1,1,1).fill(output).back() = 0;
-                  CImg<char>::string(vs,false).append_string_to(substituted_items);
-                } else {
+              CImg<char> vs, vse;
+              if (is_string) {
+                vs.assign(output._height + 1,1,1,1).fill(output).back() = 0;
+                vse.assign(4*output._height + 1,1,1,1);
+                strescape(vs,vse);
+                CImg<char>::string(vse,false).append_string_to(substituted_items);
+              } else {
+                if (output._height>1) { // Vector-valued result
                   output.value_string(',',0,is_rounded?"%g":"%.16g").move_to(vs);
                   if (vs && *vs) { --vs._width; vs.append_string_to(substituted_items); }
-                }
-              } else { // Scalar result
-                if (is_string) {
-                  *substr = (char)*output;
-                  substr[1] = 0;
-                } else {
+                } else { // Scalar result
                   if (is_rounded) cimg_snprintf(substr,substr.width(),"%g",*output);
                   else cimg_snprintf(substr,substr.width(),"%.16g",*output);
+                  is_substituted = true;
                 }
-                is_substituted = true;
               }
             } catch (CImgException& e) {
               const char *const e_ptr = std::strstr(e.what(),": ");
@@ -4628,19 +4629,14 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
         //----------------------------
         if (command1=='_') {
 
-          // Status with escaped backslash.
+          // Status with escaped characters.
           if (!std::strcmp("-_status",item)) {
             gmic_substitute_args();
-            name.assign((unsigned int)(2*std::strlen(argument) + 1));
-            char *ptrd = name;
-            for (const char *ptrs = argument; *ptrs; ++ptrs) {
-              if (*ptrs=='\\') *(ptrd++) = '\\';
-              *(ptrd++) = *ptrs;
-            }
-            *ptrd = 0;
+            name.assign((unsigned int)(4*std::strlen(argument) + 1));
+            strescape(argument,name);
             CImg<char>::string(name).move_to(status);
             _gmic_argument_text(status,name,is_verbose);
-            print(images,0,"Set status to string '%s' (escaped backslash).",name._data);
+            print(images,0,"Set status to string '%s' (escaped).",name._data);
             ++position; continue;
           }
 
