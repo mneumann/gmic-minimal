@@ -3824,6 +3824,7 @@ CImg<char> gmic::substitute_item(const char *const source,
 #endif // #if cimg_display==0
         }
 
+/*
         // Sequence of ascii characters.
         if (!is_substituted && inbraces.width()>=3 && *inbraces=='\'' &&
             inbraces[inbraces.width() - 2]=='\'') {
@@ -3838,7 +3839,7 @@ CImg<char> gmic::substitute_item(const char *const source,
           }
           *substr = 0; is_substituted = true;
         }
-
+*/
         // Operators for string comparison.
         if (!is_substituted && inbraces.width()>=5)
           for (char *peq = inbraces; *peq; ++peq) {
