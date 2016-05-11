@@ -3981,9 +3981,9 @@ CImg<char> gmic::substitute_item(const char *const source,
             }
 
           const unsigned int l_feature = (unsigned int)std::strlen(feature);
-          if (!is_substituted && *feature=='[' && feature[l_feature - 1]==']') { // Subset of values.
+          if (!is_substituted && *feature=='@') { // Subset of values.
             if (l_feature>=2) {
-              CImg<char> subset(feature + 1,l_feature - 1);
+              CImg<char> subset(feature + 1,l_feature);
               subset.back() = 0;
               CImg<T> values;
               ++feature;
