@@ -4027,6 +4027,10 @@ CImg<char> gmic::substitute_item(const char *const source,
             *substr = 0; is_substituted = true;
           }
 
+          if (!is_substituted && l_feature==2 && *feature=='\'' && feature[1]=='\'') { // Empty string.
+            *substr = 0; is_substituted = true;
+          }
+
           if (!is_substituted) { // Other mathematical expression.
             const bool is_string = l_feature>=3 && *feature=='`' && inbraces[inbraces._width - 2]=='`';
             if (is_string) { ++feature; inbraces[inbraces._width - 2] = 0; }
