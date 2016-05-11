@@ -2254,14 +2254,14 @@ void gmic::strescape(const char *const str, char *const res) {
     const char c = *ptrs;
     if (c=='\\' || c=='\'' || c=='\"') { *(ptrd++) = '\\'; *(ptrd++) = c; }
     else if (c>=32 && c<=126) *(ptrd++) = c;
-    else {
+    else if (c<gmic_dollar || c>gmic_newline) {
       *(ptrd++) = '\\';
       *(ptrd++) = 'x';
       char d = c>>4;
       *(ptrd++) = d + (d<10?'0':'a'-10);
       d = c&15;
       *(ptrd++) = d + (d<10?'0':'a'-10);
-    }
+    } else *(ptrd++) = c;
   }
   *ptrd = 0;
 }
@@ -4039,8 +4039,8 @@ CImg<char> gmic::substitute_item(const char *const source,
 
             try {
               CImg<double> output;
-              img.eval(output,feature,0,0,0,0,&images,&images);
               CImg<char> vs, vse;
+              img.eval(output,feature,0,0,0,0,&images,&images);
               if (is_string) {
                 vs.assign(output._height + 1,1,1,1).fill(output).back() = 0;
                 vse.assign(4*output._height + 1,1,1,1);
