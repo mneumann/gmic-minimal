@@ -3915,18 +3915,6 @@ CImg<char> gmic::substitute_item(const char *const source,
               }
               is_substituted = true;
             } break;
-            case 'c' : // Coordinates of minimal value.
-              if (img) _ind = img.get_stats(); else _ind.assign(8,1,1,1,0);
-              cimg_snprintf(substr,substr.width(),"%u,%u,%u,%u",
-                            _ind[4],_ind[5],_ind[6],_ind[7]);
-              is_substituted = true;
-              break;
-            case 'C' : // Coordinates of maximal value.
-              if (img) _ind = img.get_stats(); else _ind.assign(12,1,1,1,0);
-              cimg_snprintf(substr,substr.width(),"%u,%u,%u,%u",
-                            _ind[8],_ind[9],_ind[10],_ind[11]);
-              is_substituted = true;
-              break;
             case 'd' : // Image depth.
               cimg_snprintf(substr,substr.width(),"%d",img.depth());
               is_substituted = true;
