@@ -3973,44 +3973,45 @@ CImg<char> gmic::substitute_item(const char *const source,
               cimg_snprintf(substr,substr.width(),"%d",img.width());
               is_substituted = true;
               break;
-            case '^' : { // Sequence of all pixel values.
-              CImg<char> vs = img.value_string(',');
-              if (vs && *vs) { --vs._width; vs.append_string_to(substituted_items); }
-              *substr = 0; is_substituted = true;
-            } break;
             }
 
           const unsigned int l_feature = (unsigned int)std::strlen(feature);
           if (!is_substituted && *feature=='@') { // Subset of values.
             if (l_feature>=2) {
-              CImg<char> subset(feature + 1,l_feature);
-              subset.back() = 0;
-              CImg<T> values;
-              ++feature;
-              int _verbosity = verbosity;
-              bool _is_debug = is_debug;
-              verbosity = -1; is_debug = false;
-              CImg<char> _status;
-              status.move_to(_status); // Save status because 'selection2cimg' may change it.
-              try {
-                const CImg<unsigned int>
-                  inds = selection2cimg(subset,img.size(),
-                                        CImgList<char>::empty(),"",false,false,CImg<char>::empty());
-                values.assign(1,inds.height());
-                cimg_foroff(inds,p) values[p] = img[inds(p)];
-              } catch (gmic_exception &e) {
-                const char *const e_ptr = std::strstr(e.what(),": ");
-                error(images,0,0,
-                      "Item substitution '{%s}': %s",
-                      cimg::strellipsize(inbraces,64,false),e_ptr?e_ptr + 2:e.what());
+              if (feature[1]=='^' && !feature[2]) { // All pixel values
+                CImg<char> vs = img.value_string(',');
+                if (vs && *vs) { --vs._width; vs.append_string_to(substituted_items); }
+                *substr = 0; is_substituted = true;
+              } else {
+                CImg<char> subset(feature + 1,l_feature);
+                subset.back() = 0;
+                CImg<T> values;
+                ++feature;
+                int _verbosity = verbosity;
+                bool _is_debug = is_debug;
+                verbosity = -1; is_debug = false;
+                CImg<char> _status;
+                status.move_to(_status); // Save status because 'selection2cimg' may change it.
+                try {
+                  const CImg<unsigned int>
+                    inds = selection2cimg(subset,img.size(),
+                                          CImgList<char>::empty(),"",false,false,CImg<char>::empty());
+                  values.assign(1,inds.height());
+                  cimg_foroff(inds,p) values[p] = img[inds(p)];
+                } catch (gmic_exception &e) {
+                  const char *const e_ptr = std::strstr(e.what(),": ");
+                  error(images,0,0,
+                        "Item substitution '{%s}': %s",
+                        cimg::strellipsize(inbraces,64,false),e_ptr?e_ptr + 2:e.what());
+                }
+                _status.move_to(status);
+                verbosity = _verbosity; is_debug = _is_debug;
+                cimg_foroff(values,p) {
+                  cimg_snprintf(substr,substr.width(),"%.16g",(double)values[p]);
+                  CImg<char>::string(substr).append_string_to(substituted_items).back() = ',';
+                }
+                if (values) --(substituted_items._width);
               }
-              _status.move_to(status);
-              verbosity = _verbosity; is_debug = _is_debug;
-              cimg_foroff(values,p) {
-                cimg_snprintf(substr,substr.width(),"%.16g",(double)values[p]);
-                CImg<char>::string(substr).append_string_to(substituted_items).back() = ',';
-              }
-              if (values) --(substituted_items._width);
             }
             *substr = 0; is_substituted = true;
           }
