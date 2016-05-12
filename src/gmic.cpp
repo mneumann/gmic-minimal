@@ -3866,7 +3866,7 @@ CImg<char> gmic::substitute_item(const char *const source,
           const char *s = inbraces.data() + 1;
           vse.assign(inbraces._width*4);
           strescape(s,vse);
-          vse.append_string_to(substituted_items);
+          CImg<char>::string(vse,false).append_string_to(substituted_items);
           *substr = 0; is_substituted = true;
         }
 
@@ -4057,9 +4057,7 @@ CImg<char> gmic::substitute_item(const char *const source,
               img.eval(output,feature,0,0,0,0,&images,&images);
               if (is_string) {
                 vs.assign(output._height + 1,1,1,1).fill(output).back() = 0;
-                vse.assign(4*output._height + 1,1,1,1);
-                strescape(vs,vse);
-                CImg<char>::string(vse,false).append_string_to(substituted_items);
+                CImg<char>::string(vs,false).append_string_to(substituted_items);
               } else {
                 if (output._height>1) { // Vector-valued result
                   output.value_string(',',0,is_rounded?"%g":"%.16g").move_to(vs);
