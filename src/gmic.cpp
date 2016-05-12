@@ -4592,10 +4592,6 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
           else if (command1=='/' && command2=='/') std::strcpy(command,"-mdiv");
           else if (command1=='*' && command2=='*') std::strcpy(command,"-mmul");
           else if (command1=='!' && command2=='=') std::strcpy(command,"-neq");
-          else if (command1=='_' && command2=='u' && !is_double_hyphen && !is_restriction) {
-            CImg<char>::string("-_status").move_to(_item);
-            *command = 0;
-          }
 
         } else if (!command4 && command2=='3' && command3=='d') switch (command1) {
             // Three-chars shortcuts (ending with '3d').
@@ -4641,24 +4637,6 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
           error(images,0,0,
                 "Item '%s %s': Unknow name '%s'.",
                 initial_item,initial_argument,new_name.data());
-
-        //----------------------------
-        // Commands starting by '-_..'
-        //----------------------------
-        if (command1=='_') {
-
-          // Status with escaped characters.
-          if (!std::strcmp("-_status",item)) {
-            gmic_substitute_args();
-            name.assign((unsigned int)(4*std::strlen(argument) + 1));
-            strescape(argument,name);
-            CImg<char>::string(name).move_to(status);
-            _gmic_argument_text(status,name,is_verbose);
-            print(images,0,"Set status to string '%s' (escaped).",name._data);
-            ++position; continue;
-          }
-
-        }
 
         //----------------------------
         // Commands starting by '-a..'
@@ -13653,7 +13631,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
 
                   static const char *native_command_names[] = {
                     "a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s",
-                    "t","u","_u","v","w","x","y","z",
+                    "t","u","v","w","x","y","z",
                     "+","-","*","/","\\\\",">","<","%","^","=","sh","mv","rm","rv","<<",">>","==",">=",
                     "<=","//","**","!=","&","|",
                     "d3d","+3d","/3d","f3d","j3d","l3d","m3d","*3d","o3d","p3d","r3d","s3d","-3d",
@@ -13685,7 +13663,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
                     "remove","repeat","resize","reverse","return","rows","rotate",
                     "round","rand","rotate3d","rgb2hsi","rgb2hsl","rgb2hsv","rgb2lab",
                     "rgb2srgb","rol","ror","reverse3d",
-                    "status","_status","skip","set","split","shared","shift","slices","srand","sub","sqrt",
+                    "status","skip","set","split","shared","shift","slices","srand","sub","sqrt",
                     "sqr","sign","sin","sort","solve","sub3d","sharpen","smooth","split3d",
                     "svd","sphere3d","specl3d","specs3d","sinc","sinh","srgb2rgb","streamline3d",
                     "structuretensors","select","serialize",
