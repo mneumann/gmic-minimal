@@ -2249,10 +2249,12 @@ char *gmic::strreplace_bw(char *const str) {
 //! Escape a string.
 // 'res' must be a C-string large enough ('4*strlen(str)+1' is always safe).
 void gmic::strescape(const char *const str, char *const res) {
+  const char *const esc = "abtnvfr";
   char *ptrd = res;
   for (const char *ptrs = str; *ptrs; ++ptrs) {
     const char c = *ptrs;
     if (c=='\\' || c=='\'' || c=='\"') { *(ptrd++) = '\\'; *(ptrd++) = c; }
+    else if (c>=7 && c<=13) { *(ptrd++) = '\\'; *(ptrd++) = esc[c - 7]; }
     else if (c>=32 && c<=126) *(ptrd++) = c;
     else if (c<gmic_dollar || c>gmic_newline) {
       *(ptrd++) = '\\';
@@ -3675,7 +3677,7 @@ CImg<char> gmic::substitute_item(const char *const source,
   CImgDisplay *const _display_window = (CImgDisplay*)display_window;
 #endif
   if (!source) return CImg<char>();
-  CImg<char> substituted_items, inbraces, substr(40);
+  CImg<char> substituted_items, inbraces, substr(40), vs, vse;
   CImg<unsigned int> _ind;
 
   for (const char *nsource = source; *nsource; )
@@ -3859,6 +3861,15 @@ CImg<char> gmic::substitute_item(const char *const source,
           *substr = 0; is_substituted = true;
         }
 
+        // Escaped string.
+        if (!is_substituted && inbraces.width()>=2 && *inbraces=='\\' && inbraces[1]=='\\') {
+          const char *s = inbraces.data() + 2;
+          vse.assign(inbraces._width*4);
+          strescape(s,vse);
+          vse.append_string_to(substituted_items);
+          *substr = 0; is_substituted = true;
+        }
+
         // Operators for string comparison.
         if (!is_substituted && inbraces.width()>=5)
           for (char *peq = inbraces; *peq; ++peq) {
@@ -3994,7 +4005,7 @@ CImg<char> gmic::substitute_item(const char *const source,
           if (!is_substituted && *feature=='@') { // Subset of values.
             if (l_feature>=2) {
               if (feature[1]=='^' && !feature[2]) { // All pixel values
-                CImg<char> vs = img.value_string(',');
+                img.value_string(',').move_to(vs);
                 if (vs && *vs) { --vs._width; vs.append_string_to(substituted_items); }
                 *substr = 0; is_substituted = true;
               } else {
@@ -4043,7 +4054,6 @@ CImg<char> gmic::substitute_item(const char *const source,
 
             try {
               CImg<double> output;
-              CImg<char> vs, vse;
               img.eval(output,feature,0,0,0,0,&images,&images);
               if (is_string) {
                 vs.assign(output._height + 1,1,1,1).fill(output).back() = 0;
