@@ -3677,7 +3677,7 @@ CImg<char> gmic::substitute_item(const char *const source,
   CImgDisplay *const _display_window = (CImgDisplay*)display_window;
 #endif
   if (!source) return CImg<char>();
-  CImg<char> substituted_items, inbraces, substr(40), vs, vse;
+  CImg<char> substituted_items, inbraces, substr(40), vs;
   CImg<unsigned int> _ind;
 
   for (const char *nsource = source; *nsource; )
@@ -3864,9 +3864,9 @@ CImg<char> gmic::substitute_item(const char *const source,
         // Escaped string.
         if (!is_substituted && inbraces.width()>=1 && *inbraces=='/') {
           const char *s = inbraces.data() + 1;
-          vse.assign(inbraces._width*4);
-          strescape(s,vse);
-          CImg<char>::string(vse,false).append_string_to(substituted_items);
+          vs.assign(inbraces._width*4);
+          strescape(s,vs);
+          CImg<char>::string(vs,false).append_string_to(substituted_items);
           *substr = 0; is_substituted = true;
         }
 
