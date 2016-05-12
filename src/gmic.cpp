@@ -3871,30 +3871,6 @@ CImg<char> gmic::substitute_item(const char *const source,
           *substr = 0; is_substituted = true;
         }
 
-        // Operators for string comparison.
-        if (!is_substituted && inbraces.width()>=5)
-          for (char *peq = inbraces; *peq; ++peq) {
-            if (*peq=='\'' && (peq[1]=='=' || peq[1]=='!')) {
-              char *peq2 = 0;
-              unsigned int nb_chars = ~0U;
-              if ((peq[2]=='=' || peq[2]=='~') &&
-                  (peq[3]=='\'' || (peq[3]>='0' && peq[3]<='9' &&
-                                    std::sscanf(peq + 3,"%u%c",&nb_chars,&sep)==2 && sep=='\''))) {
-                // Operators '==', '=~', '!=' and '!~'
-                *peq = 0; peq2 = peq + 4;
-                if (nb_chars!=~0U) while (*(peq2++)!='\'') {}
-                cimg::strunescape(inbraces.data());
-                cimg::strunescape(peq2);
-                ind = (int)(nb_chars==~0U?
-                            (peq[2]=='~'?cimg::strcasecmp(inbraces,peq2):std::strcmp(inbraces,peq2)):
-                            (peq[2]=='~'?cimg::strncasecmp(inbraces,peq2,nb_chars):std::strncmp(inbraces,peq2,nb_chars)));
-                cimg_snprintf(substr,substr.width(),"%d",peq[1]=='!'?ind:!ind);
-                is_substituted = true;
-                break;
-              }
-            }
-          }
-
         // Image feature.
         if (!is_substituted) {
           const char *feature = inbraces;
