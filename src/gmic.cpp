@@ -3862,8 +3862,8 @@ CImg<char> gmic::substitute_item(const char *const source,
         }
 
         // Escaped string.
-        if (!is_substituted && inbraces.width()>=2 && *inbraces=='\\' && inbraces[1]=='\\') {
-          const char *s = inbraces.data() + 2;
+        if (!is_substituted && inbraces.width()>=1 && *inbraces=='/') {
+          const char *s = inbraces.data() + 1;
           vse.assign(inbraces._width*4);
           strescape(s,vse);
           vse.append_string_to(substituted_items);
@@ -11907,7 +11907,6 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
             }
             if (dimh==0) dimw = 0;
             strreplace_fw(title);
-            cimg::strunescape(title);
 
 #if cimg_display==0
             print(images,0,
