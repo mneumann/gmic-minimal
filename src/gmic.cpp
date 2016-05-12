@@ -3976,6 +3976,11 @@ CImg<char> gmic::substitute_item(const char *const source,
               cimg_snprintf(substr,substr.width(),"%d",img.width());
               is_substituted = true;
               break;
+            case '^' : { // Sequence of all pixel values.
+              img.value_string(',').move_to(vs);
+              if (vs && *vs) { --vs._width; vs.append_string_to(substituted_items); }
+              *substr = 0; is_substituted = true;
+            } break;
             }
 
           const unsigned int l_feature = (unsigned int)std::strlen(feature);
