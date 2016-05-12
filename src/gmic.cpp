@@ -3844,6 +3844,21 @@ CImg<char> gmic::substitute_item(const char *const source,
 #endif // #if cimg_display==0
         }
 
+        // Sequence of ascii characters.
+        if (!is_substituted && inbraces.width()>=3 && *inbraces=='\'' &&
+            inbraces[inbraces.width() - 2]=='\'') {
+          const char *s = inbraces.data() + 1;
+          if (inbraces.width()>3) {
+            inbraces[inbraces.width() - 2] = 0;
+            for (*substr = 0, cimg::strunescape(inbraces); *s; ++s) {
+              cimg_snprintf(substr,substr.width(),"%d,",(int)(unsigned char)*s);
+              CImg<char>(substr.data(),(unsigned int)std::strlen(substr)).append_string_to(substituted_items);
+            }
+            if (*substr) --(substituted_items._width);
+          }
+          *substr = 0; is_substituted = true;
+        }
+
         // Operators for string comparison.
         if (!is_substituted && inbraces.width()>=5)
           for (char *peq = inbraces; *peq; ++peq) {
