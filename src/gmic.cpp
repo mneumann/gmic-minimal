@@ -3700,7 +3700,7 @@ CImg<char> gmic::substitute_item(const char *const source,
         const char *const ptr_beg = nsource + 1, *ptr_end = ptr_beg;
         unsigned int p = 0;
         for (p = 1; p>0 && *ptr_end; ++ptr_end) { if (*ptr_end=='{') ++p; if (*ptr_end=='}') --p; }
-        if (p) { CImg<char>(nsource++,1).append_string_to(substituted_items); continue; }
+        if (p) { CImg<char>(nsource++,1,1,1,true).append_string_to(substituted_items); continue; }
         l_inbraces = (int)(ptr_end - ptr_beg - 1);
 
         if (l_inbraces>0) {
@@ -3856,7 +3856,8 @@ CImg<char> gmic::substitute_item(const char *const source,
             cimg::strunescape(inbraces);
             for (*substr = 0; *s; ++s) {
               cimg_snprintf(substr,substr.width(),"%d,",(int)(unsigned char)*s);
-              CImg<char>(substr.data(),(unsigned int)std::strlen(substr)).append_string_to(substituted_items);
+              CImg<char>(substr.data(),(unsigned int)std::strlen(substr),1,1,1,true).
+                append_string_to(substituted_items);
             }
             if (*substr) --(substituted_items._width);
           }
@@ -4017,7 +4018,7 @@ CImg<char> gmic::substitute_item(const char *const source,
                 verbosity = _verbosity; is_debug = _is_debug;
                 cimg_foroff(values,p) {
                   cimg_snprintf(substr,substr.width(),"%.16g",(double)values[p]);
-                  CImg<char>::string(substr).append_string_to(substituted_items).back() = ',';
+                  CImg<char>::string(substr,true,true).append_string_to(substituted_items).back() = ',';
                 }
                 if (values) --(substituted_items._width);
               }
@@ -4040,7 +4041,7 @@ CImg<char> gmic::substitute_item(const char *const source,
               img.eval(output,feature,0,0,0,0,&images,&images);
               if (is_string) {
                 vs.assign(output._height + 1,1,1,1).fill(output).back() = 0;
-                CImg<char>::string(vs,false).append_string_to(substituted_items);
+                CImg<char>::string(vs,false,true).append_string_to(substituted_items);
               } else {
                 if (output._height>1) { // Vector-valued result
                   output.value_string(',',0,is_rounded?"%g":"%.16g").move_to(vs);
@@ -4061,14 +4062,15 @@ CImg<char> gmic::substitute_item(const char *const source,
           }
         }
         if (is_substituted && *substr)
-          CImg<char>(substr.data(),(unsigned int)std::strlen(substr)).append_string_to(substituted_items);
+          CImg<char>(substr.data(),(unsigned int)std::strlen(substr),1,1,1,true).
+            append_string_to(substituted_items);
         continue;
 
         //  '${..}' expressions.
       } else if (nsource[1]=='{') {
         const char *const ptr_beg = nsource + 2, *ptr_end = ptr_beg; unsigned int p = 0;
         for (p = 1; p>0 && *ptr_end; ++ptr_end) { if (*ptr_end=='{') ++p; if (*ptr_end=='}') --p; }
-        if (p) { CImg<char>(nsource++,1).append_string_to(substituted_items); continue; }
+        if (p) { CImg<char>(nsource++,1,1,1,1,true).append_string_to(substituted_items); continue; }
         l_inbraces = (int)(ptr_end - ptr_beg - 1);
         if (l_inbraces>0) {
           inbraces.assign(ptr_beg,l_inbraces + 1).back() = 0;
@@ -4083,27 +4085,31 @@ CImg<char> gmic::substitute_item(const char *const source,
         if (command_selection) {
           const unsigned int substr_width = (unsigned int)substr.width();
           selection2string(*command_selection,images_names,1,substr);
-          CImg<char>(substr.data(),(unsigned int)std::strlen(substr)).append_string_to(substituted_items);
+          CImg<char>(substr.data(),(unsigned int)std::strlen(substr),1,1,1,true).
+            append_string_to(substituted_items);
           substr.assign(substr_width);
           nsource+=2;
-        } else  CImg<char>(nsource++,1).append_string_to(substituted_items);
+        } else  CImg<char>(nsource++,1,1,1,1,true).append_string_to(substituted_items);
 
         // Substitute '$!' -> Number of images in the list.
       } else if (nsource[1]=='!') {
         cimg_snprintf(substr,substr.width(),"%u",images.size());
-        CImg<char>(substr.data(),(unsigned int)std::strlen(substr)).append_string_to(substituted_items);
+        CImg<char>(substr.data(),(unsigned int)std::strlen(substr),1,1,1,true).
+          append_string_to(substituted_items);
         nsource+=2;
 
         // Substitute '$^' -> Verbosity level.
       } else if (nsource[1]=='^') {
         cimg_snprintf(substr,substr.width(),"%d",verbosity);
-        CImg<char>(substr.data(),(unsigned int)std::strlen(substr)).append_string_to(substituted_items);
+        CImg<char>(substr.data(),(unsigned int)std::strlen(substr),1,1,1,true).
+          append_string_to(substituted_items);
         nsource+=2;
 
         // Substitute '$|' -> Timer value.
       } else if (nsource[1]=='|') {
         cimg_snprintf(substr,substr.width(),"%g",(cimg::time() - reference_time)/1000.);
-        CImg<char>(substr.data(),(unsigned int)std::strlen(substr)).append_string_to(substituted_items);
+        CImg<char>(substr.data(),(unsigned int)std::strlen(substr),1,1,1,true).
+          append_string_to(substituted_items);
         nsource+=2;
 
         // Substitute '$/' -> Current call stack.
@@ -4119,7 +4125,8 @@ CImg<char> gmic::substitute_item(const char *const source,
                 nsource[1]);
         const CImg<unsigned int> &rd = repeatdones.back();
         cimg_snprintf(substr,substr.width(),"%u",nsource[1]=='>'?rd[2]:rd[1] - 1);
-        CImg<char>(substr.data(),(unsigned int)std::strlen(substr)).append_string_to(substituted_items);
+        CImg<char>(substr.data(),(unsigned int)std::strlen(substr),1,1,1,true).
+          append_string_to(substituted_items);
         nsource+=2;
 
         // Substitute '$name' and '${name}' -> Variable, image indice or environment variable.
@@ -4156,10 +4163,12 @@ CImg<char> gmic::substitute_item(const char *const source,
             }
           if (is_name_found) {
             cimg_snprintf(substr,substr.width(),"%d",ind);
-            CImg<char>(substr.data(),(unsigned int)std::strlen(substr)).append_string_to(substituted_items);
+            CImg<char>(substr.data(),(unsigned int)std::strlen(substr),1,1,1,true).
+              append_string_to(substituted_items);
           } else {
             const char *const s_env = std::getenv(name);
-            if (s_env) CImg<char>(s_env,(unsigned int)std::strlen(s_env)).append_string_to(substituted_items);
+            if (s_env) CImg<char>(s_env,(unsigned int)std::strlen(s_env),1,1,1,true).
+                         append_string_to(substituted_items);
           }
         }
         if (is_thread_global) cimg::mutex(30,0);
@@ -4185,10 +4194,11 @@ CImg<char> gmic::substitute_item(const char *const source,
           is_return = false;
         }
         if (status.width()>1)
-          CImg<char>(status.data(),(unsigned int)std::strlen(status)).append_string_to(substituted_items);
+          CImg<char>(status.data(),(unsigned int)std::strlen(status),1,1,1,true).
+            append_string_to(substituted_items);
 
         // Replace '$' by itself.
-      } else CImg<char>(nsource++,1).append_string_to(substituted_items);
+      } else CImg<char>(nsource++,1,1,1,1,true).append_string_to(substituted_items);
     }
   substituted_items.resize(substituted_items.width() + 1,1,1,1,0);
   return substituted_items;
