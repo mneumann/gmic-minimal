@@ -3686,7 +3686,8 @@ CImg<char> gmic::substitute_item(const char *const source,
       // If not starting with '{', or '$'.
       const char *const nsource0 = nsource;
       do { ++nsource; } while (*nsource && *nsource!='{' && *nsource!='$');
-      CImg<char>(nsource0,(unsigned int)(nsource - nsource0),1,1,1,true).append_string_to(substituted_items);
+      CImg<char>(nsource0,(unsigned int)(nsource - nsource0),1,1,1,true).
+        append_string_to(substituted_items);
     } else { // '{...}' or '${...}' expression found.
       bool is_braces = false, is_substituted = false;
       int ind = 0, l_inbraces = 0;
@@ -3700,7 +3701,11 @@ CImg<char> gmic::substitute_item(const char *const source,
         const char *const ptr_beg = nsource + 1, *ptr_end = ptr_beg;
         unsigned int p = 0;
         for (p = 1; p>0 && *ptr_end; ++ptr_end) { if (*ptr_end=='{') ++p; if (*ptr_end=='}') --p; }
-        if (p) { CImg<char>(nsource++,1,1,1,true).append_string_to(substituted_items); continue; }
+        if (p) {
+          CImg<char>(nsource++,1,1,1,true).
+            append_string_to(substituted_items);
+          continue;
+        }
         l_inbraces = (int)(ptr_end - ptr_beg - 1);
 
         if (l_inbraces>0) {
@@ -3869,7 +3874,8 @@ CImg<char> gmic::substitute_item(const char *const source,
           const char *s = inbraces.data() + 1;
           vs.assign(inbraces._width*4);
           const unsigned int l = strescape(s,vs);
-          CImg<char>(vs,l + 1,1,1,1,true).append_string_to(substituted_items);
+          CImg<char>(vs,l + 1,1,1,1,true).
+            append_string_to(substituted_items);
           *substr = 0; is_substituted = true;
         }
 
@@ -4018,7 +4024,8 @@ CImg<char> gmic::substitute_item(const char *const source,
                 verbosity = _verbosity; is_debug = _is_debug;
                 cimg_foroff(values,p) {
                   cimg_snprintf(substr,substr.width(),"%.16g",(double)values[p]);
-                  CImg<char>::string(substr,true,true).append_string_to(substituted_items).back() = ',';
+                  CImg<char>::string(substr,true,true).
+                    append_string_to(substituted_items).back() = ',';
                 }
                 if (values) --(substituted_items._width);
               }
@@ -4041,7 +4048,8 @@ CImg<char> gmic::substitute_item(const char *const source,
               img.eval(output,feature,0,0,0,0,&images,&images);
               if (is_string) {
                 vs.assign(output._height + 1,1,1,1).fill(output).back() = 0;
-                CImg<char>::string(vs,false,true).append_string_to(substituted_items);
+                CImg<char>::string(vs,false,true).
+                  append_string_to(substituted_items);
               } else {
                 if (output._height>1) { // Vector-valued result
                   output.value_string(',',0,is_rounded?"%g":"%.16g").move_to(vs);
@@ -4070,7 +4078,11 @@ CImg<char> gmic::substitute_item(const char *const source,
       } else if (nsource[1]=='{') {
         const char *const ptr_beg = nsource + 2, *ptr_end = ptr_beg; unsigned int p = 0;
         for (p = 1; p>0 && *ptr_end; ++ptr_end) { if (*ptr_end=='{') ++p; if (*ptr_end=='}') --p; }
-        if (p) { CImg<char>(nsource++,1,1,1,1,true).append_string_to(substituted_items); continue; }
+        if (p) {
+          CImg<char>(nsource++,1,1,1,1,true).
+            append_string_to(substituted_items);
+          continue;
+        }
         l_inbraces = (int)(ptr_end - ptr_beg - 1);
         if (l_inbraces>0) {
           inbraces.assign(ptr_beg,l_inbraces + 1).back() = 0;
@@ -4089,7 +4101,8 @@ CImg<char> gmic::substitute_item(const char *const source,
             append_string_to(substituted_items);
           substr.assign(substr_width);
           nsource+=2;
-        } else  CImg<char>(nsource++,1,1,1,1,true).append_string_to(substituted_items);
+        } else CImg<char>(nsource++,1,1,1,1,true).
+                 append_string_to(substituted_items);
 
         // Substitute '$!' -> Number of images in the list.
       } else if (nsource[1]=='!') {
@@ -4198,7 +4211,8 @@ CImg<char> gmic::substitute_item(const char *const source,
             append_string_to(substituted_items);
 
         // Replace '$' by itself.
-      } else CImg<char>(nsource++,1,1,1,1,true).append_string_to(substituted_items);
+      } else CImg<char>(nsource++,1,1,1,1,true).
+               append_string_to(substituted_items);
     }
   substituted_items.resize(substituted_items.width() + 1,1,1,1,0);
   return substituted_items;
