@@ -2248,7 +2248,7 @@ char *gmic::strreplace_bw(char *const str) {
 
 //! Escape a string.
 // 'res' must be a C-string large enough ('4*strlen(str)+1' is always safe).
-void gmic::strescape(const char *const str, char *const res) {
+unsigned int gmic::strescape(const char *const str, char *const res) {
   const char *const esc = "abtnvfr";
   char *ptrd = res;
   for (const char *ptrs = str; *ptrs; ++ptrs) {
@@ -2266,6 +2266,7 @@ void gmic::strescape(const char *const str, char *const res) {
     } else *(ptrd++) = c;
   }
   *ptrd = 0;
+  return ptrd - res;
 }
 
 // Constructors / destructors.
@@ -3866,8 +3867,8 @@ CImg<char> gmic::substitute_item(const char *const source,
         if (!is_substituted && inbraces.width()>=1 && *inbraces=='/') {
           const char *s = inbraces.data() + 1;
           vs.assign(inbraces._width*4);
-          strescape(s,vs);
-          CImg<char>::string(vs,false).append_string_to(substituted_items);
+          const unsigned int l = strescape(s,vs);
+          CImg<char>(vs,l + 1,1,1,1,true).append_string_to(substituted_items);
           *substr = 0; is_substituted = true;
         }
 

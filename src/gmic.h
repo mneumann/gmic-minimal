@@ -230,7 +230,7 @@ struct gmic {
   static const char* basename(const char *const str);
   static char *strreplace_fw(char *const str);
   static char *strreplace_bw(char *const str);
-  static void strescape(const char *const str, char *const res);
+  static unsigned int strescape(const char *const str, char *const res);
   static const gmic_image<char>& uncompress_stdlib();
 
   template<typename T>
