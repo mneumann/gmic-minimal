@@ -3868,6 +3868,24 @@ CImg<char> gmic::substitute_item(const char *const source,
 #endif // #if cimg_display==0
         }
 
+        // Double-quoted string.
+        if (!is_substituted && inbraces.width()>=3 && *inbraces=='`' && inbraces[1]=='`') {
+          strreplace_bw(inbraces.data() + 2);
+          CImg<char>(inbraces.data() + 2,inbraces.width() - 3,1,1,1,true).
+            append_string_to(substituted_items,ptrd);
+          *substr = 0; is_substituted = true;
+        }
+
+        // Escaped string.
+        if (!is_substituted && inbraces.width()>=2 && *inbraces=='/') {
+          const char *s = inbraces.data() + 1;
+          vs.assign(inbraces.width()*4);
+          const unsigned int l = strescape(s,vs);
+          CImg<char>(vs,l + 1,1,1,1,true).
+            append_string_to(substituted_items,ptrd);
+          *substr = 0; is_substituted = true;
+        }
+
         // Sequence of ascii characters.
         if (!is_substituted && inbraces.width()>=3 && *inbraces=='\'' &&
             inbraces[inbraces.width() - 2]=='\'') {
@@ -3882,16 +3900,6 @@ CImg<char> gmic::substitute_item(const char *const source,
             }
             if (*substr) --ptrd;
           }
-          *substr = 0; is_substituted = true;
-        }
-
-        // Escaped string.
-        if (!is_substituted && inbraces.width()>=1 && *inbraces=='/') {
-          const char *s = inbraces.data() + 1;
-          vs.assign(inbraces._width*4);
-          const unsigned int l = strescape(s,vs);
-          CImg<char>(vs,l + 1,1,1,1,true).
-            append_string_to(substituted_items,ptrd);
           *substr = 0; is_substituted = true;
         }
 
@@ -4055,8 +4063,8 @@ CImg<char> gmic::substitute_item(const char *const source,
           }
 
           if (!is_substituted) { // Other mathematical expression.
-            const bool is_string = l_feature>=3 && *feature=='`' && inbraces[inbraces._width - 2]=='`';
-            if (is_string) { ++feature; inbraces[inbraces._width - 2] = 0; }
+            const bool is_string = l_feature>=3 && *feature=='`' && inbraces[inbraces.width() - 2]=='`';
+            if (is_string) { ++feature; inbraces[inbraces.width() - 2] = 0; }
             const bool is_rounded = *feature=='_';
             if (is_rounded) ++feature;
 
@@ -4064,11 +4072,11 @@ CImg<char> gmic::substitute_item(const char *const source,
               CImg<double> output;
               img.eval(output,feature,0,0,0,0,&images,&images);
               if (is_string) {
-                vs.assign(output._height + 1,1,1,1).fill(output).back() = 0;
+                vs.assign(output.height() + 1,1,1,1).fill(output).back() = 0;
                 CImg<char>::string(vs,false,true).
                   append_string_to(substituted_items,ptrd);
               } else {
-                if (output._height>1) { // Vector-valued result
+                if (output.height()>1) { // Vector-valued result
                   output.value_string(',',0,is_rounded?"%g":"%.16g").move_to(vs);
                   if (vs && *vs) { --vs._width; vs.append_string_to(substituted_items,ptrd); }
                 } else { // Scalar result
@@ -4079,7 +4087,7 @@ CImg<char> gmic::substitute_item(const char *const source,
               }
             } catch (CImgException& e) {
               const char *const e_ptr = std::strstr(e.what(),": ");
-              if (is_string) inbraces[inbraces._width - 2] = '`';
+              if (is_string) inbraces[inbraces.width() - 2] = '`';
               error(images,0,0,
                     "Item substitution '{%s}': %s",
                     cimg::strellipsize(inbraces,64,false),e_ptr?e_ptr + 2:e.what());
@@ -7703,7 +7711,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
                   if (images[uind].is_shared())
                     g_list[l].assign(images[uind],false);
                   else {
-                    if ((images[uind]._width || images[uind]._height) && !images[uind]._spectrum) {
+                    if ((images[uind].width() || images[uind].height()) && !images[uind]._spectrum) {
                       selection2string(selection,images_names,1,name);
                       error(images,0,0,
                             "Command '-local': Invalid selection%s "
@@ -11944,7 +11952,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
                 const CImg<T>& img = gmic_check(images[selection[l]]);
                 if (img) {
                   g_list.insert(img,~0U,true);
-                  optw+=img._width + (img._depth>1?img._depth:0U);
+                  optw+=img._width + (img.depth()>1?img._depth:0U);
                   if (img.height()>(int)opth) opth = img._height + (img._depth>1?img._depth:0U);
                 }
               }
@@ -12806,7 +12814,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
               cimg::mutex(27);
               cimg_forY(selection,l) {
                 const unsigned int uind = selection[l];
-                if ((images[uind]._width || images[uind]._height) && !images[uind]._spectrum) {
+                if ((images[uind].width() || images[uind].height()) && !images[uind].spectrum()) {
                   selection2string(selection,images_names,1,name);
                   error(images,0,0,
                         "Command '-%s': Invalid selection%s "
@@ -12885,7 +12893,7 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
               _gmic_argument_text(s_eq + 1,name.assign(128),is_verbose);
               print(images,0,"Update %s variable %s%c%c='%s' -> %s='%s'.",
                     *title=='_'?"global":"local",
-                    title,sep0,sep0,name._data,title,new_value);
+                    title,sep0,sep0,name.data(),title,new_value);
               continue;
             } else if ((sep0=='+' || sep0=='-' || sep0=='*' || sep0=='/' ||
                         sep0=='%' || sep0=='&' || sep0=='|' || sep0=='^') && s_eq==item + pattern + 1) {
@@ -12893,14 +12901,14 @@ gmic& gmic::_run(const CImgList<char>& commands_line, unsigned int& position,
               _gmic_argument_text(s_eq + 1,name.assign(128),is_verbose);
               print(images,0,"Update %s variable %s%c='%s' -> %s='%s'.",
                     *title=='_'?"global":"local",
-                    title,sep0,name._data,title,new_value);
+                    title,sep0,name.data(),title,new_value);
               continue;
             } else if (s_eq==item + pattern) {
               set_variable(title,s_eq + 1,'=',variables_sizes);
               _gmic_argument_text(s_eq + 1,name.assign(128),is_verbose);
               print(images,0,"Set %s variable %s='%s'.",
                     *title=='_'?"global":"local",
-                    title,name._data);
+                    title,name.data());
               continue;
             }
           }
