@@ -3881,7 +3881,7 @@ CImg<char> gmic::substitute_item(const char *const source,
           const char *s = inbraces.data() + 1;
           vs.assign(inbraces.width()*4);
           const unsigned int l = strescape(s,vs);
-          CImg<char>(vs,l + 1,1,1,1,true).
+          CImg<char>(vs,l,1,1,1,true).
             append_string_to(substituted_items,ptrd);
           *substr = 0; is_substituted = true;
         }
