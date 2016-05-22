@@ -79,6 +79,11 @@ OS = Unix
 USR = /usr/local
 endif
 
+ifeq ($(OS),DragonFly)
+OS = Unix
+USR = /usr/local
+endif
+
 ifeq ($(OS),NetBSD)
 OS = Unix
 endif
